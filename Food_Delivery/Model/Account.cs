@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,108 +12,34 @@ namespace Food_Delivery.Model
     {
         public int id { get; set; }
 
-        private string _roleId { get; set; }
-        public string roleId
-        {
-            get { return _roleId; }
-            set { _roleId = value; }
-        }
+        public int roleId { get; set; }
 
-        private string _name { get; set; }
-        public string name
-        {
-            get { return _name; }
-            set { _name = value; }
-        }
+        public string name { get; set; }
 
-        private string _surname { get; set; }
-        public string surname
-        {
-            get { return _surname; }
-            set { _surname = value; }
-        }
+        public string surname { get; set; }
 
-        private string _patronymic { get; set; }
-        public string patronymic
-        {
-            get { return _patronymic; }
-            set { _patronymic = value; }
-        }
+        public string patronymic { get; set; }
 
-        private string _registrationDate { get; set; }
-        public string registrationDate
-        {
-            get { return _registrationDate; }
-            set { _registrationDate = value; }
-        }
+        public string registrationDate { get; set; } = null!;
 
-        private string _email { get; set; }
-        public string email
-        {
-            get { return _email; }
-            set { _email = value; }
-        }
+        public string email { get; set; }
 
-        private string _numberPhone { get; set; }
-        public string numberPhone
-        {
-            get { return _numberPhone; }
-            set { _numberPhone = value; }
-        }
+        public string numberPhone { get; set; }
 
-        private string _login { get; set; }
-        public string login
-        {
-            get { return _login; }
-            set { _login = value; }
-        }
+        public string login { get; set; } = null!;
 
-        private string _password { get; set; }
-        public string password
-        {
-            get { return _password; }
-            set { _password = value; }
-        }
+        public string password { get; set; } = null!;
 
-        private string _city { get; set; }
-        public string city
-        {
-            get { return _city; }
-            set
-            {
-                _city = value;
-            }
-        }
+        public string city { get; set; }
 
-        private string _street { get; set; }
-        public string street
-        {
-            get { return _street; }
-            set
-            {
-                _street = value;
-            }
-        }
+        public string street { get; set; }
 
-        private string _house { get; set; }
-        public string house
-        {
-            get { return _house; }
-            set
-            {
-                _house = value;
-            }
-        }
+        public string house { get; set; }
 
-        private string _apartment { get; set; }
-        public string apartment
-        {
-            get { return _apartment; }
-            set
-            {
-                _apartment = value;
-            }
-        }
+        public string apartment { get; set; }
+
+        // устанваливаем внешний ключ на таблицу Role
+        public virtual Role Role { get; set; } = null!;
 
     }
 }
