@@ -41,5 +41,28 @@ namespace Food_Delivery.Model
         // устанваливаем внешний ключ на таблицу Role
         public virtual Role Role { get; set; } = null!;
 
+        // связываем ShoppingCart и Account (установка внешнего ключа)
+        public virtual ICollection<ShoppingCart> ShoppingCarts { get; set; } = new List<ShoppingCart>();
+
+        public Account() { }
+
+        public Account(int id, int roleId, string name, string surname, string patronymic, string registrationDate, string email, string numberPhone, string login, string password, string city, string street, string house, string apartment, Role role)
+        {
+            this.id = id;
+            this.roleId = roleId;
+            this.name = name;
+            this.surname = surname;
+            this.patronymic = patronymic;
+            this.registrationDate = registrationDate;
+            this.email = email;
+            this.numberPhone = numberPhone;
+            this.login = login;
+            this.password = password;
+            this.city = city;
+            this.street = street;
+            this.house = house;
+            this.apartment = apartment;
+            Role = role;
+        }
     }
 }
