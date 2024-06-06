@@ -22,6 +22,9 @@ namespace Food_Delivery.Model
         // связываем CompositionCart и ShoppingCart (установка внешнего ключа)
         public virtual ICollection<CompositionCart> CompositionCarts { get; set; } = new List<CompositionCart>();
 
+        // связываем Order и ShoppingCart (установка внешнего ключа)
+        public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+
         public ShoppingCart() { }
 
         public ShoppingCart(int id, int accountId, decimal costPrice, bool isCartPaid, Account account)

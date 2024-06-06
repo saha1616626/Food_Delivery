@@ -18,13 +18,13 @@ namespace Food_Delivery.Model
 
         public int categoryId { get; set; }
 
-        public int calories { get; set; }
+        public int? calories { get; set; } = null!;
 
-        public decimal weight { get; set; }
+        public decimal? weight { get; set; } = null!;
 
-        public int quantity { get; set; }
+        public int? quantity { get; set; } = null!;
 
-        public decimal price { get; set; }
+        public decimal? price { get; set; } = null!;
 
         public Blob image { get; set; }
 

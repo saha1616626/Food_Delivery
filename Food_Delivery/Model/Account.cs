@@ -14,29 +14,29 @@ namespace Food_Delivery.Model
 
         public int roleId { get; set; }
 
-        public string name { get; set; }
+        public string? name { get; set; }
 
-        public string surname { get; set; }
+        public string? surname { get; set; }
 
-        public string patronymic { get; set; }
+        public string? patronymic { get; set; }
 
-        public string registrationDate { get; set; } = null!;
+        public DateTime? registrationDate { get; set; }
 
-        public string email { get; set; }
+        public string? email { get; set; }
 
-        public string numberPhone { get; set; }
+        public string? numberPhone { get; set; }
 
-        public string login { get; set; } = null!;
+        public string? login { get; set; } = null!;
 
-        public string password { get; set; } = null!;
+        public string? password { get; set; } = null!;
 
-        public string city { get; set; }
+        public string? city { get; set; }
 
-        public string street { get; set; }
+        public string? street { get; set; }
 
-        public string house { get; set; }
+        public string? house { get; set; }
 
-        public string apartment { get; set; }
+        public string? apartment { get; set; }
 
         // устанваливаем внешний ключ на таблицу Role
         public virtual Role Role { get; set; } = null!;
@@ -44,9 +44,12 @@ namespace Food_Delivery.Model
         // связываем ShoppingCart и Account (установка внешнего ключа)
         public virtual ICollection<ShoppingCart> ShoppingCarts { get; set; } = new List<ShoppingCart>();
 
+        // связываем Order и Account (установка внешнего ключа)
+        public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+
         public Account() { }
 
-        public Account(int id, int roleId, string name, string surname, string patronymic, string registrationDate, string email, string numberPhone, string login, string password, string city, string street, string house, string apartment, Role role)
+        public Account(int id, int roleId, string name, string surname, string patronymic, DateTime registrationDate, string email, string numberPhone, string login, string password, string city, string street, string house, string apartment, Role role)
         {
             this.id = id;
             this.roleId = roleId;
