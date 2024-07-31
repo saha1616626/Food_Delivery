@@ -10,7 +10,7 @@ namespace Food_Delivery.Model
     {
         public int id {  get; set; }
 
-        public string name { get; set; } = null!;
+        public string name { get; set; }
 
         // связываем Order и OrderStatus (установка внешнего ключа)
         public virtual ICollection<Order> Orders { get; set; } = new List<Order>();

@@ -12,7 +12,7 @@ namespace Food_Delivery.Model
 
         public int accountId { get; set; }
 
-        public decimal costPrice { get; set; }
+        public int costPrice { get; set; }
 
         public bool isCartPaid { get; set; }
 
@@ -27,7 +27,7 @@ namespace Food_Delivery.Model
 
         public ShoppingCart() { }
 
-        public ShoppingCart(int id, int accountId, decimal costPrice, bool isCartPaid, Account account)
+        public ShoppingCart(int id, int accountId, int costPrice, bool isCartPaid, Account account)
         {
             this.id = id;
             this.accountId = accountId;

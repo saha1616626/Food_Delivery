@@ -1,0 +1,59 @@
+﻿<Page x:Class="Food_Delivery.View.Authorization.AuthorizationPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Food_Delivery.View.Authorization"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      xmlns:ViewModel="clr-namespace:Food_Delivery.ViewModel"
+      mc:Ignorable="d" 
+      MinHeight="700" MinWidth="1200"
+      Title="AuthorizationPage">
+
+    <Page.Resources>
+
+        <!--связываем View и ViewModel-->
+        <ViewModel:AuthorizationViewModel x:Key="AuthorizationViewModel"/>
+
+        <!--анимация полей ввода данных-->
+
+
+    </Page.Resources>
+
+    <Grid Background="AliceBlue" DataContext="{StaticResource AuthorizationViewModel}">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+
+            <!--заголовок-->
+            <TextBlock Text="ВкусноРолл" FontSize="30" Foreground="Black" FontWeight="Bold" 
+                       HorizontalAlignment="Left" Margin="40, 60, 0, 0" VerticalAlignment="Top"/>
+
+            <!--сообщение об ошибке-->
+            <TextBlock Text="{Binding AuthorizationError, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                       x:Name="AuthorizationError" HorizontalAlignment="Right" Margin="0, 100, 150, 0" 
+                       FontWeight="DemiBold" FontSize="24"/>
+        </Grid>
+
+        <Grid Grid.Row="1" VerticalAlignment="Top">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Button x:Name="btnAuthorization" Content="Авторизация" Background="#717744" 
+                        Margin="5" Padding="5" FontSize="15" FontWeight="ExtraBlack" />
+                <Button x:Name="btnRegistration" Content="Регистрация" Background="#4E598C" 
+                        Margin="5" Padding="5" FontSize="15" FontWeight="ExtraBlack"/>
+            </StackPanel>
+            
+        </Grid>
+        
+    </Grid>
+</Page>

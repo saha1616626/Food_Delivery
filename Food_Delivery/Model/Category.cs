@@ -10,9 +10,9 @@ namespace Food_Delivery.Model
     {
         public int id { get; set; }
 
-        public string name { get; set; } = null!;
+        public string? name { get; set; }
 
-        public string description { get; set; } = null!;
+        public string? description { get; set; }
 
         // связываем Dishes и Category (установка внешнего ключа)
         public virtual ICollection<Dishes> Dishes { get; set; } = new List<Dishes>();

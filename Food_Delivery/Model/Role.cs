@@ -10,7 +10,7 @@ namespace Food_Delivery.Model
     {
         public int id { get; set; }
 
-        public string name { get; set; } = null!;
+        public string name { get; set; }
 
         // связываем Account и Role (установка внешнего ключа)
         public virtual ICollection<Account> Accounts { get; set; } = new List<Account>();

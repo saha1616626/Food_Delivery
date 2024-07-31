@@ -11,9 +11,10 @@ namespace Food_Delivery.Model
     {
         public int id {  get; set; }
 
-        public string dateTime { get; set; } = null!;
+        public DateTime? dateTime { get; set; }
 
-        public DateTime? desiredDeliveryTime { get; set; }
+        public DateTime? startDesiredDeliveryTime { get; set; }
+        public DateTime? endDesiredDeliveryTime { get; set; }
 
         public int accountId { get; set; }
 
@@ -39,11 +40,11 @@ namespace Food_Delivery.Model
 
         public string? email { get; set; }
 
-        public double? coastPrice { get; set; }
+        public int? costPrice { get; set; }
 
         public string? typePayment { get; set; }
 
-        public double? changeFromAmount { get; set; }
+        public int? prepareChangeMoney { get; set; }
 
         // устанваливаем внешний ключ на таблицу Account
         public virtual Account Account { get; set; } = null!;
@@ -57,11 +58,12 @@ namespace Food_Delivery.Model
 
         public Order() { }
 
-        public Order(int id, string dateTime, DateTime? desiredDeliveryTime, int accountId, int shoppingCartId, int orderStatusId, string? name, string? surname, string? patronymic, string? city, string? street, string? house, string? apartment, string? numberPhone, string? email, double? coastPrice, string? typePayment, double? changeFromAmount, Account account, ShoppingCart shoppingCart, OrderStatus orderStatus)
+        public Order(int id, DateTime? dateTime, DateTime? startDesiredDeliveryTime, DateTime? endDesiredDeliveryTime, int accountId, int shoppingCartId, int orderStatusId, string? name, string? surname, string? patronymic, string? city, string? street, string? house, string? apartment, string? numberPhone, string? email, int? coastPrice, string? typePayment, int? changeFromAmount, Account account, ShoppingCart shoppingCart, OrderStatus orderStatus)
         {
             this.id = id;
             this.dateTime = dateTime;
-            this.desiredDeliveryTime = desiredDeliveryTime;
+            this.startDesiredDeliveryTime = startDesiredDeliveryTime;
+            this.endDesiredDeliveryTime = endDesiredDeliveryTime;
             this.accountId = accountId;
             this.shoppingCartId = shoppingCartId;
             this.orderStatusId = orderStatusId;
@@ -74,9 +76,9 @@ namespace Food_Delivery.Model
             this.apartment = apartment;
             this.numberPhone = numberPhone;
             this.email = email;
-            this.coastPrice = coastPrice;
+            this.costPrice = coastPrice;
             this.typePayment = typePayment;
-            this.changeFromAmount = changeFromAmount;
+            this.prepareChangeMoney = changeFromAmount;
             Account = account;
             ShoppingCart = shoppingCart;
             OrderStatus = orderStatus;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Food_Delivery.Model.DPO;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
@@ -26,9 +27,9 @@ namespace Food_Delivery.Model
 
         public string? numberPhone { get; set; }
 
-        public string? login { get; set; } = null!;
+        public string? login { get; set; }
 
-        public string? password { get; set; } = null!;
+        public string? password { get; set; }
 
         public string? city { get; set; }
 
@@ -67,5 +68,65 @@ namespace Food_Delivery.Model
             this.apartment = apartment;
             Role = role;
         }
+
+        // получаем аккаунт из AccountDPO
+        public async Task<Account> CopyFromAccountDPO(AccountDPO accountDPO)
+        {
+            Account account = new Account();
+
+            account.id = accountDPO.id;
+            account.roleId = accountDPO.roleId;
+            if (accountDPO.name != null)
+            {
+                account.name = accountDPO.name;
+            }
+            if(accountDPO.surname != null)
+            {
+                account.surname = accountDPO.surname;
+            }
+            if(accountDPO.patronymic != null)
+            {
+                account.patronymic = accountDPO.patronymic;
+            }
+            if(accountDPO.registrationDate != null)
+            {
+                account.registrationDate = accountDPO.registrationDate;
+            }
+            if(accountDPO.email != null)
+            {
+                account.email = accountDPO.email;
+            }
+            if(accountDPO.numberphone  != null)
+            {
+                account.numberPhone = accountDPO.numberphone;
+            }
+            if(accountDPO.login != null)
+            {
+                account.login = accountDPO.login;
+            }
+            if(account.password != null)
+            {
+                account.password = accountDPO.password;
+            }
+            if(account.city != null)
+            {
+                account.city = accountDPO.city;
+            }
+            if(account.street != null)
+            {
+                account.street = accountDPO.street;
+            }
+            if(account.house != null)
+            {
+                account.house = accountDPO.house;
+            }
+            if(account.apartment != null)
+            {
+                account.apartment = accountDPO.apartament;
+            }
+
+            return account;
+        }
+
     }
 }

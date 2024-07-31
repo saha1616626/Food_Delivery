@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Food_Delivery"
         mc:Ignorable="d"
-        MinHeight="700" Height="700" MinWidth="1200" Width="1200">
+        MinHeight="700" Height="Auto" MinWidth="1200" Title="Доставка еды 'ВкусноРолл'">
     <Grid>
 
     </Grid>
