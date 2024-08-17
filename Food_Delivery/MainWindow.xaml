@@ -8,5 +8,7 @@
         MinHeight="700" Height="Auto" MinWidth="1200" Title="Доставка еды 'ВкусноРолл'">
     <Grid>
 
+        <Frame x:Name="mainFrame" Content="{Binding mainFrame, Mode=TwoWay}" NavigationUIVisibility="Hidden"/>
+
     </Grid>
 </Window>

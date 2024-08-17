@@ -16,7 +16,9 @@
         <ViewModel:AuthorizationViewModel x:Key="AuthorizationViewModel"/>
 
         <!--анимация полей ввода данных-->
-
+        <Storyboard x:Key="Animation">
+            
+        </Storyboard>
 
     </Page.Resources>
 
@@ -44,16 +46,34 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            
+
+            <!--авторизация или регистрация-->
             <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Button x:Name="btnAuthorization" Content="Авторизация" Background="#717744" 
-                        Margin="5" Padding="5" FontSize="15" FontWeight="ExtraBlack" />
-                <Button x:Name="btnRegistration" Content="Регистрация" Background="#4E598C" 
+                <Button x:Name="btnAuthorization" Content="Авторизация" Background="#F0CF65" 
+                        Margin="5" Padding="5" FontSize="15" FontWeight="ExtraBlack"/>
+                <Button x:Name="btnRegistration" Content="Регистрация" Background="#F0CF65" 
                         Margin="5" Padding="5" FontSize="15" FontWeight="ExtraBlack"/>
             </StackPanel>
-            
+
+            <!--пароль и логин-->
+            <StackPanel Grid.Row="1" Orientation="Vertical">
+                <TextBox Height="50" VerticalAlignment="Center" MaxLength="100" TextWrapping="Wrap" 
+                         Width="300" Margin="0,20,0,0" materialDesign:HintAssist.Hint="Логин"/>
+
+                <PasswordBox Height="50" VerticalAlignment="Center" MaxLength="100" 
+                         Width="300" Margin="0,20,0,0" materialDesign:HintAssist.Hint="Пароль"/>
+            </StackPanel>
+
+            <!--кнопки-->
+            <Button Grid.Row="2" Content="вход" Height="50" Margin="0,20,0,0" Width="300"
+                    Command="{Binding Entrance}"/>
+
         </Grid>
-        
+
+
+
+
     </Grid>
 </Page>

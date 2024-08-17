@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Food_Delivery.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,9 +21,13 @@ namespace Food_Delivery.View.Authorization
     /// </summary>
     public partial class AuthorizationPage : Page
     {
+        private readonly AuthorizationViewModel _authorizationViewModel; // связанная модель
         public AuthorizationPage()
         {
             InitializeComponent();
+            _authorizationViewModel = (AuthorizationViewModel)this.Resources["AuthorizationViewModel"]; // получаем ссылку на экземпляр привязанной модели
+
         }
+
     }
 }

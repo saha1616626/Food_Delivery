@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿using Food_Delivery.View.Administrator.Menu;
+using Food_Delivery.View.Authorization;
+using System.Net;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -16,9 +19,58 @@ namespace Food_Delivery
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        public  MainWindow()
         {
             InitializeComponent();
+
+            // запуск страницы авторизации
+            LaunchAuthorizationPageAsync();
+        }
+
+        // Dispatcher.CheckAccess() для проверки, находитесь ли вы в основном потоке,
+        private async void LaunchAuthorizationPageAsync()
+        {
+            try
+            {
+                AuthorizationPage authorizationPage = new AuthorizationPage();
+                MainMenuPage mainMenuPage = new MainMenuPage();
+                if (this.Dispatcher.CheckAccess())
+                {
+                    await Task.Run(async () =>
+                    {
+                        await Task.Delay(500); // Ждем завершения загрузки
+                        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            mainFrame.Navigate(mainMenuPage);
+                        });
+                    });
+                    
+                }
+                else
+                {
+                    this.Dispatcher.Invoke(() => mainFrame.Navigate(authorizationPage));
+                }
+            }
+            catch (Exception ex)
+            {
+                if (this.Dispatcher.CheckAccess())
+                {
+                    MessageBox.Show($"Ошибка при загрузке страницы авторизации: {ex.Message}");
+                }
+                else
+                {
+                    this.Dispatcher.Invoke(() => MessageBox.Show($"Ошибка при загрузке страницы авторизации: {ex.Message}"));
+                }
+            }
+        }
+
+
+
+        private async void AuthorizationPage_Loaded(object sender, RoutedEventArgs e )
+        {
+            AuthorizationPage authorizationPage = new AuthorizationPage();
+            mainFrame.Navigate(authorizationPage);
+            //MessageBox.Show("111111");
         }
     }
 }
