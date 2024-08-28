@@ -24,41 +24,6 @@ namespace Food_Delivery.View.Administrator.Menu
         public HamburgerMenu()
         {
             InitializeComponent();
-
-            WorkingWithData._exitHamburgerMenu += ToggleSideMenu;
-        }
-
-        private void HamburgerButton_Click(object sender, RoutedEventArgs e)
-        {
-            ToggleSideMenu();
-        }
-
-        private void ToggleSideMenu()
-        {
-            if (SideMenu.Width == 0)
-            {
-                SideMenu.Width = 200;
-                SideMenu.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                SideMenu.Width = 0;
-                SideMenu.Visibility = Visibility.Collapsed;
-            }
-        }
-
-        private void ToggleSideMenu(object sender, EventAggregator e)
-        {
-            if (SideMenu.Width == 0)
-            {
-                SideMenu.Width = 200;
-                SideMenu.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                SideMenu.Width = 0;
-                SideMenu.Visibility = Visibility.Collapsed;
-            }
         }
     }
 }

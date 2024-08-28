@@ -10,11 +10,9 @@ namespace Food_Delivery.Model
     {
         public int id { get; set; }
 
-        public int accountId { get; set; }
+        public int? accountId { get; set; }
 
         public int costPrice { get; set; }
-
-        public bool isCartPaid { get; set; }
 
         // устанавливаем внешний ключ на таблицу Account
         public virtual Account Account { get; set; } = null!;
@@ -27,12 +25,11 @@ namespace Food_Delivery.Model
 
         public ShoppingCart() { }
 
-        public ShoppingCart(int id, int accountId, int costPrice, bool isCartPaid, Account account)
+        public ShoppingCart(int id, int? accountId, int costPrice, Account account)
         {
             this.id = id;
             this.accountId = accountId;
             this.costPrice = costPrice;
-            this.isCartPaid = isCartPaid;
             Account = account;
         }
     }

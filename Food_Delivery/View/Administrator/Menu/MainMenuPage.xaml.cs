@@ -1,5 +1,6 @@
 ﻿using Food_Delivery.Helper;
 using Food_Delivery.View.Administrator.MenuSectionPages;
+using Food_Delivery.ViewModel.Administrator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,14 +23,15 @@ namespace Food_Delivery.View.Administrator.Menu
     /// </summary>
     public partial class MainMenuPage : Page
     {
+        private readonly MainMenuViewModel _mainMenuViewModel; // объект класса
         public MainMenuPage()
         {
             InitializeComponent();
 
-            PageCategory pageCategory = new PageCategory();
-            mainAdminMenu.Navigate(pageCategory);
+            _mainMenuViewModel = (MainMenuViewModel)this.Resources["MainMenuViewModel"];
+            // ассинхронно передаём фрейм в MainMenuViewModel
+            _mainMenuViewModel.InitializeAsync(mainAdminMenu);
 
-            
         }
 
     }

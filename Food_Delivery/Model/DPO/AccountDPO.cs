@@ -20,29 +20,29 @@ namespace Food_Delivery.Model.DPO
             get { return _roleId; }
             set { _roleId = value; OnPropertyChanged(nameof(roleId)); }
         }
-        private string _nameRole { get; set; }
-        public string nameRole
+        private string? _nameRole { get; set; }
+        public string? nameRole
         {
             get { return _nameRole; }
             set { _nameRole = value; OnPropertyChanged(nameof(nameRole)); }
         }
 
-        private string _name {  get; set; }
-        public string name
+        private string? _name {  get; set; }
+        public string? name
         {
             get { return _name; }
             set { _name = value; OnPropertyChanged(nameof(name)); }
         }
 
-        private string _surname {  get; set; }
-        public string surname
+        private string? _surname {  get; set; }
+        public string? surname
         {
             get { return _surname; }
             set { _surname = value; OnPropertyChanged(nameof(surname)); }
         }
 
-        private string _patronymic { get; set; }
-        public string patronymic
+        private string? _patronymic { get; set; }
+        public string? patronymic
         {
             get { return _patronymic; }
             set { _patronymic = value; OnPropertyChanged(nameof(patronymic)); }
@@ -55,15 +55,15 @@ namespace Food_Delivery.Model.DPO
             set { _registrationDate = value; OnPropertyChanged(nameof(registrationDate)); }
         }
 
-        private string _email { get; set; }
-        public string email
+        private string? _email { get; set; }
+        public string? email
         {
             get { return _email; }
             set { _email = value; OnPropertyChanged(nameof(email)); }
         }
 
-        private string _numberphone { get; set; }
-        public string numberphone
+        private string? _numberphone { get; set; }
+        public string? numberphone
         {
             get { return _numberphone; }
             set { _numberphone = value; OnPropertyChanged(nameof(numberphone)); }

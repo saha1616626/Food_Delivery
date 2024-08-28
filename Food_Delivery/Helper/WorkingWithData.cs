@@ -19,5 +19,25 @@ namespace Food_Delivery.Helper
         }
 
         #endregion
+
+        #region mainMenuAdmin
+
+        // переход на страницу "категориии"
+        public static event EventHandler<EventAggregator> _openCategoryPage; // подписываемся в MainMenuViewModel
+        public static void OpenCategoryPage()
+        {
+            _openCategoryPage?.Invoke(null, new EventAggregator()); // вызываем событие в HamburgerMenuViewModel
+        }
+
+        // переход на страницу "блюда"
+        public static event EventHandler<EventAggregator> _openDishesPage; // подписываемся в MainMenuViewModel
+        public static void OpenDishesPage()
+        {
+            _openDishesPage?.Invoke(null, new EventAggregator()); // вызываем событие в HamburgerMenuViewModel
+        }
+
+        #endregion
+
+
     }
 }

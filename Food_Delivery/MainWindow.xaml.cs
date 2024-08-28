@@ -19,6 +19,7 @@ namespace Food_Delivery
     /// </summary>
     public partial class MainWindow : Window
     {
+
         public  MainWindow()
         {
             InitializeComponent();
@@ -27,7 +28,8 @@ namespace Food_Delivery
             LaunchAuthorizationPageAsync();
         }
 
-        // Dispatcher.CheckAccess() для проверки, находитесь ли вы в основном потоке,
+
+
         private async void LaunchAuthorizationPageAsync()
         {
             try

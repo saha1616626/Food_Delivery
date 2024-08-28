@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Food_Delivery.Model.DPO;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,6 +33,22 @@ namespace Food_Delivery.Model
             this.quantity = quantity;
             ShoppingCart = shoppingCart;
             Dishes = dishes;
+        }
+
+        // получаем товар из корзины у CompositionCartDPO
+        private async Task<CompositionCart> CompositionCartDPO(CompositionCartDPO compositionCartDPO)
+        {
+            CompositionCart compositionCart = new CompositionCart();
+
+            compositionCart.id = compositionCartDPO.id;
+            compositionCart.shoppingCartId = compositionCartDPO.shoppingCartId;
+            compositionCart.dishesId = compositionCartDPO.dishesId;
+            if(quantity != null)
+            {
+                compositionCart.quantity = quantity;
+            }
+
+            return compositionCart;
         }
     }
 }

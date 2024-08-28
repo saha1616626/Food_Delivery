@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Food_Delivery.Data;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -8,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Food_Delivery.Model.DPO
 {
-    public class ComposittionCartDPO : INotifyPropertyChanged
+    public class CompositionCartDPO : INotifyPropertyChanged
     {
         public int id { get; set; }
         private int _shoppingCartId { get; set; }
@@ -31,15 +33,12 @@ namespace Food_Delivery.Model.DPO
                 OnPropertyChanged(nameof(dishesId));
             }
         }
-        private string _dishesName { get; set; }
-        public string dishesName
+
+        private Dishes _dishes { get; set; }
+        public Dishes dishes
         {
-            get { return _dishesName; }
-            set
-            {
-                _dishesName = value;
-                OnPropertyChanged(nameof(dishesName));
-            }
+            get { return _dishes; }
+            set { _dishes = value; OnPropertyChanged(nameof(dishes)); }
         }
 
         private int _quantity { get; set; }
@@ -54,10 +53,33 @@ namespace Food_Delivery.Model.DPO
         }
 
         // получаем блюдо из Dishes с заменой id
-        //public async Task<CompositionCartDPO> CopyFromCompositionCart(CompositionCart)
-        //{
-        //    //ComposittionCartDPO 
-        //} 
+        public async Task<CompositionCartDPO> CopyFromCompositionCart(CompositionCart compositionCart)
+        {
+            CompositionCartDPO compositionCartDPO = new CompositionCartDPO();
+            
+            compositionCartDPO.id = compositionCart.id;
+            compositionCartDPO.shoppingCartId = compositionCart.shoppingCartId;
+
+            // получаем блюдо данного товара в корзине
+            using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+            {
+                List<Dishes> disheses = await foodDeliveryContext.Dishes.ToListAsync();
+                // ищем нужное блюдо
+                Dishes dishes = disheses.FirstOrDefault(d => d.id == compositionCart.dishesId);
+                if(dishes != null)
+                {
+                    compositionCartDPO.dishes = dishes;
+                }
+            }
+
+            if(compositionCart.quantity != 0)
+            {
+                compositionCartDPO.quantity = compositionCart.quantity;
+            }
+
+            return compositionCartDPO;
+
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")

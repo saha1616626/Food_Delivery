@@ -32,7 +32,7 @@
 
         <!-- Гамбургер кнопка -->
         <Button x:Name="HamburgerButton" Grid.Column="0" Background="Transparent" BorderThickness="0" 
-                Click="HamburgerButton_Click" VerticalAlignment="Top" Margin="0,10,0,10">
+                Command="{Binding HamburgerButton}" VerticalAlignment="Top" Margin="10,13,0,10" Style="{StaticResource CustomButtonStyle}">
             <materialDesign:PackIcon Kind="Menu" Width="24" Height="24"/>
         </Button>
 
@@ -42,12 +42,14 @@
         </Grid>
 
         <!-- Боковое меню -->
-        <Grid x:Name="SideMenu" Grid.Column="0" Background="LightGray" Margin="0,0,16,0" Width="0" Visibility="Collapsed" Height="1500">
+        <Grid x:Name="SideMenu" Grid.Column="0" Background="LightGray" Margin="0,0,16,0" 
+             Height="1500" Width="{Binding SideMenuWidth}" 
+             Visibility="{Binding IsSideMenuVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
             <!-- Элементы бокового меню -->
             
             <!--кнопка закрытия гамбургер меню-->
             <Button Background="Transparent" BorderThickness="0" 
-                Click="HamburgerButton_Click" VerticalAlignment="Top" HorizontalAlignment="Right">
+                VerticalAlignment="Top" HorizontalAlignment="Right" Command="{Binding HamburgerButton}">
                 <materialDesign:PackIcon Kind="Backburger" Width="24" Height="24"/>
             </Button>
 

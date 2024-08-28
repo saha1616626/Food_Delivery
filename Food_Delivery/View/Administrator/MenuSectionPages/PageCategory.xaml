@@ -3,14 +3,45 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       xmlns:local="clr-namespace:Food_Delivery.View.Administrator.MenuSectionPages"
+      xmlns:viewModel="clr-namespace:Food_Delivery.ViewModel.Administrator"
       mc:Ignorable="d" 
       MinHeight="700" Height="Auto"
       Title="PageCategory">
 
-    <Grid>
+    <Page.Resources>
+        <viewModel:CategoryViewModel x:Key="CategoryViewModel"/>
+    </Page.Resources>
 
-        <TextBlock Text="PageCategory" FontSize="100" HorizontalAlignment="Left"/>
+    <Grid Background="White" DataContext="{StaticResource CategoryViewModel}">
 
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!--заголовок страницы-->
+        <TextBlock Text="Категории" Grid.Row="0"/>
+
+        <!--кнопка добавить категорию-->
+        <Button Content="Добавить" Grid.Row="1"/>
+
+        <!--таблица-->
+        <Grid Grid.Row="2" HorizontalAlignment="Center" Margin="50,0,50,0">
+
+            <!--заголовок таблицы (фиксируется содержимое + всё что находится сверху верху)-->
+            <DataGrid IsReadOnly="True" x:Name="Heading">
+                
+            </DataGrid>
+            
+            <!--основное содержимое таблицы-->
+            <DataGrid x:Name="Content">
+                    
+            </DataGrid>
+        
+        </Grid>
+        
     </Grid>
 </Page>

@@ -12,31 +12,18 @@ namespace Food_Delivery.Model
     public class Account
     {
         public int id { get; set; }
-
         public int roleId { get; set; }
-
         public string? name { get; set; }
-
         public string? surname { get; set; }
-
         public string? patronymic { get; set; }
-
         public DateTime? registrationDate { get; set; }
-
         public string? email { get; set; }
-
         public string? numberPhone { get; set; }
-
-        public string? login { get; set; }
-
-        public string? password { get; set; }
-
+        public string login { get; set; }
+        public string password { get; set; }
         public string? city { get; set; }
-
         public string? street { get; set; }
-
         public string? house { get; set; }
-
         public string? apartment { get; set; }
 
         // устанваливаем внешний ключ на таблицу Role

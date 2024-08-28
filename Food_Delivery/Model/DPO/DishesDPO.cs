@@ -86,8 +86,8 @@ namespace Food_Delivery.Model.DPO
             set { _quantity = value; OnPropertyChanged(nameof(quantity)); }
         }
 
-        private int? _price { get; set; }
-        public int? price
+        private int _price { get; set; }
+        public int price
         {
             get { return _price; }
             set { _price = value; OnPropertyChanged(nameof(price)); }
