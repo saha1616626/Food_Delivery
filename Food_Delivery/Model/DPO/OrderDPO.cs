@@ -37,12 +37,6 @@ namespace Food_Delivery.Model.DPO
             get { return _accountId; }
             set { _accountId = value; OnPropertyChanged(nameof(accountId)); }
         }
-        private int? _shoppingCartId { get; set; }
-        public int? shoppingCartId
-        {
-            get { return _shoppingCartId; }
-            set { _shoppingCartId = value; OnPropertyChanged(nameof(shoppingCartId)); }
-        }
         private int? _orderStatusId { get; set; }
         public int? orderStatusId
         {
@@ -137,7 +131,7 @@ namespace Food_Delivery.Model.DPO
         }
 
         public OrderDPO(int id, DateTime? dateTime, DateTime? startDesiredDeliveryTime,
-            DateTime? endDesiredDeliveryTime, int? accountId, int? shoppingCartId, int? orderStatusId,
+            DateTime? endDesiredDeliveryTime, int? accountId, int? orderStatusId,
             string statusName, string name, string surname, string patronymic, string city, string street,
             string house, string apartment, string numberPhone, string email, int costPrice, string typePayment,
             int prepareChangeMoney, List<CompositionOrder> compositionOrder)
@@ -147,7 +141,6 @@ namespace Food_Delivery.Model.DPO
             this.startDesiredDeliveryTime = startDesiredDeliveryTime;
             this.endDesiredDeliveryTime = endDesiredDeliveryTime;
             this.accountId = accountId;
-            this.shoppingCartId = shoppingCartId;
             this.orderStatusId = orderStatusId;
             this.statusName = statusName;
             this.name = name;
@@ -188,10 +181,6 @@ namespace Food_Delivery.Model.DPO
             if (order.accountId != null)
             {
                 orderDPO.accountId = order.accountId;
-            }
-            if(order.shoppingCartId != null)
-            {
-                orderDPO.shoppingCartId = order.shoppingCartId;
             }
             if(order.orderStatusId != null)
             {

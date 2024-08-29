@@ -12,16 +12,13 @@ namespace Food_Delivery.Model
 
         public int? accountId { get; set; }
 
-        public int costPrice { get; set; }
+        public int? costPrice { get; set; }
 
         // устанавливаем внешний ключ на таблицу Account
         public virtual Account Account { get; set; } = null!;
 
         // связываем CompositionCart и ShoppingCart (установка внешнего ключа)
         public virtual ICollection<CompositionCart> CompositionCarts { get; set; } = new List<CompositionCart>();
-
-        // связываем Order и ShoppingCart (установка внешнего ключа)
-        public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
         public ShoppingCart() { }
 

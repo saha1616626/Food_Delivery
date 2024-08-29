@@ -14,34 +14,85 @@
         <viewModel:CategoryViewModel x:Key="CategoryViewModel"/>
     </Page.Resources>
 
-    <Grid Background="White" DataContext="{StaticResource CategoryViewModel}">
+    <Grid Background="AliceBlue" DataContext="{StaticResource CategoryViewModel}" >
+
+        <!--стили-->
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="\Dictionary\Table.xaml"/>
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!--заголовок страницы-->
-        <TextBlock Text="Категории" Grid.Row="0"/>
+        <TextBlock Text="Категории блюд" Grid.Row="0" FontSize="30" 
+                   Foreground="Black" FontWeight="DemiBold"  Margin="50,10,50,15"/>
 
         <!--кнопка добавить категорию-->
-        <Button Content="Добавить" Grid.Row="1"/>
+        <Grid Grid.Row="1"  Margin="50,0,50,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-        <!--таблица-->
-        <Grid Grid.Row="2" HorizontalAlignment="Center" Margin="50,0,50,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-            <!--заголовок таблицы (фиксируется содержимое + всё что находится сверху верху)-->
-            <DataGrid IsReadOnly="True" x:Name="Heading">
-                
-            </DataGrid>
-            
-            <!--основное содержимое таблицы-->
-            <DataGrid x:Name="Content">
-                    
-            </DataGrid>
-        
+            <TextBox Grid.Row="0" Grid.Column="0" x:Name="Search" 
+     Height="50" Margin="0,0,0,0"
+     VerticalAlignment="Center" HorizontalAlignment="Left"
+     Text="{Binding NameEquipment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+     materialDesign:TextFieldAssist.HasClearButton="True"
+     Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+     materialDesign:HintAssist.Hint="Поиск категории" 
+     materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+     MaxLength="100" TextWrapping="Wrap" Width="300" />
+
+            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" >
+                <Button Content="Добавить" 
+        MinWidth="100" Height="35" Background="Gray" Command="{Binding Btn_Add}"
+        BorderBrush="Black"/>
+
+                <Button Content="Редктировать" Command="{Binding Btn_Edit}"
+        MinWidth="100" Height="35" Background="Gray" BorderBrush="Black" 
+        Margin="10,0,0,0" IsEnabled="{Binding IsWorkButtonEnable}"/>
+
+                <Button Content="Удалить" MinWidth="100" 
+        Height="35" Background="Gray" BorderBrush="Black" Command="{Binding Btn_OpenPopup}"
+        Margin="10,0,0,0" IsEnabled="{Binding IsWorkButtonEnable}"/>
+            </StackPanel>
+
         </Grid>
-        
+
+        <!--прокрутка основного содержимого таблицы-->
+        <Grid  Grid.Row="2">
+            <!--основное содержимое таблицы-->
+            <DataGrid x:Name="Content" Margin="50,15,50,0"
+                      Padding="0,0,0,100"
+                      VerticalScrollBarVisibility="Auto"
+                      IsReadOnly="True"
+                      AutoGenerateColumns="False" 
+                      HorizontalScrollBarVisibility="Hidden"
+                      ColumnHeaderStyle="{StaticResource columnTableHeader}"
+                      ItemsSource="{Binding ListCategory}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Width="50*" Header="Название" Binding="{Binding name}">
+
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Width="50*" Header="Описание" Binding="{Binding description}">
+
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+
     </Grid>
 </Page>

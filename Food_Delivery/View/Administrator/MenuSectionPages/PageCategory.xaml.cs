@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Food_Delivery.ViewModel.Administrator;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,5 +27,7 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
             InitializeComponent();
 
         }
+
+
     }
 }

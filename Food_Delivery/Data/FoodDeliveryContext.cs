@@ -57,7 +57,7 @@ namespace Food_Delivery.Data
                 entity.Property(e => e.apartment).HasMaxLength(10).HasColumnName("apartament").IsRequired(false);
 
                 entity.HasOne(d => d.Role).WithMany(p => p.Accounts)
-                .HasForeignKey(d => d.id).HasConstraintName("fk_roleId_role").OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(d => d.roleId).HasConstraintName("fk_roleId_account_role").OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Category>(entity =>
@@ -92,7 +92,7 @@ namespace Food_Delivery.Data
                 entity.Property(e => e.stopList).HasColumnName("stopList");
 
                 entity.HasOne(d => d.Category).WithMany(p => p.Dishes)
-                .HasForeignKey(d => d.id).HasConstraintName("fk_categoryId_category").OnDelete(DeleteBehavior.Cascade); // каскадное удаление категорий, при удалении блюда
+                .HasForeignKey(d => d.categoryId).HasConstraintName("fk_categoryId_dishes_category").OnDelete(DeleteBehavior.Cascade); // каскадное удаление категорий, при удалении блюда
             });
 
             modelBuilder.Entity<ShoppingCart>(entity =>
@@ -102,11 +102,11 @@ namespace Food_Delivery.Data
                 entity.ToTable("shoppingCart");
 
                 entity.Property(e => e.id).HasColumnName("id");
-                entity.Property(e => e.accountId).HasColumnName("id").IsRequired(false);
+                entity.Property(e => e.accountId).HasColumnName("accountId").IsRequired(false);
                 entity.Property(e => e.costPrice).HasColumnName("costPrice").IsRequired(false);
 
                 entity.HasOne(d => d.Account).WithMany(p => p.ShoppingCarts)
-                .HasForeignKey(d => d.id).HasConstraintName("fk_accountId_account").OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(d => d.accountId).HasConstraintName("fk_accountId_shoppingCart_account").OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<CompositionCart>(entity =>
@@ -121,10 +121,10 @@ namespace Food_Delivery.Data
                 entity.Property(e => e.quantity).HasColumnName("quantity");
 
                 entity.HasOne(d => d.ShoppingCart).WithMany(p => p.CompositionCarts)
-                .HasForeignKey(d => d.id).HasConstraintName("fk_shoppingCartId_shoppingCart").OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(d => d.shoppingCartId).HasConstraintName("fk_shoppingCartId_compositionCart_shoppingCart").OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(d => d.Dishes).WithMany(p => p.CompositionCarts)
-                .HasForeignKey(d => d.id).HasConstraintName("fk_dishesId_dishes").OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(d => d.dishesId).HasConstraintName("fk_dishesId_compositionCart_dishes").OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<OrderStatus>(entity =>
@@ -148,7 +148,6 @@ namespace Food_Delivery.Data
                 entity.Property(e => e.startDesiredDeliveryTime).HasColumnName("startDesiredDeliveryTime").HasColumnType("datetime");
                 entity.Property(e => e.endDesiredDeliveryTime).HasColumnName("endDesiredDeliveryTime").HasColumnType("datetime");
                 entity.Property(e => e.accountId).HasColumnName("accountId").IsRequired(false);
-                entity.Property(e => e.shoppingCartId).HasColumnName("shoppingCartId").IsRequired(false);
                 entity.Property(e => e.orderStatusId).HasColumnName("orderStatusId").IsRequired(false);
                 entity.Property(e => e.name).HasMaxLength(100).HasColumnName("name");
                 entity.Property(e => e.surname).HasMaxLength(100).HasColumnName("surname");
@@ -164,22 +163,19 @@ namespace Food_Delivery.Data
                 entity.Property(e => e.prepareChangeMoney).HasColumnName("prepareChangeMoney").IsRequired(false);
 
                 entity.HasOne(d => d.Account).WithMany(p => p.Orders)
-                .HasForeignKey(d => d.id).HasConstraintName("fk_accountId_account").OnDelete(DeleteBehavior.SetNull);
-
-                entity.HasOne(d => d.ShoppingCart).WithMany(p => p.Orders)
-                .HasForeignKey(d => d.id).HasConstraintName("fk_shoppingCartId_shoppingCart").OnDelete(DeleteBehavior.SetNull); ;
+                .HasForeignKey(d => d.accountId).HasConstraintName("fk_accountId_order_account").OnDelete(DeleteBehavior.SetNull);
 
                 entity.HasOne(d => d.OrderStatus).WithMany(p => p.Orders)
-                .HasForeignKey(d => d.id).HasConstraintName("fk_orderStatusId_orderStatus").OnDelete(DeleteBehavior.SetNull); ;
+                .HasForeignKey(d => d.orderStatusId).HasConstraintName("fk_orderStatusId_order_orderStatus").OnDelete(DeleteBehavior.SetNull); ;
                 /* При удалении внешних ключей связанных с заказом, будут подставляться null */
             });
 
 
             modelBuilder.Entity<CompositionOrder>(entity =>
             {
-                entity.HasKey(e => e.id).HasName("PK_order");
+                entity.HasKey(e => e.id).HasName("PK_compositionOrder");
 
-                entity.ToTable("order");
+                entity.ToTable("compositionOrder");
 
                 entity.Property(e => e.id).HasColumnName("id");
                 entity.Property(e => e.orderId).HasColumnName("orderId");
@@ -196,10 +192,10 @@ namespace Food_Delivery.Data
                 entity.Property(e => e.image).HasColumnName("image");
 
                 entity.HasOne(c => c.Order).WithMany(d => d.CompositionOrders)
-                .HasForeignKey(d => d.id).HasConstraintName("fk_orderId_oder").OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(d => d.orderId).HasConstraintName("fk_orderId_compositionOrder_oder").OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(c => c.Dishes).WithMany(d => d.CompositionOrders)
-                .HasForeignKey(d => d.id).HasConstraintName("fk_dishesId_dishes").OnDelete(DeleteBehavior.SetNull);
+                .HasForeignKey(d => d.dishesId).HasConstraintName("fk_dishesId_compositionOrder_dishes").OnDelete(DeleteBehavior.SetNull);
                 // удаления блюда никак не будет влиять на состав заказа
             });
         }

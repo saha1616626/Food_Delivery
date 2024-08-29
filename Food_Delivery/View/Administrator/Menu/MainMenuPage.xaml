@@ -14,8 +14,8 @@
         <!--связываем View и ViewModel-->
         <ViewModel:MainMenuViewModel x:Key="MainMenuViewModel"/>
     </Page.Resources>
-    
-    <Grid x:Name="MainGrid" DataContext="{StaticResource MainMenuViewModel}">
+
+    <Grid x:Name="MainGrid" DataContext="{StaticResource MainMenuViewModel}" >
         
         <!--основная разметка-->
         <Grid.ColumnDefinitions>
@@ -30,7 +30,7 @@
         </Grid.RowDefinitions>
 
         <!--фон-->
-        <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Background="Green"/>
+        <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Background="#FFC7F6C7"/>
 
         <!--гамбургер меню-->
         <Grid Grid.Column="0" Grid.RowSpan="2" Panel.ZIndex="1">
