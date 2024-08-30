@@ -34,5 +34,11 @@ namespace Food_Delivery.View.Administrator.Menu
 
         }
 
+        // закрываем "гамбургер" меню если открыто
+        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            WorkingWithData.ExitHamburgerMenu();
+        }
+
     }
 }

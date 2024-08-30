@@ -1,0 +1,10 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--стиль для обводки Popup-->
+    <Style x:Key="OutlineOfPopup" TargetType="Border">
+        <Setter Property="Border.CornerRadius" Value="10" />
+        <Setter Property="Border.Background" Value="Transparent" />
+    </Style>
+
+</ResourceDictionary>

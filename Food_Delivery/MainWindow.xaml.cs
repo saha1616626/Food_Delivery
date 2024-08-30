@@ -1,4 +1,5 @@
-﻿using Food_Delivery.View.Administrator.Menu;
+﻿using Food_Delivery.Helper;
+using Food_Delivery.View.Administrator.Menu;
 using Food_Delivery.View.Authorization;
 using System.Net;
 using System.Text;
@@ -64,15 +65,6 @@ namespace Food_Delivery
                     this.Dispatcher.Invoke(() => MessageBox.Show($"Ошибка при загрузке страницы авторизации: {ex.Message}"));
                 }
             }
-        }
-
-
-
-        private async void AuthorizationPage_Loaded(object sender, RoutedEventArgs e )
-        {
-            AuthorizationPage authorizationPage = new AuthorizationPage();
-            mainFrame.Navigate(authorizationPage);
-            //MessageBox.Show("111111");
         }
     }
 }

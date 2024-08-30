@@ -16,7 +16,7 @@ namespace Food_Delivery.ViewModel.Administrator
         public HamburgerMenuViewModel()
         {
             // подписываемся на событие закрытия "гамбургер" меню
-            WorkingWithData._exitHamburgerMenu += ToggleSideMenu;
+            WorkingWithData._exitHamburgerMenu += TurnOffSideMenu;
         }
 
         #region pageTransitionEvent
@@ -93,10 +93,11 @@ namespace Food_Delivery.ViewModel.Administrator
             SideMenuWidth = IsSideMenuVisible ? 200 : 0; // изменяем ширину
         }
 
-        private void ToggleSideMenu(object sender, EventAggregator e)
+        // закрываем меню
+        private void TurnOffSideMenu(object sender, EventAggregator e)
         {
-            IsSideMenuVisible = !IsSideMenuVisible; // при каждом вызове меняем видимость
-            SideMenuWidth = IsSideMenuVisible ? 200 : 0; // изменяем ширину
+            IsSideMenuVisible = false; // невидимое меню
+            SideMenuWidth = 0; // изменяем ширину
         }
 
         #endregion

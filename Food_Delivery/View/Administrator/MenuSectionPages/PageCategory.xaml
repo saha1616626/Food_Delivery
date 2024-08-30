@@ -6,6 +6,7 @@
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       xmlns:local="clr-namespace:Food_Delivery.View.Administrator.MenuSectionPages"
       xmlns:viewModel="clr-namespace:Food_Delivery.ViewModel.Administrator"
+      PreviewMouseLeftButtonUp="Window_MouseLeftButtonDown"
       mc:Ignorable="d" 
       MinHeight="700" Height="Auto"
       Title="PageCategory">
@@ -14,13 +15,14 @@
         <viewModel:CategoryViewModel x:Key="CategoryViewModel"/>
     </Page.Resources>
 
-    <Grid Background="AliceBlue" DataContext="{StaticResource CategoryViewModel}" >
+    <Grid Background="AliceBlue" DataContext="{StaticResource CategoryViewModel}">
 
         <!--стили-->
         <Grid.Resources>
             <ResourceDictionary>
                 <ResourceDictionary.MergedDictionaries>
                     <ResourceDictionary Source="\Dictionary\Table.xaml"/>
+                    <ResourceDictionary Source="\Dictionary\Popup.xaml"/>
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
@@ -58,7 +60,7 @@
 
             <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" >
                 <Button Content="Добавить" 
-        MinWidth="100" Height="35" Background="Gray" Command="{Binding Btn_Add}"
+        MinWidth="100" Height="35" Background="Gray" Command="{Binding Btn_OpenPopupToAddData}"
         BorderBrush="Black"/>
 
                 <Button Content="Редктировать" Command="{Binding Btn_Edit}"
@@ -72,9 +74,8 @@
 
         </Grid>
 
-        <!--прокрутка основного содержимого таблицы-->
+        <!--таблица-->
         <Grid  Grid.Row="2">
-            <!--основное содержимое таблицы-->
             <DataGrid x:Name="Content" Margin="50,15,50,0"
                       Padding="0,0,0,100"
                       VerticalScrollBarVisibility="Auto"
@@ -92,6 +93,74 @@
                     </DataGridTextColumn>
                 </DataGrid.Columns>
             </DataGrid>
+        </Grid>
+
+        <!--Popap добавления и редактирования информации-->
+
+        <!--фон для Popup-->
+        <Border Grid.ColumnSpan="4" Grid.RowSpan="4" x:Name="DarkBackground" 
+                Background="#80000000" Visibility="Collapsed" Panel.ZIndex="1" 
+                Margin="-500,0,-500,-500"/>
+
+        <!-- размещение Popup относительно данного grid-->
+        <Grid x:Name="positionPopup" Grid.RowSpan="4" Grid.ColumnSpan="4" 
+              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <!--Popup-->
+        <Grid>
+            <Popup x:Name="AddAndEditDataPopup" PlacementTarget="{Binding ElementName=positionPopup}" 
+                   Placement="Center" Grid.ColumnSpan="4" Grid.RowSpan="4" HorizontalOffset="0" 
+                   VerticalOffset="-40" StaysOpen="False" Closed="MyPopup_Closed" 
+                   AllowsTransparency="False" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid Background="Gray">
+                    <!--фон-->
+                    <Border Background="AliceBlue" Style="{StaticResource OutlineOfPopup}" >
+                        <Grid Width="900" Height="500">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" Text="Удаление данных" 
+                                           Margin="0, 10, 0, 0" FontSize="30" FontWeight="Bold"/>
+
+                                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" 
+                                            Height="130" Margin="10,20,10,0">
+                                    <TextBlock Text="Вы действительно хоти удалить?" FontSize="20" FontWeight="DemiBold" 
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding DeleteEquipment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                               TextWrapping="Wrap" x:Name="DeleteEquipment" HorizontalAlignment="Center" 
+                                               VerticalAlignment="Center" Margin="0,30,0,0"  FontSize="20" FontWeight="DemiBold"/>
+                                </StackPanel>
+
+                                <Grid Grid.Row="2" Grid.Column="0" Margin="0,0,0,0" VerticalAlignment="Bottom">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Button Grid.Row="0" Grid.Column="0" Content="Отмена" Width="150" Height="35" 
+                                            Background="Gray" BorderBrush="Black" Command="{Binding ClosePopup}"/>
+                                    <Button Grid.Row="0" Grid.Column="1" Content="Добавить" Width="150" Height="35" 
+                                            Background="Gray" BorderBrush="Black" Margin="10,0,0,0" Command="{Binding Btn_Delete}"/>
+
+                                </Grid>
+
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Popup>
         </Grid>
 
     </Grid>

@@ -1,4 +1,5 @@
 ﻿using Food_Delivery.Data;
+using Food_Delivery.Helper;
 using Food_Delivery.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -10,6 +11,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 
 namespace Food_Delivery.ViewModel.Administrator
 {
@@ -41,6 +45,63 @@ namespace Food_Delivery.ViewModel.Administrator
                 {
                     ListCategory.Add(category);
                 }
+            }
+        }
+
+        #endregion
+
+        #region Popup
+
+        // запускаем Popup для добавления данных
+        private RelayCommand _btn_OpenPopupToAddData { get; set; }
+        public RelayCommand Btn_OpenPopupToAddData
+        {
+            get
+            {
+                return _btn_OpenPopupToAddData ??
+                    (_btn_OpenPopupToAddData = new RelayCommand((obj) =>
+                    {
+                        // отображаем Popup
+                        AddAndEditDataPopup.IsOpen = true;
+                        DarkBackground.Visibility = Visibility.Visible; // показать фон
+                        WorkingWithData.ExitHamburgerMenu(); // закрываем, если открыто "гамбургер меню"
+
+                    }, (obj) => true));
+            }
+        }
+
+        // скрываем Popup
+        private RelayCommand _closePopup { get; set; }
+        public RelayCommand ClosePopup
+        {
+            get
+            {
+                return _closePopup ??
+                    (_closePopup = new RelayCommand((obj) =>
+                    {
+                        AddAndEditDataPopup.IsOpen = false; // Закрыть Popup
+                        DarkBackground.Visibility = Visibility.Collapsed; // скрываем фон
+                    }, (obj) => true));
+            }
+        }
+
+        #endregion
+
+        #region Features
+
+        public Border DarkBackground { get; set; } // затемненный фон позади Popup
+        public Popup AddAndEditDataPopup { get; set; } // ссылка на Popup
+
+        // ассинхронно получаем информацию из CategoryPage 
+        public async Task InitializeAsync(Popup AddAndEditDataPopup, Border DarkBackground)
+        {
+            if(AddAndEditDataPopup != null)
+            {
+                this.AddAndEditDataPopup = AddAndEditDataPopup;
+            }
+            if(DarkBackground != null)
+            {
+                this.DarkBackground = DarkBackground;
             }
         }
 

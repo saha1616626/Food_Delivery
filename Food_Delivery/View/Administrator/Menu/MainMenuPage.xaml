@@ -39,7 +39,7 @@
 
         </Grid>
 
-        <Grid Grid.Row="0" Grid.Column="1">
+        <Grid Grid.Row="0" Grid.Column="1" MouseLeftButtonDown="Window_MouseLeftButtonDown">
             <!--название сервиса-->
             <TextBlock Text="ВкусноРолл.Admin" FontSize="24" Foreground="Black"
            VerticalAlignment="Center" FontWeight="ExtraBlack" Grid.Column="1" Margin="10,10,0,10"/>
