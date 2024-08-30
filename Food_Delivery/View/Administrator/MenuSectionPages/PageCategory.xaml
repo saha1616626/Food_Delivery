@@ -53,6 +53,7 @@
      VerticalAlignment="Center" HorizontalAlignment="Left"
      Text="{Binding NameEquipment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
      materialDesign:TextFieldAssist.HasClearButton="True"
+     TextChanged="СategorySearch"
      Style="{StaticResource MaterialDesignOutlinedTextBox}" 
      materialDesign:HintAssist.Hint="Поиск категории" 
      materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"

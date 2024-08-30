@@ -1,6 +1,7 @@
 ﻿using Food_Delivery.Data;
 using Food_Delivery.Helper;
 using Food_Delivery.Model;
+using MaterialDesignColors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
@@ -35,7 +36,7 @@ namespace Food_Delivery.ViewModel.Administrator
         }
 
         // получаем данные из БД c последующим выводом в таблицу
-        private async void GetListCategory()
+        private async Task GetListCategory()
         {
             ListCategory.Clear(); // очищаем коллекцию перед заполнением
             using(FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
@@ -102,6 +103,35 @@ namespace Food_Delivery.ViewModel.Administrator
             if(DarkBackground != null)
             {
                 this.DarkBackground = DarkBackground;
+            }
+        }
+
+        #endregion
+
+        // поиск данных в таблице
+        #region CategorySearch
+
+        // список для фильтров таблицы
+        public ObservableCollection<Category> ListSearch { get; set; } = new ObservableCollection<Category>();
+
+        public async Task HandlerTextBoxChanged(string categorySearch)
+        {
+            if (!string.IsNullOrWhiteSpace(categorySearch))
+            {
+                await GetListCategory(); // обновляем список
+                ListSearch = ListCategory; // присваиваем список из таблицы
+                // создаём список с поиском по введенным данным в таблице
+                var searchResult = ListSearch.Where(c => c.name.ToLowerInvariant()
+                .Contains(categorySearch.ToLowerInvariant())).ToList();
+
+                ListCategory.Clear(); // очищаем список отображения данных в таблице
+                // вносим актуальные данные основного списка с учётом фильтра
+                ListCategory = new ObservableCollection<Category>(searchResult);
+            }
+            else
+            {
+                ListCategory.Clear(); // очищаем список отображения данных в таблице
+                await GetListCategory(); // обновляем список
             }
         }
 

@@ -43,7 +43,18 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
 
         #endregion
 
-        // закрываем "гамбургер" меню если открыто
+        // поиск категории
+        private void СategorySearch(object sender, TextChangedEventArgs e)
+        {
+            // получаем текст из поля при поиске данных
+            var textInfo = sender as System.Windows.Controls.TextBox;
+            if (textInfo != null)
+            {
+                _categoryViewModel.HandlerTextBoxChanged(textInfo.Text);
+            }
+        }
+
+        // закрываем "гамбургер" меню, если открыто, при нажатии на окно, но не на меню
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             WorkingWithData.ExitHamburgerMenu();

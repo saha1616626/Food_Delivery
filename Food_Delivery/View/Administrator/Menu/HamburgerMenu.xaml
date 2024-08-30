@@ -32,7 +32,7 @@
 
         <!-- Гамбургер кнопка -->
         <Button x:Name="HamburgerButton" Grid.Column="0" Background="Transparent" BorderThickness="0" 
-                Command="{Binding HamburgerButton}" VerticalAlignment="Top" Margin="10,13,0,10" Style="{StaticResource CustomButtonStyle}">
+                Command="{Binding HamburgerButton}" Visibility="{Binding IsMenuButtonVisibility, Converter={StaticResource BooleanToVisibilityConverter}}" VerticalAlignment="Top" Margin="10,13,0,10" Style="{StaticResource CustomButtonStyle}">
             <materialDesign:PackIcon Kind="Menu" Width="24" Height="24"/>
         </Button>
 

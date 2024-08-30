@@ -1,6 +1,9 @@
-﻿using Food_Delivery.Helper;
+﻿using Food_Delivery.Data;
+using Food_Delivery.Helper;
+using Food_Delivery.Model;
 using Food_Delivery.View.Administrator.Menu;
 using Food_Delivery.View.Authorization;
+using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Text;
 using System.Windows;
@@ -31,7 +34,7 @@ namespace Food_Delivery
 
 
 
-        private async void LaunchAuthorizationPageAsync()
+        private async Task LaunchAuthorizationPageAsync()
         {
             try
             {
@@ -52,6 +55,10 @@ namespace Food_Delivery
                 else
                 {
                     this.Dispatcher.Invoke(() => mainFrame.Navigate(authorizationPage));
+                }
+                using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+                {
+                    List<Category> categories = await foodDeliveryContext.Categories.ToListAsync();
                 }
             }
             catch (Exception ex)

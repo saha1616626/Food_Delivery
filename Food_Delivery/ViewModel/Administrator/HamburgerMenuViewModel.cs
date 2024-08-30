@@ -17,6 +17,8 @@ namespace Food_Delivery.ViewModel.Administrator
         {
             // подписываемся на событие закрытия "гамбургер" меню
             WorkingWithData._exitHamburgerMenu += TurnOffSideMenu;
+
+            IsMenuButtonVisibility = true;
         }
 
         #region pageTransitionEvent
@@ -72,6 +74,14 @@ namespace Food_Delivery.ViewModel.Administrator
             set { _isSideMenuVisible = value; OnPropertyChanged(nameof(IsSideMenuVisible)); }
         }
 
+        private bool _isMenuButtonVisibility { get; set; } // видимость кнопки запуска меню
+        public bool IsMenuButtonVisibility
+        {
+            get { return _isMenuButtonVisibility; }
+            set { _isMenuButtonVisibility = value; OnPropertyChanged(nameof(IsMenuButtonVisibility)); }
+        }
+
+
         // запуск меню
         private RelayCommand _hamburgerButton { get; set; }
         public RelayCommand HamburgerButton
@@ -91,6 +101,7 @@ namespace Food_Delivery.ViewModel.Administrator
         {
             IsSideMenuVisible = !IsSideMenuVisible; // при каждом вызове меняем видимость
             SideMenuWidth = IsSideMenuVisible ? 200 : 0; // изменяем ширину
+            IsMenuButtonVisibility = IsSideMenuVisible ? false : true; // скрываем кнопку или показываем
         }
 
         // закрываем меню
@@ -98,6 +109,7 @@ namespace Food_Delivery.ViewModel.Administrator
         {
             IsSideMenuVisible = false; // невидимое меню
             SideMenuWidth = 0; // изменяем ширину
+            IsMenuButtonVisibility = IsSideMenuVisible ? false : true; // скрываем кнопку или показываем
         }
 
         #endregion
