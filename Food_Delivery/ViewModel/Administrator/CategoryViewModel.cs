@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Media.Animation;
 
 namespace Food_Delivery.ViewModel.Administrator
 {
@@ -92,9 +93,10 @@ namespace Food_Delivery.ViewModel.Administrator
 
         public Border DarkBackground { get; set; } // затемненный фон позади Popup
         public Popup AddAndEditDataPopup { get; set; } // ссылка на Popup
+        public TextBlock AnimationErrorInput { get; set; } // текстовое поле для вывода ошибки
 
         // ассинхронно получаем информацию из CategoryPage 
-        public async Task InitializeAsync(Popup AddAndEditDataPopup, Border DarkBackground)
+        public async Task InitializeAsync(Popup AddAndEditDataPopup, Border DarkBackground, TextBlock AnimationErrorInput)
         {
             if(AddAndEditDataPopup != null)
             {
@@ -104,6 +106,18 @@ namespace Food_Delivery.ViewModel.Administrator
             {
                 this.DarkBackground = DarkBackground;
             }
+            if(AnimationErrorInput != null)
+            {
+                this.AnimationErrorInput = AnimationErrorInput;
+            }
+        }
+
+        // свойство для вывода ошибки
+        private string _errorInput {  get; set; }
+        public string ErrorInput
+        {
+            get { return _errorInput; }
+            set { _errorInput = value; OnPropertyChanged(nameof(ErrorInput)); }
         }
 
         #endregion
@@ -114,15 +128,16 @@ namespace Food_Delivery.ViewModel.Administrator
         // список для фильтров таблицы
         public ObservableCollection<Category> ListSearch { get; set; } = new ObservableCollection<Category>();
 
-        public async Task HandlerTextBoxChanged(string categorySearch)
+        public async Task HandlerTextBoxChanged(string searchByValue)
         {
-            if (!string.IsNullOrWhiteSpace(categorySearch))
+            searchByValue = searchByValue.Trim(); // убираем пробелы
+            if (!string.IsNullOrWhiteSpace(searchByValue))
             {
                 await GetListCategory(); // обновляем список
                 ListSearch = ListCategory; // присваиваем список из таблицы
                 // создаём список с поиском по введенным данным в таблице
                 var searchResult = ListSearch.Where(c => c.name.ToLowerInvariant()
-                .Contains(categorySearch.ToLowerInvariant())).ToList();
+                .Contains(searchByValue.ToLowerInvariant())).ToList();
 
                 ListCategory.Clear(); // очищаем список отображения данных в таблице
                 // вносим актуальные данные основного списка с учётом фильтра
@@ -133,6 +148,31 @@ namespace Food_Delivery.ViewModel.Administrator
                 ListCategory.Clear(); // очищаем список отображения данных в таблице
                 await GetListCategory(); // обновляем список
             }
+
+            if(ListCategory.Count == 0)
+            {
+                ErrorInput = "Категория не найдена!"; // собщение об ошибке
+                BeginFadeAnimation(AnimationErrorInput); // анимация затухания ошибки
+            }
+        }
+
+        // анимация затухания ошибки
+        private void BeginFadeAnimation(TextBlock textBlock)
+        {
+            textBlock.IsEnabled = true;
+            textBlock.Opacity = 1.0;
+
+            Storyboard storyboard = new Storyboard();
+            DoubleAnimation fadeAnimation = new DoubleAnimation
+            {
+                From = 1.0,
+                To = 0.0,
+                Duration = TimeSpan.FromSeconds(1)
+            };
+            Storyboard.SetTargetProperty(fadeAnimation, new PropertyPath(TextBlock.OpacityProperty));
+            storyboard.Children.Add(fadeAnimation);
+            storyboard.Completed += (s, e) => textBlock.IsEnabled = false;
+            storyboard.Begin(textBlock);
         }
 
         #endregion
