@@ -12,6 +12,7 @@ using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -30,7 +31,8 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
 
             // ассинхронно передаём фрейм и другие атрибуты в CategoryViewModel
             _categoryViewModel = (CategoryViewModel)this.Resources["CategoryViewModel"];
-            _categoryViewModel.InitializeAsync(AddAndEditDataPopup, DarkBackground, ErrorInput);
+            _categoryViewModel.InitializeAsync(AddAndEditDataPopup, DarkBackground, ErrorInput, 
+                ErrorInputPopup, NameCategory, DescriptionCategory, (Storyboard)FindResource("FieldIllumination"));
         }
 
         #region Popup
