@@ -32,7 +32,7 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
             // ассинхронно передаём фрейм и другие атрибуты в CategoryViewModel
             _categoryViewModel = (CategoryViewModel)this.Resources["CategoryViewModel"];
             _categoryViewModel.InitializeAsync(AddAndEditDataPopup, DarkBackground, ErrorInput, 
-                ErrorInputPopup, NameCategory, DescriptionCategory, (Storyboard)FindResource("FieldIllumination"));
+                ErrorInputPopup, NameCategory, DescriptionCategory, (Storyboard)FindResource("FieldIllumination"), DeleteDataPopup);
         }
 
         #region Popup

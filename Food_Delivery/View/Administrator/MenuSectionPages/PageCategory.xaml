@@ -80,7 +80,7 @@
         Margin="10,0,0,0" IsEnabled="{Binding IsWorkButtonEnable}"/>
 
                 <Button Content="Удалить" MinWidth="100" 
-        Height="35" Background="Gray" BorderBrush="Black" Command="{Binding Btn_OpenPopup}"
+        Height="35" Background="Gray" BorderBrush="Black" Command="{Binding Btn_OpenPopupToDeleteData}"
         Margin="10,0,0,0" IsEnabled="{Binding IsWorkButtonEnable}"/>
             </StackPanel>
 
@@ -119,7 +119,7 @@
         <Grid x:Name="positionPopup" Grid.RowSpan="4" Grid.ColumnSpan="4" 
               HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-        <!--Popup-->
+        <!--Popup для редактирования или добавления данных-->
         <Grid>
             <Popup x:Name="AddAndEditDataPopup" PlacementTarget="{Binding ElementName=positionPopup}" 
                    Placement="Center" Grid.ColumnSpan="4" Grid.RowSpan="4" HorizontalOffset="0" 
@@ -167,7 +167,7 @@
                                  ElementName=MaterialDesignOutlinedTextBoxTextCountComboBox, Converter={StaticResource BooleanToVisibilityConverter}}"
                                  MaxLength="300" Style="{StaticResource MaterialDesignOutlinedTextBox}" TextWrapping="Wrap" 
                                  VerticalScrollBarVisibility="Auto" Width="320" Margin="0,10,0,0" />
-                            
+
                             <!--кнопки-->
                             <Grid Grid.Row="3" Grid.Column="0" Margin="0,40,0,0" HorizontalAlignment="Center">
 
@@ -185,6 +185,69 @@
 
                             </Grid>
 
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Popup>
+        </Grid>
+
+        <!--Popup для удаления данных-->
+        <Grid>
+            <Popup x:Name="DeleteDataPopup" PlacementTarget="{Binding ElementName=positionPopup}" 
+                   Placement="Center" Grid.ColumnSpan="4" Grid.RowSpan="4" HorizontalOffset="0" 
+                   VerticalOffset="-40" StaysOpen="False" Closed="MyPopup_Closed" 
+                   AllowsTransparency="False" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid Background="Gray">
+                    <!--фон-->
+                    <Border Background="AliceBlue" Style="{StaticResource OutlineOfPopup}" >
+                        <Grid Width="500" Height="330">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" Text="Удаление данных" 
+                                           Margin="0, 10, 0, 0" FontSize="30" FontWeight="Bold"/>
+
+                                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" 
+                                            Height="50" Margin="10,20,10,0">
+                                    <TextBlock Text="Вы действительно хотите удалить категорию, а также все зависимые блюда с ней?" FontSize="20" FontWeight="DemiBold" 
+                                               HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
+                                </StackPanel>
+
+                                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Height="100" Margin="0,0,0,15">
+                                    <TextBlock Text="{Binding NameOfCategoryDeleted, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+           TextWrapping="Wrap" x:Name="NameOfCategoryDeleted" HorizontalAlignment="Center" 
+           VerticalAlignment="Center" Margin="25,0,25,0"  FontSize="20" FontWeight="DemiBold"/>
+                                </ScrollViewer>
+
+
+
+                                <Grid Grid.Row="3" Grid.Column="0" Margin="0,0,0,25" VerticalAlignment="Bottom">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Button Grid.Row="0" Grid.Column="0" Content="Отмена" Width="150" 
+                                            Height="35" Background="Gray" BorderBrush="Black" Command="{Binding ClosePopup}"/>
+                                    <Button Grid.Row="0" Grid.Column="1" Content="Удалить" Width="150" 
+                                            Height="35" Background="Gray" BorderBrush="Black" Margin="0,0,0,0" Command="{Binding Btn_DeleteData}"/>
+
+                                </Grid>
+
+                            </Grid>
                         </Grid>
                     </Border>
                 </Grid>

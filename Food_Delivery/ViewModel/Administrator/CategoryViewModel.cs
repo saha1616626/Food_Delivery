@@ -42,7 +42,7 @@ namespace Food_Delivery.ViewModel.Administrator
         private async Task GetListCategory()
         {
             ListCategory.Clear(); // очищаем коллекцию перед заполнением
-            using(FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+            using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
             {
                 List<Category> categories = await foodDeliveryContext.Categories.ToListAsync();
                 categories.Reverse(); // переворачиваем список
@@ -56,7 +56,7 @@ namespace Food_Delivery.ViewModel.Administrator
         #region Popup
 
         // свойство определющее назаначение запуска Popup (редактирование или добавление данных)
-        private bool IsAddData {  get; set; } // true - добавление данных; false - редактирование данных.
+        private bool IsAddData { get; set; } // true - добавление данных; false - редактирование данных.
 
         // запускаем Popup для добавления данных
         private RelayCommand _btn_OpenPopupToAddData { get; set; }
@@ -72,8 +72,8 @@ namespace Food_Delivery.ViewModel.Administrator
                         DarkBackground.Visibility = Visibility.Visible; // показать фон
                         WorkingWithData.ExitHamburgerMenu(); // закрываем, если открыто "гамбургер меню"
                         HeadingPopup = "Добавить категорию"; // изменяем заголовок Popup
-                        ActionConfirmationButton = "Добавить"; // изменение названия кнопки подтверждения действия
-
+                        ActionConfirmationButton = "Добавить"; // изменение названия кнопки подтверждения действия 
+                        OutNameDescription = ""; OutNameCategory = ""; // убираем введенные значения
                     }, (obj) => true));
             }
         }
@@ -100,7 +100,29 @@ namespace Food_Delivery.ViewModel.Administrator
                         }
                         if (!SelectedCategory.description.IsNullOrEmpty())
                         {
-                            OutNameDescription = SelectedCategory.description; 
+                            OutNameDescription = SelectedCategory.description;
+                        }
+
+                    }, (obj) => true));
+            }
+        }
+
+        // запускаем Popup для удаления данных
+        private RelayCommand _btn_OpenPopupToDeleteData { get; set; }
+        public RelayCommand Btn_OpenPopupToDeleteData
+        {
+            get
+            {
+                return _btn_OpenPopupToDeleteData ??
+                    (_btn_OpenPopupToDeleteData = new RelayCommand((obj) =>
+                    {
+                        DeleteDataPopup.IsOpen = true; // отображаем Popup
+                        DarkBackground.Visibility = Visibility.Visible; // показать фон
+                        WorkingWithData.ExitHamburgerMenu(); // закрываем, если открыто "гамбургер меню"
+                        // отображаем название категории перед удалением в Popup
+                        if (!SelectedCategory.name.IsNullOrEmpty())
+                        {
+                            NameOfCategoryDeleted = "Выбранная категория: " + SelectedCategory.name;
                         }
 
                     }, (obj) => true));
@@ -124,14 +146,16 @@ namespace Food_Delivery.ViewModel.Administrator
         // закрываем Popup
         private async Task ClosePopupWorkingWithData()
         {
-            AddAndEditDataPopup.IsOpen = false; // Закрыть Popup
+            // Закрываем Popup
+            AddAndEditDataPopup.IsOpen = false;
+            DeleteDataPopup.IsOpen = false;
             DarkBackground.Visibility = Visibility.Collapsed; // скрываем фон
             // убираем введенные значения
             OutNameDescription = ""; OutNameCategory = "";
 
         }
 
-        // добавление, редактирование или удаление данных
+        // добавление или редактирование данных
         private RelayCommand _btn_SaveData { get; set; }
         public RelayCommand Btn_SaveData
         {
@@ -149,18 +173,20 @@ namespace Food_Delivery.ViewModel.Administrator
                                 using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
                                 {
                                     List<Category> categories = await foodDeliveryContext.Categories.ToListAsync();
-                                    if(!categories.Any(c => c.name.ToLowerInvariant()
+                                    if (!categories.Any(c => c.name.ToLowerInvariant()
                 .Contains(OutNameCategory.ToLowerInvariant().Trim())))
                                     {
                                         // добавляем данные в БД
                                         Category category = new Category();
                                         category.name = OutNameCategory.Trim();
+                                        if (!string.IsNullOrWhiteSpace(OutNameDescription))
+                                        {
+                                            category.description = OutNameDescription.Trim();
+                                        }
                                         await foodDeliveryContext.Categories.AddAsync(category);
                                         await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных
-                                        // закрываем Popup
-                                        ClosePopupWorkingWithData();
-                                        // обновляем список
-                                        GetListCategory();
+                                        ClosePopupWorkingWithData(); // закрываем Popup
+                                        GetListCategory(); // обновляем список
                                     }
                                     else
                                     {
@@ -174,7 +200,7 @@ namespace Food_Delivery.ViewModel.Administrator
                             else // редактирование данных
                             {
                                 // проверяем наличие дубликата в БД (за исключением изменяемого объекта)
-                                using(FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+                                using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
                                 {
                                     List<Category> categories = await foodDeliveryContext.Categories.ToListAsync();
                                     categories = categories.Where(c => c.id != SelectedCategory.id).ToList(); // исключаем элемент из поиска совпадений,
@@ -193,10 +219,8 @@ namespace Food_Delivery.ViewModel.Administrator
                                                 categoryToChange.description = OutNameDescription.Trim();
                                             }
                                             await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных
-                                            // закрываем Popup
-                                            ClosePopupWorkingWithData();
-                                            // обновляем список
-                                            GetListCategory();
+                                            ClosePopupWorkingWithData(); // закрываем Popup
+                                            GetListCategory(); // обновляем список
                                         }
                                     }
                                     else
@@ -221,52 +245,90 @@ namespace Food_Delivery.ViewModel.Administrator
             }
         }
 
+        // удаление данных
+        private RelayCommand _btn_DeleteData { get; set; }
+        public RelayCommand Btn_DeleteData
+        {
+            get
+            {
+                return _btn_DeleteData ??
+                    (_btn_DeleteData = new RelayCommand(async (obj) =>
+                    {
+                        using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+                        {
+                            // ищем нужную категорию для удаления
+                            Category category = await foodDeliveryContext.Categories.FirstOrDefaultAsync(c => c.id == SelectedCategory.id);
+                            if (category != null)
+                            {
+                                foodDeliveryContext.Categories.Remove(category);
+                                await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных                       
+                                ClosePopupWorkingWithData(); // закрываем Popup
+                                GetListCategory(); // обновляем список
+                            }
+                        }
+                    }, (obj) => true));
+            }
+        }
+
         #endregion
 
         // свойства
         #region Features
 
         public Border DarkBackground { get; set; } // затемненный фон позади Popup
-        public Popup AddAndEditDataPopup { get; set; } // ссылка на Popup
+        public Popup AddAndEditDataPopup { get; set; } // ссылка на Popup для редактирования или добавления данных
         public TextBlock AnimationErrorInput { get; set; } // текстовое поле для вывода ошибки при поиске данных
         public TextBlock AnimationErrorInputPopup { get; set; } // текстовое поле для вывода ошибки при добавление или редактировании данных в Popup
-        public TextBox AnimationOutName {  get; set; } // поле для ввода текста "название категории". Вывод подсветки поля
+        public TextBox AnimationOutName { get; set; } // поле для ввода текста "название категории". Вывод подсветки поля
         public TextBox AnimationOutDescription { get; set; } // поле для ввода текста "описание категории". Вывод подсветки поля
         public Storyboard FieldIllumination { get; set; } // анимация объектов
+        public Popup DeleteDataPopup { get; set; } // ссылка на Popup для удаления данных
 
         // ассинхронно получаем информацию из CategoryPage 
-        public async Task InitializeAsync(Popup AddAndEditDataPopup, Border DarkBackground, TextBlock AnimationErrorInput, 
+        public async Task InitializeAsync(Popup AddAndEditDataPopup, Border DarkBackground, TextBlock AnimationErrorInput,
             TextBlock AnimationErrorInputPopup, TextBox AnimationOutName, TextBox AnimationOutDescription,
-            Storyboard FieldIllumination)
+            Storyboard FieldIllumination, Popup DeleteDataPopup)
         {
-            if(AddAndEditDataPopup != null)
+            if (AddAndEditDataPopup != null)
             {
                 this.AddAndEditDataPopup = AddAndEditDataPopup;
             }
-            if(DarkBackground != null)
+            if (DarkBackground != null)
             {
                 this.DarkBackground = DarkBackground;
             }
-            if(AnimationErrorInput != null)
+            if (AnimationErrorInput != null)
             {
                 this.AnimationErrorInput = AnimationErrorInput;
             }
-            if(AnimationErrorInputPopup != null)
+            if (AnimationErrorInputPopup != null)
             {
                 this.AnimationErrorInputPopup = AnimationErrorInputPopup;
             }
-            if(AnimationOutName != null)
+            if (AnimationOutName != null)
             {
                 this.AnimationOutName = AnimationOutName;
             }
-            if(AnimationOutDescription != null)
+            if (AnimationOutDescription != null)
             {
                 this.AnimationOutDescription = AnimationOutDescription;
             }
-            if(FieldIllumination != null)
+            if (FieldIllumination != null)
             {
                 this.FieldIllumination = FieldIllumination;
             }
+            if (DeleteDataPopup != null)
+            {
+                this.DeleteDataPopup = DeleteDataPopup;
+            }
+        }
+
+        // отображение названия категории в Popup для удаления данных
+        private string _nameOfCategoryDeleted { get; set; }
+        public string NameOfCategoryDeleted
+        {
+            get { return _nameOfCategoryDeleted; }
+            set { _nameOfCategoryDeleted = value; OnPropertyChanged(nameof(NameOfCategoryDeleted)); }
         }
 
         // название кнопки для подверждения действия при удалении или редактировании
@@ -294,7 +356,7 @@ namespace Food_Delivery.ViewModel.Administrator
         }
 
         // свойство для вывода текста в поле "название категории"
-        private string _outNameCategory {  get; set; }
+        private string _outNameCategory { get; set; }
         public string OutNameCategory
         {
             get { return _outNameCategory; }
@@ -310,7 +372,7 @@ namespace Food_Delivery.ViewModel.Administrator
         }
 
         // свойство для вывода ошибки при поиске данных в таблице
-        private string _errorInput {  get; set; }
+        private string _errorInput { get; set; }
         public string ErrorInput
         {
             get { return _errorInput; }
@@ -362,7 +424,7 @@ namespace Food_Delivery.ViewModel.Administrator
                 await GetListCategory(); // обновляем список
             }
 
-            if(ListCategory.Count == 0)
+            if (ListCategory.Count == 0)
             {
                 ErrorInput = "Категория не найдена!"; // собщение об ошибке
                 BeginFadeAnimation(AnimationErrorInput); // анимация затухания ошибки
