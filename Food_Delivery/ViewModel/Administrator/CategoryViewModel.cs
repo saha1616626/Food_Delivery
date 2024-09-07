@@ -27,7 +27,7 @@ namespace Food_Delivery.ViewModel.Administrator
             GetListCategory(); // вывод данных в таблицу
         }
 
-        // массив данных - категории
+        // вывод данных в таблицу
         #region workWithTable
 
         // коллекция отображения данных в таблице
@@ -56,7 +56,7 @@ namespace Food_Delivery.ViewModel.Administrator
         #region Popup
 
         // свойство определющее назаначение запуска Popup (редактирование или добавление данных)
-        private bool IsAddData { get; set; } // true - добавление данных; false - редактирование данных.
+        private bool IsAddData { get; set; } // true - добавление данных; false - редактирование данных
 
         // запускаем Popup для добавления данных
         private RelayCommand _btn_OpenPopupToAddData { get; set; }

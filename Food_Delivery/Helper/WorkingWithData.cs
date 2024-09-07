@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace Food_Delivery.Helper
 {
@@ -38,6 +39,15 @@ namespace Food_Delivery.Helper
 
         #endregion
 
+        // открываем нужный Popup при получении фокуса страницы
+        #region PopupWindowClosedWhenFocusLost 
 
+        public static event EventHandler<EventAggregator> _launchPopupAfterReceivingFocusDish; // подписываемся в DishesViewModel
+        public static void LaunchPopupAfterReceivingFocusDish()
+        {
+            _launchPopupAfterReceivingFocusDish?.Invoke(null, new EventAggregator()); // вызываем событие в MainWindow
+        }
+
+        #endregion
     }
 }

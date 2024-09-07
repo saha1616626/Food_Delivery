@@ -48,7 +48,7 @@
            Text="{Binding ErrorInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
            Margin="0,300,0,0" x:Name="ErrorInput" FontWeight="DemiBold" FontSize="20" Panel.ZIndex="1"/>
 
-        <!--кнопка добавить категорию-->
+        <!--кнопки для взаиомодействия над таблицей-->
         <Grid Grid.Row="1"  Margin="50,0,50,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -62,7 +62,7 @@
             <TextBox Grid.Row="0" Grid.Column="0" x:Name="Search" 
      Height="50" Margin="0,0,0,0"
      VerticalAlignment="Center" HorizontalAlignment="Left"
-     Text="{Binding NameEquipment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+     Text="{Binding NameCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
      materialDesign:TextFieldAssist.HasClearButton="True"
      TextChanged="СategorySearch"
      Style="{StaticResource MaterialDesignOutlinedTextBox}" 
@@ -156,7 +156,7 @@
                                  Text="{Binding OutNameCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
                                  materialDesign:TextFieldAssist.HasClearButton="True"
                                  Style="{StaticResource MaterialDesignOutlinedTextBox}" 
-                                 materialDesign:HintAssist.Hint="Введите название категории" 
+                                 materialDesign:HintAssist.Hint="Введите название категории*" 
                                  materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
                                  MaxLength="100" TextWrapping="Wrap" Width="320" />
 

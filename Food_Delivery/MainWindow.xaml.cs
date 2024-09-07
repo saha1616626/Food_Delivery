@@ -4,6 +4,8 @@ using Food_Delivery.Model;
 using Food_Delivery.View.Administrator.Menu;
 using Food_Delivery.View.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System.IO;
 using System.Net;
 using System.Text;
 using System.Windows;
@@ -15,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
 namespace Food_Delivery
 {
@@ -23,16 +26,54 @@ namespace Food_Delivery
     /// </summary>
     public partial class MainWindow : Window
     {
+        // путь к json работа окна Popup
+        readonly string pathDataPopup = @"E:\3comm\Documents\Предметы\Курс 3.2\Курсовая\Приложение\Программа\Food_Delivery\Food_Delivery\Data\СheckPopup.json";
 
-        public  MainWindow()
+        public MainWindow()
         {
             InitializeComponent();
 
             // запуск страницы авторизации
             LaunchAuthorizationPageAsync();
+
+            // при получении фокуса приложения проверяем закрытые Popup
+            this.Activated += checkingClosedWindows;
         }
 
+        #region IsCheckingClosed
 
+        // проверяем закрытие Popup при смене фокуса на приложении
+        private void checkingClosedWindows(object sender, EventArgs e)
+        {
+            // чтение JSON
+            string JSON = File.ReadAllText(pathDataPopup);
+            // получаем данные из JSON
+            dynamic data = JsonConvert.DeserializeObject(JSON);
+            if(data != null)
+            {
+                // изменение состояния Popup 
+                bool IsExitPopup = false; // не нужно очищать открытую страницу программы
+
+                if(data.popup == "Dishes")
+                {
+                    WorkingWithData.LaunchPopupAfterReceivingFocusDish(); // событие запуска Popup
+                    IsExitPopup = true; // закрываем Popup
+                }
+
+                //// если Popup был открыт после получения фокуса, то очищаем состояние Popup
+                //if(IsExitPopup)
+                //{
+                //    // очистка JSON
+                //    var jsonData = new { popup = "" };
+                //    // Преобразуем объект в JSON-строку
+                //    string jsonText = JsonConvert.SerializeObject(jsonData);
+                //    File.WriteAllText(pathDataPopup, jsonText);
+                //}
+
+            }
+        }
+
+        #endregion
 
         private async Task LaunchAuthorizationPageAsync()
         {

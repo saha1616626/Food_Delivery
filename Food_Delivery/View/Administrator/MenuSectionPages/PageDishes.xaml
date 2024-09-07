@@ -3,14 +3,341 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       xmlns:local="clr-namespace:Food_Delivery.View.Administrator.MenuSectionPages"
+      xmlns:viewModel="clr-namespace:Food_Delivery.ViewModel.Administrator"
+      PreviewMouseLeftButtonUp="Window_MouseLeftButtonDown"
+      MouseLeftButtonDown="Window_LossOfFocus"
       mc:Ignorable="d" 
       MinHeight="700" Height="Auto"
       Title="PageDishes">
 
-    <Grid>
+    <Page.Resources>
+        <viewModel:DishesViewModel x:Key="DishesViewModel"/>
 
-        <TextBlock Text="PageDishes" FontSize="100" HorizontalAlignment="Left"/>
+        <!--анимация подсветки полей-->
+        <Storyboard x:Key="FieldIllumination">
+            <ColorAnimation Storyboard.TargetProperty="Background.(SolidColorBrush.Color)"
+        From="#de6d6d" To="Transparent" Duration="0:0:3" AutoReverse="False"/>
+        </Storyboard>
+    </Page.Resources>
+
+    <Grid Background="AliceBlue" DataContext="{StaticResource DishesViewModel}">
+
+        <!--стили-->
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="\Dictionary\Table.xaml"/>
+                    <ResourceDictionary Source="\Dictionary\Popup.xaml"/>
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!--заголовок страницы-->
+        <TextBlock Text="Блюда" Grid.Row="0" FontSize="30" 
+                   Foreground="Black" FontWeight="DemiBold"  Margin="50,10,50,15"/>
+
+
+        <!--поле для вывода ошибок-->
+        <TextBlock Grid.ColumnSpan="4" Grid.RowSpan="4" HorizontalAlignment="Center"
+           Text="{Binding ErrorInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+           Margin="0,300,0,0" x:Name="ErrorInput" FontWeight="DemiBold" FontSize="20" Panel.ZIndex="1"/>
+
+        <!--кнопки для взаиомодействия над таблицей-->
+        <Grid Grid.Row="1"  Margin="50,0,50,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBox Grid.Row="0" Grid.Column="0" x:Name="Search" 
+                Height="50" Margin="0,0,0,0"
+                VerticalAlignment="Center" HorizontalAlignment="Left"
+                Text="{Binding NameDishes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                materialDesign:TextFieldAssist.HasClearButton="True"
+                TextChanged="DishesSearch"
+                Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                materialDesign:HintAssist.Hint="Поиск блюда" 
+                materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                MaxLength="100" TextWrapping="Wrap" Width="300" />
+
+            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" >
+                <Button Content="Добавить" 
+                   MinWidth="100" Height="35" Background="Gray" Command="{Binding Btn_OpenPopupToAddData}"
+                   BorderBrush="Black"/>
+
+                <Button Content="Редктировать" Command="{Binding Btn_OpenPopupToEditData}"
+                   MinWidth="100" Height="35" Background="Gray" BorderBrush="Black"
+                   Margin="10,0,0,0" IsEnabled="{Binding IsWorkButtonEnable}"/>
+
+                <Button Content="Удалить" MinWidth="100" 
+                   Height="35" Background="Gray" BorderBrush="Black" Command="{Binding Btn_OpenPopupToDeleteData}"
+                   Margin="10,0,0,0" IsEnabled="{Binding IsWorkButtonEnable}"/>
+            </StackPanel>
+
+        </Grid>
+
+        <!--таблица-->
+        <Grid  Grid.Row="2">
+            <DataGrid x:Name="Content" Margin="50,15,50,0"
+                      Padding="0,0,0,100"
+                      VerticalScrollBarVisibility="Auto"
+                      IsReadOnly="True"
+                      AutoGenerateColumns="False" 
+                      HorizontalScrollBarVisibility="Hidden"
+                      ColumnHeaderStyle="{StaticResource columnTableHeader}"
+                      ItemsSource="{Binding ListDishes}"
+                      SelectedItem="{Binding SelectedDishes}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Width="50*" Header="Название" Binding="{Binding name}">
+
+                    </DataGridTextColumn>
+                    <!--<DataGridTextColumn Width="50*" Header="Описание" Binding="{Binding description}">
+
+                    </DataGridTextColumn>-->
+                    <DataGridTextColumn Width="50*" Header="Категория" Binding="{Binding categoryName}">
+
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Width="30*" Header="Вес (г)" Binding="{Binding weight}">
+
+                    </DataGridTextColumn>
+                    <!--<DataGridTextColumn Width="50*" Header="Ккал" Binding="{Binding calories}">
+
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Width="50*" Header="Белки (г)" Binding="{Binding squirrels}">
+
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Width="50*" Header="Жиры (г)" Binding="{Binding fats}">
+
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Width="50*" Header="Углеводы (г)" Binding="{Binding carbohydrates}">
+
+                    </DataGridTextColumn>-->
+                    <DataGridTextColumn Width="30*" Header="Кол-во в&#x0A;  наборе" Binding="{Binding quantity}">
+
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Width="30*" Header="Цена" Binding="{Binding price}">
+
+                    </DataGridTextColumn>
+                    <DataGridTemplateColumn Width="50*" Header="Фото">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Image Source="{Binding image}" Width="50" Height="50" Stretch="Uniform" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Width="50*" Header="Стоп лист">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding stopList}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+
+        <!--Popap добавления и редактирования информации-->
+
+        <!--фон для Popup-->
+        <Border Grid.ColumnSpan="4" Grid.RowSpan="4" x:Name="DarkBackground" 
+        Background="#80000000" Visibility="Collapsed" Panel.ZIndex="1" 
+        Margin="-500,0,-500,-500"/>
+
+        <!-- размещение Popup относительно данного grid-->
+        <Grid x:Name="positionPopup" Grid.RowSpan="4" Grid.ColumnSpan="4" 
+      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <!--Popup для редактирования или добавления данных-->
+        <Grid>
+            <Popup x:Name="AddAndEditDataPopup" PlacementTarget="{Binding ElementName=positionPopup}" 
+           Placement="Center" Grid.ColumnSpan="4" Grid.RowSpan="4" HorizontalOffset="0"
+           VerticalOffset="-40" StaysOpen="False" Closed="MyPopup_Closed"
+           AllowsTransparency="False" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid Background="Gray">
+                    <!--фон-->
+                    <Border Background="AliceBlue" Style="{StaticResource OutlineOfPopup}" >
+                        <Grid Width="1000" Height="550">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!--название-->
+                            <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="{Binding HeadingPopup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                       FontSize="30"
+                                       Foreground="Black" FontWeight="DemiBold" Margin="0,20,0,0" 
+                                       VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+                            <!--поле для вывода ошибок-->
+                            <TextBlock Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" Text="{Binding ErrorInputPopup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                       Margin="20,50,90,0" x:Name="ErrorInputPopup" FontWeight="DemiBold" FontSize="21"/>
+
+                            <!--поле для ввода названия блюда-->
+                            <TextBox Grid.Column="0" Grid.Row="1" x:Name="NameDishes" Height="50" Margin="30,40,0,0"
+                                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Text="{Binding OutNameDishes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                    materialDesign:HintAssist.Hint="Введите название блюда*" 
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                                    MaxLength="100" TextWrapping="Wrap" Width="320" />
+
+                            <!--поле для ввода названия описания-->
+                            <TextBox Grid.Row="2" x:Name="DescriptionDishes" Height="80" 
+                                 VerticalAlignment="Center" materialDesign:HintAssist.Hint="Введите описание блюда" 
+                                 Text="{Binding OutNameDescription, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 materialDesign:TextFieldAssist.CharacterCounterVisibility="{Binding Path=IsChecked, 
+                                 ElementName=MaterialDesignOutlinedTextBoxTextCountComboBox, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                 MaxLength="300" Style="{StaticResource MaterialDesignOutlinedTextBox}" TextWrapping="Wrap" 
+                                 VerticalScrollBarVisibility="Auto" Width="320" Margin="30,10,0,0" />
+
+                            <!--выбор категории-->
+                            <ComboBox ItemsSource="{Binding OptionsCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                    Grid.Column="0" Grid.Row="3" x:Name="CbDishes" DisplayMemberPath="name"
+                                    SelectedValue="{Binding SelectedCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    IsReadOnly="True" VerticalAlignment="Top" Width="320" Margin="30,10,0,0" 
+                                    materialDesign:HintAssist.Hint="Выберите категорию*" IsEditable="True"
+                                    Style="{StaticResource MaterialDesignOutlinedComboBox}">
+                          
+                            </ComboBox>
+
+                            <!--поле для ввода названия цены-->
+                            <TextBox Grid.Column="0" Grid.Row="4" x:Name="PriceDishes" Height="50" Margin="30,10,0,0"
+                                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Text="{Binding OutPriceDishes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                    materialDesign:HintAssist.Hint="Введите цену блюда (целое число)*" 
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                                    MaxLength="4" TextWrapping="Wrap" Width="320" />
+
+                            <!--товар в стоп-листе-->
+                            <StackPanel Grid.Column="0" Grid.Row="5" Orientation="Horizontal" Margin="30,25,0,0" 
+                                        HorizontalAlignment="Center">
+                                <TextBlock Text="Добавить товар в стоп-лист:" FontWeight="ExtraBold" FontSize="14"/>
+                                <CheckBox x:Name="CbIsChecked" IsChecked="{Binding IsCheckedStopList, Mode=TwoWay}" Margin="10,-11,0,0"/>
+                            </StackPanel>
+
+                            <!--поле для ввода калорий-->
+                            <TextBox Grid.Column="1" Grid.Row="1" x:Name="СaloriesDishes" Height="50" Margin="30,40,0,0"
+                                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Text="{Binding OutСaloriesDishes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                    materialDesign:HintAssist.Hint="Введите кол-во калорий" 
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                                    MaxLength="4" TextWrapping="Wrap" Width="320" />
+
+                            <!--поле для ввода белков-->
+                            <TextBox Grid.Column="1" Grid.Row="2" x:Name="SquirrelsDishes" Height="50" Margin="30,10,0,0"
+                                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Text="{Binding OutSquirrelsDishes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                    materialDesign:HintAssist.Hint="Введите кол-во белков (г)" 
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                                    MaxLength="4" TextWrapping="Wrap" Width="320" />
+
+                            <!--поле для ввода жиров-->
+                            <TextBox Grid.Column="1" Grid.Row="3" x:Name="FatsDishes" Height="50" Margin="30,10,0,0"
+                                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Text="{Binding OutFatsDishes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                    materialDesign:HintAssist.Hint="Введите кол-во жиров (г)" 
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                                    MaxLength="4" TextWrapping="Wrap" Width="320" />
+
+                            <!--поле для ввода углеводов-->
+                            <TextBox Grid.Column="1" Grid.Row="4" x:Name="СarbohydratesDishes" Height="50" Margin="30,10,0,0"
+                                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Text="{Binding OutСarbohydratesDishes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                    materialDesign:HintAssist.Hint="Введите кол-во углеводов (г)" 
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                                    MaxLength="4" TextWrapping="Wrap" Width="320" />
+
+                            <!--поле для ввода веса блюда-->
+                            <TextBox Grid.Column="1" Grid.Row="5" x:Name="WeightDishes" Height="50" Margin="30,10,0,0"
+                                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Text="{Binding OutWeightDishes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                    materialDesign:HintAssist.Hint="Введите вес блюда (г)" 
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                                    MaxLength="4" TextWrapping="Wrap" Width="320" />
+
+                            <!--поле для ввода кол-ва штук в наборе-->
+                            <TextBox Grid.Column="1" Grid.Row="6" x:Name="QuantityDishes" Height="50" Margin="30,10,0,0"
+                                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Text="{Binding OutQuantityDishes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                    materialDesign:HintAssist.Hint="Введите кол-во штук в упаковке*" 
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                                    MaxLength="2" TextWrapping="Wrap" Width="320" />
+                            
+                            <!--Изображение-->
+                            <Grid Grid.Row="1" Grid.RowSpan="5" Grid.Column="2" VerticalAlignment="Top" Margin="0,49,0,0">
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Button Grid.Row="0" Content="Добавить изображение" Width="190" Height="35"  
+                                        Background="Indigo" BorderBrush="Black"  Command="{Binding AddImage}"/>
+
+                                <Image Grid.Column="1" Grid.Row="1" Grid.RowSpan="3" x:Name="imageControl" Source="{Binding Image, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+HorizontalAlignment="Center" VerticalAlignment="Center" Height="200" Width="200"  Margin="0,20,0,0" Stretch="Uniform"/>
+
+                            </Grid>
+                            
+                            <!--кнопки-->
+                            <Grid Grid.Row="7" Grid.Column="2" Margin="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                                <StackPanel Orientation="Vertical" Margin="20,-50,0,0">
+                                    <Button Grid.Row="0" Content="Отмена" 
+    Width="150" Height="35" Background="Gray" 
+    BorderBrush="Black" Command="{Binding ClosePopup}" />
+                                    <Button Grid.Row="1" Content="{Binding ActionConfirmationButton}"
+    x:Name="RenameButtonBrand" Width="150" Height="35" 
+    Background="Gray" BorderBrush="Black" Margin="0,15,0,0" Command="{Binding Btn_SaveData}"/>
+                                </StackPanel>
+
+                            </Grid>
+
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Popup>
+        </Grid>
 
     </Grid>
 </Page>
