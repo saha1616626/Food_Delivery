@@ -19,6 +19,8 @@ using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using System.IO;
 using Newtonsoft.Json;
+using System.Windows.Media.Animation;
+using Food_Delivery.Model;
 
 namespace Food_Delivery.View.Administrator.MenuSectionPages
 {
@@ -35,7 +37,9 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
 
             // ассинхронно передаём фрейм и другие атрибуты в DishesViewModel
             _dishesViewModel = (DishesViewModel)this.Resources["DishesViewModel"];
-            _dishesViewModel.InitializeAsync(AddAndEditDataPopup, DarkBackground);
+            _dishesViewModel.InitializeAsync(AddAndEditDataPopup, DarkBackground, (Storyboard)FindResource("FieldIllumination"),
+                NameDishes, ErrorInputPopup, CbCategory, PriceDishes, QuantityDishes, CaloriesDishes, SquirrelsDishes, FatsDishes,
+                CarbohydratesDishes, WeightDishes);
         }
 
 
@@ -45,6 +49,18 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
         private void MyPopup_Closed(object sender, EventArgs e)
         {
             DarkBackground.Visibility = Visibility.Collapsed;
+        }
+
+        // после того, как Popap был закрыт, мы оповещаем систему, что не надо запускать Popup после потери фокуса на приожении
+        private void Window_LossOfFocus(object sender, MouseButtonEventArgs e)
+        {
+            // путь к json работа окна Popup
+            string pathDataPopup = @"E:\3comm\Documents\Предметы\Курс 3.2\Курсовая\Приложение\Программа\Food_Delivery\Food_Delivery\Data\СheckPopup.json";
+
+            var jsonData = new { popup = "" };
+            // Преобразуем объект в JSON-строку
+            string jsonText = JsonConvert.SerializeObject(jsonData);
+            File.WriteAllText(pathDataPopup, jsonText);
         }
 
         #endregion
@@ -66,16 +82,5 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
             WorkingWithData.ExitHamburgerMenu();
         }
 
-        // после того, как Popap был закрыт, мы оповещаем систему, что не надо запускать Popup после потери фокуса на приожении
-        private void Window_LossOfFocus(object sender, MouseButtonEventArgs e)
-        {
-            // путь к json работа окна Popup
-            string pathDataPopup = @"E:\3comm\Documents\Предметы\Курс 3.2\Курсовая\Приложение\Программа\Food_Delivery\Food_Delivery\Data\СheckPopup.json";
-
-            var jsonData = new { popup = "" };
-            // Преобразуем объект в JSON-строку
-            string jsonText = JsonConvert.SerializeObject(jsonData);
-            File.WriteAllText(pathDataPopup, jsonText);
-        }
     }
 }

@@ -3,13 +3,16 @@ using Food_Delivery.Helper;
 using Food_Delivery.Model;
 using Food_Delivery.Model.DPO;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,7 +20,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Media3D;
 
 namespace Food_Delivery.ViewModel.Administrator
 {
@@ -28,7 +33,7 @@ namespace Food_Delivery.ViewModel.Administrator
 
         public DishesViewModel()
         {
-
+            GetListCategory();  // вывод данных в таблицу
 
             // после получения фокуса данного приложения запукаем закрытый Popup
             WorkingWithData._launchPopupAfterReceivingFocusDish += LaunchingPopupWhenGettingFocus;
@@ -105,11 +110,86 @@ namespace Food_Delivery.ViewModel.Administrator
 
                         ClearingPopup(); // очищаем поля
 
-                        // передаём в JSON, что мы запустили Popup
-                        var jsonData = new { popup = "Dishes" };
-                        // Преобразуем объект в JSON-строку
-                        string jsonText = JsonConvert.SerializeObject(jsonData);
-                        File.WriteAllText(pathDataPopup, jsonText);
+                        NotificationOfThePopupLaunchJson(); // оповещаем JSON, чтомы запустили Popup
+
+                    }, (obj) => true));
+            }
+        }
+
+        // запускаем Popup для редактирования данных
+        private RelayCommand _btn_OpenPopupToEditData { get; set; }
+        public RelayCommand Btn_OpenPopupToEditData
+        {
+            get
+            {
+                return _btn_OpenPopupToEditData ??
+                    (_btn_OpenPopupToEditData = new RelayCommand(async (obj) =>
+                    {
+                        ClearingPopup(); // очищаем поля
+                        IsAddData = false; // изменяем режим работы Popup на режим добавления данных
+                        IsCheckAddAndEditOrDelete = true; // режим редактирования или добавления данных (удержания фокуса на Popup)
+                        AddAndEditDataPopup.IsOpen = true; // отображаем Popup
+                        DarkBackground.Visibility = Visibility.Visible; // показать фон
+                        WorkingWithData.ExitHamburgerMenu(); // закрываем, если открыто "гамбургер меню"
+                        HeadingPopup = "Изменить категорию"; // изменяем заголовок Popup
+                        ActionConfirmationButton = "Изменить"; // изменение названия кнопки подтверждения действия
+                        // добавляем данные в ComboBox
+                        using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+                        {
+                            List<Category> categories = await foodDeliveryContext.Categories.ToListAsync();
+                            List<Dishes> dishes = await foodDeliveryContext.Dishes.ToListAsync();
+
+                            // добавляем категории в список
+                            OptionsCategory = categories;
+
+                            // ищем нужное блюдо для вывода информации в поля
+                            Dishes dishesToChange = dishes.FirstOrDefault(d => d.id == SelectedDishes.id);
+                            if(dishesToChange != null)
+                            {
+                                // отображаем выбранную категорию
+                                Category category = categories.FirstOrDefault(c => c.id == dishesToChange.categoryId);// ищем категорию выбранного блюда
+                                if (category != null)
+                                {
+                                    SelectedCategory = category;
+                                }
+
+                                OutNameDishes = dishesToChange.name;
+                                if (!string.IsNullOrWhiteSpace(dishesToChange.description))
+                                {
+                                    OutNameDescription = dishesToChange.description;
+                                }
+                                if (!string.IsNullOrWhiteSpace(dishesToChange.calories.ToString()))
+                                {
+                                    OutСaloriesDishes = dishesToChange.calories.ToString();
+                                }
+                                if (!string.IsNullOrWhiteSpace(dishesToChange.squirrels.ToString()))
+                                {
+                                    OutSquirrelsDishes = dishesToChange.squirrels.ToString();
+                                }
+                                if (!string.IsNullOrWhiteSpace(dishesToChange.fats.ToString()))
+                                {
+                                    OutFatsDishes = dishesToChange.fats.ToString();
+                                }
+                                if (!string.IsNullOrWhiteSpace(dishesToChange.carbohydrates.ToString()))
+                                {
+                                    OutСarbohydratesDishes = dishesToChange.carbohydrates.ToString();
+                                }
+                                if (!string.IsNullOrWhiteSpace(dishesToChange.weight.ToString()))
+                                {
+                                    OutWeightDishes = dishesToChange.weight.ToString();
+                                }
+                                OutQuantityDishes = dishesToChange.quantity.ToString();
+                                OutPriceDishes = dishesToChange.price.ToString();
+                                // преобразуем фото в формат CroppedBitmap для отображения
+                                CroppedBitmap croppedBitmap = ResizingPhotos(dishesToChange.image, 200);
+                                Image = croppedBitmap;
+                                imageBd = dishesToChange.image; // выбираем изображение для дальнейшей работы
+                                IsCheckedStopList = dishesToChange.stopList;
+                            }
+
+                        }
+
+                        NotificationOfThePopupLaunchJson(); // оповещаем JSON, чтомы запустили Popup
 
                     }, (obj) => true));
             }
@@ -120,7 +200,7 @@ namespace Food_Delivery.ViewModel.Administrator
         {
             OutNameDishes = ""; // название
             OutNameDescription = ""; // описание
-            SelectedCategory = ""; // категория
+            SelectedCategory = null; // категория
             OutPriceDishes = ""; // цена блюда
             OutСaloriesDishes = ""; // кол-во каллорий
             OutSquirrelsDishes = ""; // кол-во белков
@@ -157,13 +237,27 @@ namespace Food_Delivery.ViewModel.Administrator
                             }
                             if (image.Length > 0 || image != null)
                             {
-                                
-                                // передаём набор байтов в переменную для дальнейшей работы с БД
-                                imageBd = image;
-
                                 // изменяем размер изображения, сохраняя пропорции
                                 int desiredSize = 200; // Pазмер изображения
                                 CroppedBitmap croppedBitmap = ResizingPhotos(image, desiredSize);
+
+                                // преобразуем CroppedBitmap в byte[] для того, чтобы измененное
+                                // изображение передать в переменную для дальнейшей работы с БД
+
+                                // преобразование CroppedBitmap в BitmapSource
+                                BitmapSource bitmapSource = croppedBitmap;
+
+                                // создание MemoryStream для записи данных
+                                using (MemoryStream ms = new MemoryStream())
+                                {
+                                    // сохранение BitmapSource в MemoryStream в формате PNG
+                                    PngBitmapEncoder encoder = new PngBitmapEncoder();
+                                    encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+                                    encoder.Save(ms);
+
+                                    imageBd = ms.ToArray(); // получаем массив байтов из MemoryStream
+                                }
+
                                 Image = croppedBitmap; // выводим изображение на экран
                             }
                         }
@@ -243,6 +337,283 @@ namespace Food_Delivery.ViewModel.Administrator
             DarkBackground.Visibility = Visibility.Collapsed; // скрываем фон
         }
 
+        // добавление или редактирование данных
+        private RelayCommand _btn_SaveData { get; set; }
+        public RelayCommand Btn_SaveData
+        {
+            get
+            {
+                return _btn_SaveData ??
+                    (_btn_SaveData = new RelayCommand(async (obj) =>
+                    {
+                        // проверка наличия обязательных данных
+                        if (!string.IsNullOrWhiteSpace(OutNameDishes) && SelectedCategory != null && 
+                        !string.IsNullOrWhiteSpace(OutPriceDishes) && !string.IsNullOrWhiteSpace(OutQuantityDishes) && imageBd != null)
+                        {
+                            // проверяем корректность введенных данных
+                            bool isCheckingNumbers = false; // переменная корректности введенных чисел
+
+                            int price = 0; // цена
+                            int calories = 0; // калории
+                            int squirrels = 0; // белки
+                            int fats = 0; // жиры
+                            int carbohydrates = 0; // углеводы
+                            int weight = 0; // вес блюда
+                            int quantity = 0; // кол-во в упаковке
+
+                            ErrorInputPopup = ""; // очищаем сообщение об ошибке
+
+                            // проверяем цело число в поле "Цена"
+                            isCheckingNumbers = int.TryParse(OutPriceDishes.Trim(), out price);
+                            if (!isCheckingNumbers) // число не получено
+                            {
+                                StartFieldIllumination(AnimationPrice); // подсветка поля
+                                ErrorInputPopup = "Введите целое число!"; // сообщение с обибкой
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(OutСaloriesDishes)) // если поле не нулевое
+                            {
+                                // проверяем цело число в поле "калории"
+                                isCheckingNumbers = int.TryParse(OutСaloriesDishes.Trim(), out calories);
+                                if (!isCheckingNumbers) // число не получено
+                                {
+                                    StartFieldIllumination(AnimationСalories); // подсветка поля
+                                    ErrorInputPopup = "Введите целое число!"; // сообщение с обибкой
+                                }
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(OutFatsDishes)) // если поле не нулевое
+                            {
+                                // проверяем цело число в поле "жиры"
+                                isCheckingNumbers = int.TryParse(OutFatsDishes.Trim(), out fats);
+                                if (!isCheckingNumbers) // число не получено
+                                {
+                                    StartFieldIllumination(AnimationFats); // подсветка поля
+                                    ErrorInputPopup = "Введите целое число!"; // сообщение с обибкой
+                                }
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(OutSquirrelsDishes)) // если поле не нулевое
+                            {
+                                // проверяем цело число в поле "белки"
+                                isCheckingNumbers = int.TryParse(OutSquirrelsDishes.Trim(), out squirrels);
+                                if (!isCheckingNumbers) // число не получено
+                                {
+                                    StartFieldIllumination(AnimationSquirrels); // подсветка поля
+                                    ErrorInputPopup = "Введите целое число!"; // сообщение с обибкой
+                                }
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(OutСarbohydratesDishes)) // если поле не нулевое
+                            {
+                                // проверяем цело число в поле "углеводы"
+                                isCheckingNumbers = int.TryParse(OutСarbohydratesDishes.Trim(), out carbohydrates);
+                                if (!isCheckingNumbers) // число не получено
+                                {
+                                    StartFieldIllumination(AnimationCarbohydrates); // подсветка поля
+                                    ErrorInputPopup = "Введите целое число!"; // сообщение с обибкой
+                                }
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(OutWeightDishes)) // если поле не нулевое
+                            {
+                                // проверяем цело число в поле "белки"
+                                isCheckingNumbers = int.TryParse(OutWeightDishes.Trim(), out weight);
+                                if (!isCheckingNumbers) // число не получено
+                                {
+                                    StartFieldIllumination(AnimationWeight); // подсветка поля
+                                    ErrorInputPopup = "Введите целое число!"; // сообщение с обибкой
+                                }
+                            }
+
+                            // проверяем цело число в поле "Кол-во в упаковке"
+                            isCheckingNumbers = int.TryParse(OutQuantityDishes.Trim(), out quantity);
+                            if (!isCheckingNumbers) // число не получено
+                            {
+                                StartFieldIllumination(AnimationQuantity); // подсветка поля
+                                ErrorInputPopup = "Введите целое число!"; // сообщение с обибкой
+                            }
+
+                            BeginFadeAnimation(AnimationErrorInputPopup); // затухание сообщения об ошибке
+
+                            if (isCheckingNumbers) // если все данные корректны
+                            {
+                                if (IsAddData) // добавление данных
+                                {
+                                    // проверяем наличие дубликата в БД
+                                    using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+                                    {
+                                        List<Dishes> dishes = await foodDeliveryContext.Dishes.ToListAsync();
+                                        if (!dishes.Any(d => d.name.ToLowerInvariant().Contains(OutNameDishes.ToLowerInvariant().Trim())))
+                                        {
+                                            // добавляем данные в БД
+                                            Dishes dis = new Dishes();
+                                            dis.name = OutNameDishes.Trim();
+                                            if (!string.IsNullOrWhiteSpace(OutNameDescription))
+                                            {
+                                                dis.description = OutNameDescription.Trim();
+                                            }
+                                            dis.categoryId = SelectedCategory.id;
+                                            if (!string.IsNullOrWhiteSpace(OutСaloriesDishes))
+                                            {
+                                                dis.calories = calories;
+                                            }
+                                            if (!string.IsNullOrWhiteSpace(OutSquirrelsDishes))
+                                            {
+                                                dis.squirrels = squirrels;
+                                            }
+                                            if (!string.IsNullOrWhiteSpace(OutFatsDishes))
+                                            {
+                                                dis.fats = fats;
+                                            }
+                                            if (!string.IsNullOrWhiteSpace(OutСarbohydratesDishes))
+                                            {
+                                                dis.carbohydrates = carbohydrates;
+                                            }
+                                            if (!string.IsNullOrWhiteSpace(OutWeightDishes))
+                                            {
+                                                dis.weight = weight;
+                                            }
+                                            if (!string.IsNullOrWhiteSpace(OutQuantityDishes))
+                                            {
+                                                dis.quantity = quantity;
+                                            }
+                                            if (!string.IsNullOrWhiteSpace(OutPriceDishes))
+                                            {
+                                                dis.price = price;
+                                            }
+                                            dis.image = imageBd;
+                                            if(IsCheckedStopList != null)
+                                            {
+                                                dis.stopList = IsCheckedStopList;
+                                            }
+
+                                            await foodDeliveryContext.Dishes.AddAsync(dis);
+                                            await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных
+                                            ClosePopupWorkingWithData(); // закрываем Popup
+                                            GetListCategory(); // обновляем список
+                                            ClearingPopup(); // очищаем поля
+                                        }
+                                        else
+                                        {
+                                            // данные уже существуют
+                                            StartFieldIllumination(AnimationOutName); // подсветка поля
+                                            ErrorInputPopup = "Категория с таким названием уже существует!"; // сообщение с обибкой
+                                            BeginFadeAnimation(AnimationErrorInputPopup); // затухание сообщения об ошибке
+                                        }
+                                    }
+                                }
+                                else // редактирование данных
+                                {
+                                    // проверяем наличие дубликата в БД (за исключением изменяемого объекта)
+                                    using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+                                    {
+                                        List<Dishes> dishes = await foodDeliveryContext.Dishes.ToListAsync();
+                                        dishes = dishes.Where(d => d.id != SelectedDishes.id).ToList(); // исключаем элемент из поиска совпадений,
+                                                                                                        // который мы выбрали для редактирования
+                                        if(!dishes.Any(d => d.name.ToLowerInvariant()
+                                        .Contains(OutNameDishes.ToLowerInvariant().Trim())))
+                                        {
+                                            // находим объект для изменения в БД
+                                            Dishes dishesToChange = await foodDeliveryContext.Dishes.FirstOrDefaultAsync(d => d.id == SelectedDishes.id);
+                                            if(dishesToChange != null)
+                                            {
+                                                // изменяем данные
+                                                dishesToChange.name = OutNameDishes.Trim();
+                                                if (!string.IsNullOrWhiteSpace(OutNameDescription))
+                                                {
+                                                    dishesToChange.description = OutNameDescription.Trim();
+                                                }
+                                                dishesToChange.categoryId = SelectedCategory.id;
+                                                if (!string.IsNullOrWhiteSpace(OutСaloriesDishes))
+                                                {
+                                                    dishesToChange.calories = calories;
+                                                }
+                                                if (!string.IsNullOrWhiteSpace(OutSquirrelsDishes))
+                                                {
+                                                    dishesToChange.squirrels = squirrels;
+                                                }
+                                                if (!string.IsNullOrWhiteSpace(OutFatsDishes))
+                                                {
+                                                    dishesToChange.fats = fats;
+                                                }
+                                                if (!string.IsNullOrWhiteSpace(OutСarbohydratesDishes))
+                                                {
+                                                    dishesToChange.carbohydrates = carbohydrates;
+                                                }
+                                                if (!string.IsNullOrWhiteSpace(OutWeightDishes))
+                                                {
+                                                    dishesToChange.weight = weight;
+                                                }
+                                                dishesToChange.quantity = quantity;
+                                                dishesToChange.price = price;
+                                                dishesToChange.image = imageBd;
+                                                if (IsCheckedStopList != null)
+                                                {
+                                                    dishesToChange.stopList = IsCheckedStopList;
+                                                }
+
+                                                await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных
+                                                ClosePopupWorkingWithData(); // закрываем Popup
+                                                GetListCategory(); // обновляем список
+                                                ClearingPopup(); // очищаем поля
+
+                                            }
+                                        }
+                                        else
+                                        {
+                                            // данные уже существуют
+                                            StartFieldIllumination(AnimationOutName); // подсветка поля
+                                            ErrorInputPopup = "Блюдо с таким названием уже существует!"; // сообщение с обибкой
+                                            BeginFadeAnimation(AnimationErrorInputPopup); // затухание сообщения об ошибке
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            ErrorInputPopup = ""; // очищаем сообщение об ошибке
+
+                            // проверяем заполнение обязательных полей
+
+                            if (string.IsNullOrWhiteSpace(OutNameDishes))
+                            {
+                                StartFieldIllumination(AnimationOutName); // подсветка поля
+                                ErrorInputPopup = "Заполните обязательные поля!"; // сообщение с обибкой
+                            }
+
+                            if(SelectedCategory == null)
+                            {
+                                StartFieldIllumination(AnimationCbCategory);
+                                ErrorInputPopup = "Заполните обязательные поля!"; // сообщение с обибкой
+                            }
+
+                            if(string.IsNullOrWhiteSpace(OutPriceDishes))
+                            {
+                                StartFieldIllumination(AnimationPrice);
+                                ErrorInputPopup = "Заполните обязательные поля!"; // сообщение с обибкой
+                            }
+
+                            if (string.IsNullOrWhiteSpace(OutQuantityDishes))
+                            {
+                                StartFieldIllumination(AnimationQuantity);
+                                ErrorInputPopup = "Заполните обязательные поля!"; // сообщение с обибкой
+                            }
+
+                            if(imageBd == null)
+                            {
+                                ErrorInputPopup += "\nВыберете изображение!";
+                            }
+
+                            BeginFadeAnimation(AnimationErrorInputPopup); // затухание сообщения об ошибке
+                        }
+
+                    }, (obj) => true));
+            }
+        }
+
         // запускаем Popup (для редактирования или удаления)
         private void LaunchingPopupWhenGettingFocus(object sender, EventAggregator eventAggregator)
         {
@@ -252,6 +623,16 @@ namespace Food_Delivery.ViewModel.Administrator
                 DarkBackground.Visibility = Visibility.Visible; // показать фон
                 WorkingWithData.ExitHamburgerMenu(); // закрываем, если открыто "гамбургер меню"
             }
+        }
+
+        // записываем в JSON, что мы запустили Popup данной страницы
+        private void NotificationOfThePopupLaunchJson()
+        {
+            // передаём в JSON, что мы запустили Popup
+            var jsonData = new { popup = "Dishes" };
+            // Преобразуем объект в JSON-строку
+            string jsonText = JsonConvert.SerializeObject(jsonData);
+            File.WriteAllText(pathDataPopup, jsonText);
         }
 
         #endregion
@@ -265,10 +646,21 @@ namespace Food_Delivery.ViewModel.Administrator
         public TextBlock AnimationErrorInputPopup { get; set; } // текстовое поле для вывода ошибки при добавление или редактировании данных в Popup
         public TextBox AnimationOutName { get; set; } // поле для ввода текста "название блюда". Вывод подсветки поля
         public TextBox AnimationOutDescription { get; set; } // поле для ввода текста "описание блюда". Вывод подсветки поля
-        //public TextBox AnimationOutCategoryName { get; set; } // поле для ввода текста "название категории". Вывод подсветки поля
+        public ComboBox AnimationCbCategory { get; set; } // поле для выбора категории из списка
+        public TextBox AnimationPrice { get; set; } // поле для ввода текста "цена блюда". Вывод подсветки поля
+        public TextBox AnimationQuantity { get; set; } // поле для ввода текста "кол-во в упаковке". Вывод подсветки поля
+        public TextBox AnimationСalories { get; set; } // поле для ввода текста "кол-во калорий". Вывод подсветки поля
+        public TextBox AnimationSquirrels { get; set; } // поле для ввода текста "кол-во белков". Вывод подсветки поля
+        public TextBox AnimationFats { get; set; } // поле для ввода текста "кол-во жиров". Вывод подсветки поля
+        public TextBox AnimationCarbohydrates { get; set; } // поле для ввода текста "кол-во углеводов". Вывод подсветки поля
+        public TextBox AnimationWeight { get; set; } // поле для ввода текста "вес". Вывод подсветки поля
+        public Storyboard FieldIllumination { get; set; } // анимация объектов
 
         // ассинхронно получаем информацию из DishesPage 
-        public async Task InitializeAsync(Popup AddAndEditDataPopup, Border DarkBackground)
+        public async Task InitializeAsync(Popup AddAndEditDataPopup, Border DarkBackground, Storyboard FieldIllumination, TextBox AnimationOutName,
+            TextBlock AnimationErrorInputPopup, ComboBox AnimationCbCategory, TextBox AnimationPrice, TextBox AnimationQuantity, 
+            TextBox AnimationСalories, TextBox AnimationSquirrels, TextBox AnimationFats, TextBox AnimationCarbohydrates,
+            TextBox AnimationWeight)
         {
             if (AddAndEditDataPopup != null)
             {
@@ -278,6 +670,74 @@ namespace Food_Delivery.ViewModel.Administrator
             {
                 this.DarkBackground = DarkBackground;
             }
+            if(AnimationOutName != null)
+            {
+                this.AnimationOutName = AnimationOutName;
+            }
+            if(AnimationErrorInputPopup != null)
+            {
+                this.AnimationErrorInputPopup = AnimationErrorInputPopup;
+            }
+            if(FieldIllumination != null)
+            {
+                this.FieldIllumination = FieldIllumination;
+            }
+            if(AnimationCbCategory != null)
+            {
+                this.AnimationCbCategory = AnimationCbCategory;
+            }
+            if(AnimationPrice != null)
+            {
+                this.AnimationPrice = AnimationPrice;
+            }
+            if(AnimationQuantity != null)
+            {
+                this.AnimationQuantity = AnimationQuantity;
+            }
+            if(AnimationСalories != null)
+            {
+                this.AnimationСalories = AnimationСalories;
+            }
+            if(AnimationSquirrels != null)
+            {
+                this.AnimationSquirrels = AnimationSquirrels;
+            }
+            if(AnimationFats != null)
+            {
+                this.AnimationFats = AnimationFats;
+            }
+            if(AnimationCarbohydrates != null)
+            {
+                this.AnimationCarbohydrates = AnimationCarbohydrates;
+            }
+            if(AnimationWeight != null)
+            {
+                this.AnimationWeight = AnimationWeight;
+            }
+        }
+
+        // выбранное блюдо
+        private DishesDPO _selectedDishes { get; set; }
+        public DishesDPO SelectedDishes
+        {
+            get { return _selectedDishes; }
+            set { _selectedDishes = value; OnPropertyChanged(nameof(SelectedDishes)); OnPropertyChanged(nameof(IsWorkButtonEnable)); }
+        }
+
+        // отображение кнопки "удалить" и "редакировать"
+        private bool _isWorkButtonEnable { get; set; }
+        public bool IsWorkButtonEnable
+        {
+            get { return SelectedDishes != null; } // если в таблице выбранн объект, то кнопки работают
+            set { _isWorkButtonEnable = value; OnPropertyChanged(nameof(IsWorkButtonEnable)); }
+        }
+
+        // свойство для вывода ошибки при добавлении или редактировании данных
+        private string _errorInputPopup { get; set; }
+        public string ErrorInputPopup
+        {
+            get { return _errorInputPopup; }
+            set { _errorInputPopup = value; OnPropertyChanged(nameof(ErrorInputPopup)); }
         }
 
         // название блюда
@@ -297,8 +757,8 @@ namespace Food_Delivery.ViewModel.Administrator
         }
 
         // выбранная категория
-        private string _selectedCategory { get; set; }
-        public string SelectedCategory
+        private Category _selectedCategory { get; set; }
+        public Category SelectedCategory
         {
             get { return _selectedCategory; }
             set { _selectedCategory = value; OnPropertyChanged(nameof(SelectedCategory)); }
@@ -413,6 +873,40 @@ namespace Food_Delivery.ViewModel.Administrator
         {
             get { return _headingPopup; }
             set { _headingPopup = value; OnPropertyChanged(nameof(HeadingPopup)); }
+        }
+
+        #endregion
+
+        // анимации
+        #region Animation
+
+        // анимация затухания текста
+        private void BeginFadeAnimation(TextBlock textBlock)
+        {
+            textBlock.IsEnabled = true;
+            textBlock.Opacity = 1.0;
+
+            Storyboard storyboard = new Storyboard();
+            DoubleAnimation fadeAnimation = new DoubleAnimation
+            {
+                From = 1.0,
+                To = 0.0,
+                Duration = TimeSpan.FromSeconds(1)
+            };
+            Storyboard.SetTargetProperty(fadeAnimation, new PropertyPath(TextBlock.OpacityProperty));
+            storyboard.Children.Add(fadeAnimation);
+            storyboard.Completed += (s, e) => textBlock.IsEnabled = false;
+            storyboard.Begin(textBlock);
+        }
+
+        // запуск анимацию подсвечивание объекта
+        private void StartFieldIllumination(TextBox textBox)
+        {
+            FieldIllumination.Begin(textBox);
+        }
+        private void StartFieldIllumination(ComboBox comboBox)
+        {
+            FieldIllumination.Begin(comboBox);
         }
 
         #endregion

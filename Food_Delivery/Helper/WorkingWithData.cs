@@ -42,6 +42,14 @@ namespace Food_Delivery.Helper
         // открываем нужный Popup при получении фокуса страницы
         #region PopupWindowClosedWhenFocusLost 
 
+        // запуск Popup категорий
+        public static event EventHandler<EventAggregator> _launchPopupAfterReceivingFocusCategory; // подписываемся в CategoryViewModel
+        public static void LaunchPopupAfterReceivingFocusCategory()
+        {
+            _launchPopupAfterReceivingFocusCategory?.Invoke(null, new EventAggregator()); // вызываем событие в MainWindow
+        }
+
+        // запуск Popup блюд
         public static event EventHandler<EventAggregator> _launchPopupAfterReceivingFocusDish; // подписываемся в DishesViewModel
         public static void LaunchPopupAfterReceivingFocusDish()
         {

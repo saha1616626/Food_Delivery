@@ -51,24 +51,18 @@ namespace Food_Delivery
             dynamic data = JsonConvert.DeserializeObject(JSON);
             if(data != null)
             {
-                // изменение состояния Popup 
-                bool IsExitPopup = false; // не нужно очищать открытую страницу программы
+                // категории
+                if(data.popup == "Category")
+                {
+                    WorkingWithData.LaunchPopupAfterReceivingFocusCategory(); // событие запуска Popup
+                }
 
+                // блюда
                 if(data.popup == "Dishes")
                 {
                     WorkingWithData.LaunchPopupAfterReceivingFocusDish(); // событие запуска Popup
-                    IsExitPopup = true; // закрываем Popup
                 }
 
-                //// если Popup был открыт после получения фокуса, то очищаем состояние Popup
-                //if(IsExitPopup)
-                //{
-                //    // очистка JSON
-                //    var jsonData = new { popup = "" };
-                //    // Преобразуем объект в JSON-строку
-                //    string jsonText = JsonConvert.SerializeObject(jsonData);
-                //    File.WriteAllText(pathDataPopup, jsonText);
-                //}
 
             }
         }

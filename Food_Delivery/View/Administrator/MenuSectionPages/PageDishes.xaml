@@ -91,28 +91,43 @@
         <!--таблица-->
         <Grid  Grid.Row="2">
             <DataGrid x:Name="Content" Margin="50,15,50,0"
-                      Padding="0,0,0,100"
-                      VerticalScrollBarVisibility="Auto"
+                      Padding="0,0,0,50"
                       IsReadOnly="True"
-                      AutoGenerateColumns="False" 
-                      HorizontalScrollBarVisibility="Hidden"
+                      AutoGenerateColumns="False"
+                      VerticalScrollBarVisibility="Auto"
                       ColumnHeaderStyle="{StaticResource columnTableHeader}"
                       ItemsSource="{Binding ListDishes}"
                       SelectedItem="{Binding SelectedDishes}">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Width="50*" Header="Название" Binding="{Binding name}">
 
-                    </DataGridTextColumn>
-                    <!--<DataGridTextColumn Width="50*" Header="Описание" Binding="{Binding description}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Width="50*" Header="Название" Binding="{Binding name}">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Left" />
+                                    <Setter Property="Margin" Value="15,0,20,0"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <!--<DataGridTextColumn Width="50*" Header="Описание" Binding="{Binding description}">
 
                     </DataGridTextColumn>-->
-                    <DataGridTextColumn Width="50*" Header="Категория" Binding="{Binding categoryName}">
-
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Width="30*" Header="Вес (г)" Binding="{Binding weight}">
-
-                    </DataGridTextColumn>
-                    <!--<DataGridTextColumn Width="50*" Header="Ккал" Binding="{Binding calories}">
+                        <DataGridTextColumn Width="50*" Header="Категория" Binding="{Binding categoryName}">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center" />
+                                    <Setter Property="Margin" Value="15,0,20,0"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Width="30*" Header="Вес (г)" Binding="{Binding weight}">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center" />
+                                    <Setter Property="Margin" Value="15,0,20,0"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <!--<DataGridTextColumn Width="50*" Header="Ккал" Binding="{Binding calories}">
 
                     </DataGridTextColumn>
                     <DataGridTextColumn Width="50*" Header="Белки (г)" Binding="{Binding squirrels}">
@@ -124,28 +139,38 @@
                     <DataGridTextColumn Width="50*" Header="Углеводы (г)" Binding="{Binding carbohydrates}">
 
                     </DataGridTextColumn>-->
-                    <DataGridTextColumn Width="30*" Header="Кол-во в&#x0A;  наборе" Binding="{Binding quantity}">
-
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Width="30*" Header="Цена" Binding="{Binding price}">
-
-                    </DataGridTextColumn>
-                    <DataGridTemplateColumn Width="50*" Header="Фото">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Image Source="{Binding image}" Width="50" Height="50" Stretch="Uniform" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Width="50*" Header="Стоп лист">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <CheckBox IsChecked="{Binding stopList}" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                </DataGrid.Columns>
-            </DataGrid>
+                        <DataGridTextColumn Width="30*" Header="Кол-во в&#x0A;  наборе" Binding="{Binding quantity}">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center" />
+                                    <Setter Property="Margin" Value="15,0,20,0"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Width="30*" Header="Цена" Binding="{Binding price}">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center" />
+                                    <Setter Property="Margin" Value="15,0,20,0"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTemplateColumn Width="50*" Header="Фото">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Image Source="{Binding image, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="50" Height="50" Stretch="Uniform" HorizontalAlignment="Center" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Width="50*" Header="Стоп лист">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding stopList}" HorizontalAlignment="Center" IsEnabled="False"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
         </Grid>
 
         <!--Popap добавления и редактирования информации-->
@@ -194,8 +219,9 @@
                                        VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
                             <!--поле для вывода ошибок-->
-                            <TextBlock Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" Text="{Binding ErrorInputPopup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                       Margin="20,50,90,0" x:Name="ErrorInputPopup" FontWeight="DemiBold" FontSize="21"/>
+                            <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6" Grid.RowSpan="3" HorizontalAlignment="Left" 
+                                       Text="{Binding ErrorInputPopup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                       Height="60" Margin="40,-20,90,0" x:Name="ErrorInputPopup" FontWeight="DemiBold" FontSize="18" />
 
                             <!--поле для ввода названия блюда-->
                             <TextBox Grid.Column="0" Grid.Row="1" x:Name="NameDishes" Height="50" Margin="30,40,0,0"
@@ -218,12 +244,12 @@
 
                             <!--выбор категории-->
                             <ComboBox ItemsSource="{Binding OptionsCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                    Grid.Column="0" Grid.Row="3" x:Name="CbDishes" DisplayMemberPath="name"
+                                    Grid.Column="0" Grid.Row="3" x:Name="CbCategory" DisplayMemberPath="name"
                                     SelectedValue="{Binding SelectedCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                     IsReadOnly="True" VerticalAlignment="Top" Width="320" Margin="30,10,0,0" 
                                     materialDesign:HintAssist.Hint="Выберите категорию*" IsEditable="True"
                                     Style="{StaticResource MaterialDesignOutlinedComboBox}">
-                          
+
                             </ComboBox>
 
                             <!--поле для ввода названия цены-->
@@ -244,7 +270,7 @@
                             </StackPanel>
 
                             <!--поле для ввода калорий-->
-                            <TextBox Grid.Column="1" Grid.Row="1" x:Name="СaloriesDishes" Height="50" Margin="30,40,0,0"
+                            <TextBox Grid.Column="1" Grid.Row="1" x:Name="CaloriesDishes" Height="50" Margin="30,40,0,0"
                                     VerticalAlignment="Center" HorizontalAlignment="Center"
                                     Text="{Binding OutСaloriesDishes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
                                     materialDesign:TextFieldAssist.HasClearButton="True"
@@ -274,7 +300,7 @@
                                     MaxLength="4" TextWrapping="Wrap" Width="320" />
 
                             <!--поле для ввода углеводов-->
-                            <TextBox Grid.Column="1" Grid.Row="4" x:Name="СarbohydratesDishes" Height="50" Margin="30,10,0,0"
+                            <TextBox Grid.Column="1" Grid.Row="4" x:Name="CarbohydratesDishes" Height="50" Margin="30,10,0,0"
                                     VerticalAlignment="Center" HorizontalAlignment="Center"
                                     Text="{Binding OutСarbohydratesDishes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
                                     materialDesign:TextFieldAssist.HasClearButton="True"
@@ -302,7 +328,7 @@
                                     materialDesign:HintAssist.Hint="Введите кол-во штук в упаковке*" 
                                     materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
                                     MaxLength="2" TextWrapping="Wrap" Width="320" />
-                            
+
                             <!--Изображение-->
                             <Grid Grid.Row="1" Grid.RowSpan="5" Grid.Column="2" VerticalAlignment="Top" Margin="0,49,0,0">
 
@@ -318,7 +344,7 @@
 HorizontalAlignment="Center" VerticalAlignment="Center" Height="200" Width="200"  Margin="0,20,0,0" Stretch="Uniform"/>
 
                             </Grid>
-                            
+
                             <!--кнопки-->
                             <Grid Grid.Row="7" Grid.Column="2" Margin="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
 

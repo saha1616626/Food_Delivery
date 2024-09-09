@@ -75,8 +75,8 @@ namespace Food_Delivery.Model.DPO
         private int? _weight { get; set; }
         public int? weight
         {
-            get { return weight; }
-            set { weight = value; OnPropertyChanged(nameof(weight)); }
+            get { return _weight; }
+            set { _weight = value; OnPropertyChanged(nameof(weight)); }
         }
 
         private int? _quantity { get; set; }
@@ -129,7 +129,7 @@ namespace Food_Delivery.Model.DPO
             {
                 List<Category> categories = await foodDeliveryContext.Categories.ToListAsync();
                 // ищем категорию присущую данному блюду
-                Category category = categories.FirstOrDefault(c => c.id == dishes.id);
+                Category category = categories.FirstOrDefault(c => c.id == dishes.categoryId);
                 if(category != null)
                 {
                     dishesDPO.categoryName = category.name;

@@ -5,10 +5,12 @@ using MaterialDesignColors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -22,9 +24,15 @@ namespace Food_Delivery.ViewModel.Administrator
 {
     class CategoryViewModel : INotifyPropertyChanged
     {
+        // путь к json работа окна Popup
+        readonly string pathDataPopup = @"E:\3comm\Documents\Предметы\Курс 3.2\Курсовая\Приложение\Программа\Food_Delivery\Food_Delivery\Data\СheckPopup.json";
+
         public CategoryViewModel()
         {
             GetListCategory(); // вывод данных в таблицу
+
+            // после получения фокуса данного приложения запукаем закрытый Popup
+            WorkingWithData._launchPopupAfterReceivingFocusCategory += LaunchingPopupWhenGettingFocus;
         }
 
         // вывод данных в таблицу
@@ -55,6 +63,9 @@ namespace Food_Delivery.ViewModel.Administrator
         // Работа над добавлением, редактированием и удалением данных
         #region Popup
 
+        // состояние: Popup добавление или редактирование; Popup удаление.
+        private bool IsCheckAddAndEditOrDelete; // true - добавление или редактирование данных.
+
         // свойство определющее назаначение запуска Popup (редактирование или добавление данных)
         private bool IsAddData { get; set; } // true - добавление данных; false - редактирование данных
 
@@ -69,11 +80,14 @@ namespace Food_Delivery.ViewModel.Administrator
                     {
                         IsAddData = true; // изменяем режим работы Popup на режим добавления данных
                         AddAndEditDataPopup.IsOpen = true; // отображаем Popup
+                        IsCheckAddAndEditOrDelete = true; // режим редактирования или добавления данных (удержания фокуса на Popup)
                         DarkBackground.Visibility = Visibility.Visible; // показать фон
                         WorkingWithData.ExitHamburgerMenu(); // закрываем, если открыто "гамбургер меню"
                         HeadingPopup = "Добавить категорию"; // изменяем заголовок Popup
                         ActionConfirmationButton = "Добавить"; // изменение названия кнопки подтверждения действия 
                         OutNameDescription = ""; OutNameCategory = ""; // убираем введенные значения
+
+                        NotificationOfThePopupLaunchJson(); // оповещаем JSON, чтомы запустили Popup
                     }, (obj) => true));
             }
         }
@@ -89,6 +103,7 @@ namespace Food_Delivery.ViewModel.Administrator
                     {
                         IsAddData = false; // изменяем режим работы Popup на режим редактирования
                         AddAndEditDataPopup.IsOpen = true; // отображаем Popup
+                        IsCheckAddAndEditOrDelete = true; // режим редактирования или добавления данных (удержания фокуса на Popup)
                         DarkBackground.Visibility = Visibility.Visible; // показать фон
                         WorkingWithData.ExitHamburgerMenu(); // закрываем, если открыто "гамбургер меню"
                         HeadingPopup = "Изменить категорию"; // изменяем заголовок Popup
@@ -102,6 +117,8 @@ namespace Food_Delivery.ViewModel.Administrator
                         {
                             OutNameDescription = SelectedCategory.description;
                         }
+
+                        NotificationOfThePopupLaunchJson(); // оповещаем JSON, чтомы запустили Popup
 
                     }, (obj) => true));
             }
@@ -117,6 +134,7 @@ namespace Food_Delivery.ViewModel.Administrator
                     (_btn_OpenPopupToDeleteData = new RelayCommand((obj) =>
                     {
                         DeleteDataPopup.IsOpen = true; // отображаем Popup
+                        IsCheckAddAndEditOrDelete = false; // режим редактирования или добавления данных (удержания фокуса на Popup)
                         DarkBackground.Visibility = Visibility.Visible; // показать фон
                         WorkingWithData.ExitHamburgerMenu(); // закрываем, если открыто "гамбургер меню"
                         // отображаем название категории перед удалением в Popup
@@ -124,6 +142,8 @@ namespace Food_Delivery.ViewModel.Administrator
                         {
                             NameOfCategoryDeleted = "Выбранная категория: " + SelectedCategory.name;
                         }
+
+                        NotificationOfThePopupLaunchJson(); // оповещаем JSON, чтомы запустили Popup
 
                     }, (obj) => true));
             }
@@ -268,6 +288,38 @@ namespace Food_Delivery.ViewModel.Administrator
                         }
                     }, (obj) => true));
             }
+        }
+
+        // запускаем Popup (для редактирования или удаления)
+        private void LaunchingPopupWhenGettingFocus(object sender, EventAggregator eventAggregator)
+        {
+            if (IsCheckAddAndEditOrDelete) // если это добавление или редактирование
+            {
+                AddAndEditDataPopup.IsOpen = true; // отображаем Popup
+                DarkBackground.Visibility = Visibility.Visible; // показать фон
+                WorkingWithData.ExitHamburgerMenu(); // закрываем, если открыто "гамбургер меню"
+            }
+            else
+            {
+                DeleteDataPopup.IsOpen = true; // отображаем Popup
+                DarkBackground.Visibility = Visibility.Visible; // показать фон
+                WorkingWithData.ExitHamburgerMenu(); // закрываем, если открыто "гамбургер меню"
+                                                     // отображаем название категории перед удалением в Popup
+                if (!SelectedCategory.name.IsNullOrEmpty())
+                {
+                    NameOfCategoryDeleted = "Выбранная категория: " + SelectedCategory.name;
+                }
+            }
+        }
+
+        // записываем в JSON, что мы запустили Popup данной страницы
+        private void NotificationOfThePopupLaunchJson()
+        {
+            // передаём в JSON, что мы запустили Popup
+            var jsonData = new { popup = "Category" };
+            // Преобразуем объект в JSON-строку
+            string jsonText = JsonConvert.SerializeObject(jsonData);
+            File.WriteAllText(pathDataPopup, jsonText);
         }
 
         #endregion
