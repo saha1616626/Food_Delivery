@@ -195,6 +195,56 @@ namespace Food_Delivery.ViewModel.Administrator
             }
         }
 
+        // запускаем Popup для удаления данных
+        private RelayCommand _btn_OpenPopupToDeleteData { get; set; }
+        public RelayCommand Btn_OpenPopupToDeleteData
+        {
+            get
+            {
+                return _btn_OpenPopupToDeleteData ??
+                    (_btn_OpenPopupToDeleteData = new RelayCommand((obj) =>
+                    {
+                        DeleteDataPopup.IsOpen = true; // отображаем Popup
+                        IsCheckAddAndEditOrDelete = false; // режим редактирования или добавления данных (удержания фокуса на Popup)
+                        DarkBackground.Visibility = Visibility.Visible; // показать фон
+                        WorkingWithData.ExitHamburgerMenu(); // закрываем, если открыто "гамбургер меню"
+                        // отображаем название категории перед удалением в Popup
+                        if (!SelectedDishes.name.IsNullOrEmpty())
+                        {
+                            NameOfDishesDeleted = "Выбранная блюдо: " + SelectedDishes.name;
+                        }
+
+                        NotificationOfThePopupLaunchJson(); // оповещаем JSON, чтомы запустили Popup
+
+                    }, (obj) => true));
+            }
+        }
+
+        // удаление данных
+        private RelayCommand _btn_DeleteData { get; set; }
+        public RelayCommand Btn_DeleteData
+        {
+            get
+            {
+                return _btn_DeleteData ??
+                    (_btn_DeleteData = new RelayCommand(async (obj) =>
+                    {
+                        using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+                        {
+                            // ищем нужную категорию для удаления
+                            Dishes dishes = await foodDeliveryContext.Dishes.FirstOrDefaultAsync(c => c.id == SelectedDishes.id);
+                            if (dishes != null)
+                            {
+                                foodDeliveryContext.Dishes.Remove(dishes);
+                                await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных                       
+                                ClosePopupWorkingWithData(); // закрываем Popup
+                                GetListCategory(); // обновляем список
+                            }
+                        }
+                    }, (obj) => true));
+            }
+        }
+
         // очищаем Popup после закрытия
         private async Task ClearingPopup()
         {
@@ -263,13 +313,25 @@ namespace Food_Delivery.ViewModel.Administrator
                         }
 
                         // после закрытия Popup закрывается, поэтому мы запускаем его снова
-                        IsAddData = true; // изменяем режим работы Popup на режим добавления данных
-                        AddAndEditDataPopup.IsOpen = true; // отображаем Popup
-                        DarkBackground.Visibility = Visibility.Visible; // показать фон
-                        WorkingWithData.ExitHamburgerMenu(); // закрываем, если открыто "гамбургер меню"
-                        HeadingPopup = "Добавить блюдо"; // изменяем заголовок Popup
-                        ActionConfirmationButton = "Добавить"; // изменение названия кнопки подтверждения действия
-
+                        if (IsAddData) // добавление данных
+                        {
+                            IsAddData = true; // изменяем режим работы Popup на режим добавления данных
+                            AddAndEditDataPopup.IsOpen = true; // отображаем Popup
+                            DarkBackground.Visibility = Visibility.Visible; // показать фон
+                            WorkingWithData.ExitHamburgerMenu(); // закрываем, если открыто "гамбургер меню"
+                            HeadingPopup = "Добавить блюдо"; // изменяем заголовок Popup
+                            ActionConfirmationButton = "Добавить"; // изменение названия кнопки подтверждения действия
+                        }
+                        else
+                        {
+                            IsAddData = false; // изменяем режим работы Popup на режим редактирования данных
+                            AddAndEditDataPopup.IsOpen = true; // отображаем Popup
+                            DarkBackground.Visibility = Visibility.Visible; // показать фон
+                            WorkingWithData.ExitHamburgerMenu(); // закрываем, если открыто "гамбургер меню"
+                            HeadingPopup = "Изменить блюдо"; // изменяем заголовок Popup
+                            ActionConfirmationButton = "Изменить"; // изменение названия кнопки подтверждения действия
+                        }
+                          
                     }, (obj) => true));
             }
         }
@@ -333,7 +395,7 @@ namespace Food_Delivery.ViewModel.Administrator
         {
             // Закрываем Popup
             AddAndEditDataPopup.IsOpen = false;
-            //DeleteDataPopup.IsOpen = false;
+            DeleteDataPopup.IsOpen = false;
             DarkBackground.Visibility = Visibility.Collapsed; // скрываем фон
         }
 
@@ -511,8 +573,7 @@ namespace Food_Delivery.ViewModel.Administrator
                                         List<Dishes> dishes = await foodDeliveryContext.Dishes.ToListAsync();
                                         dishes = dishes.Where(d => d.id != SelectedDishes.id).ToList(); // исключаем элемент из поиска совпадений,
                                                                                                         // который мы выбрали для редактирования
-                                        if(!dishes.Any(d => d.name.ToLowerInvariant()
-                                        .Contains(OutNameDishes.ToLowerInvariant().Trim())))
+                                        if(!dishes.Any(d => d.name.ToLowerInvariant() == OutNameDishes.ToLowerInvariant().Trim()))
                                         {
                                             // находим объект для изменения в БД
                                             Dishes dishesToChange = await foodDeliveryContext.Dishes.FirstOrDefaultAsync(d => d.id == SelectedDishes.id);
@@ -620,9 +681,13 @@ namespace Food_Delivery.ViewModel.Administrator
             if (IsCheckAddAndEditOrDelete) // если это добавление или редактирование
             {
                 AddAndEditDataPopup.IsOpen = true; // отображаем Popup
-                DarkBackground.Visibility = Visibility.Visible; // показать фон
-                WorkingWithData.ExitHamburgerMenu(); // закрываем, если открыто "гамбургер меню"
             }
+            else // если это удаление данных 
+            {
+                DeleteDataPopup.IsOpen = true; // отображаем Popup
+            }
+            DarkBackground.Visibility = Visibility.Visible; // показать фон
+            WorkingWithData.ExitHamburgerMenu(); // закрываем, если открыто "гамбургер меню"
         }
 
         // записываем в JSON, что мы запустили Popup данной страницы
@@ -655,12 +720,13 @@ namespace Food_Delivery.ViewModel.Administrator
         public TextBox AnimationCarbohydrates { get; set; } // поле для ввода текста "кол-во углеводов". Вывод подсветки поля
         public TextBox AnimationWeight { get; set; } // поле для ввода текста "вес". Вывод подсветки поля
         public Storyboard FieldIllumination { get; set; } // анимация объектов
+        public Popup DeleteDataPopup { get; set; } // ссылка на Popup для удаления данных
 
         // ассинхронно получаем информацию из DishesPage 
         public async Task InitializeAsync(Popup AddAndEditDataPopup, Border DarkBackground, Storyboard FieldIllumination, TextBox AnimationOutName,
             TextBlock AnimationErrorInputPopup, ComboBox AnimationCbCategory, TextBox AnimationPrice, TextBox AnimationQuantity, 
             TextBox AnimationСalories, TextBox AnimationSquirrels, TextBox AnimationFats, TextBox AnimationCarbohydrates,
-            TextBox AnimationWeight)
+            TextBox AnimationWeight, Popup DeleteDataPopup, TextBlock AnimationErrorInput)
         {
             if (AddAndEditDataPopup != null)
             {
@@ -714,6 +780,30 @@ namespace Food_Delivery.ViewModel.Administrator
             {
                 this.AnimationWeight = AnimationWeight;
             }
+            if(DeleteDataPopup != null)
+            {
+                this.DeleteDataPopup = DeleteDataPopup;
+            }
+            if(AnimationErrorInput != null)
+            {
+                this.AnimationErrorInput = AnimationErrorInput;
+            }
+        }
+
+        // свойство для вывода ошибки при поиске данных в таблице
+        private string _errorInput { get; set; }
+        public string ErrorInput
+        {
+            get { return _errorInput; }
+            set { _errorInput = value; OnPropertyChanged(nameof(ErrorInput)); }
+        }
+
+        // отображение название блюда в Popup для удаления данных
+        private string _nameOfDishesDeleted { get; set; }
+        public string NameOfDishesDeleted
+        {
+            get { return _nameOfDishesDeleted; }
+            set { _nameOfDishesDeleted = value; OnPropertyChanged(nameof(NameOfDishesDeleted)); }
         }
 
         // выбранное блюдо
@@ -873,6 +963,42 @@ namespace Food_Delivery.ViewModel.Administrator
         {
             get { return _headingPopup; }
             set { _headingPopup = value; OnPropertyChanged(nameof(HeadingPopup)); }
+        }
+
+        #endregion
+
+        // поиск данных в таблице
+        #region CategorySearch
+
+        // список для фильтров таблицы
+        public ObservableCollection<DishesDPO> ListSearch { get; set; } = new ObservableCollection<DishesDPO>();
+
+        public async Task HandlerTextBoxChanged(string searchByValue)
+        {
+            searchByValue = searchByValue.Trim(); // убираем пробелы
+            if (!string.IsNullOrWhiteSpace(searchByValue))
+            {
+                await GetListCategory(); // обновляем список
+                ListSearch = ListDishes; // присваиваем список из таблицы
+                // создаём список с поиском по введенным данным в таблице
+                var searchResult = ListSearch.Where(c => c.name.ToLowerInvariant()
+                .Contains(searchByValue.ToLowerInvariant())).ToList();
+
+                ListDishes.Clear(); // очищаем список отображения данных в таблице
+                // вносим актуальные данные основного списка с учётом фильтра
+                ListDishes = new ObservableCollection<DishesDPO>(searchResult);
+            }
+            else
+            {
+                ListDishes.Clear(); // очищаем список отображения данных в таблице
+                await GetListCategory(); // обновляем список
+            }
+
+            if (ListDishes.Count == 0)
+            {
+                ErrorInput = "Категория не найдена!"; // собщение об ошибке
+                BeginFadeAnimation(AnimationErrorInput); // анимация затухания ошибки
+            }
         }
 
         #endregion

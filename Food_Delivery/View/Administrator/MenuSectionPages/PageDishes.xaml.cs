@@ -39,7 +39,7 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
             _dishesViewModel = (DishesViewModel)this.Resources["DishesViewModel"];
             _dishesViewModel.InitializeAsync(AddAndEditDataPopup, DarkBackground, (Storyboard)FindResource("FieldIllumination"),
                 NameDishes, ErrorInputPopup, CbCategory, PriceDishes, QuantityDishes, CaloriesDishes, SquirrelsDishes, FatsDishes,
-                CarbohydratesDishes, WeightDishes);
+                CarbohydratesDishes, WeightDishes, DeleteDataPopup, ErrorInput);
         }
 
 
@@ -72,7 +72,7 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
             var textInfo = sender as System.Windows.Controls.TextBox;
             if (textInfo != null)
             {
-                //_categoryViewModel.HandlerTextBoxChanged(textInfo.Text);
+                _dishesViewModel.HandlerTextBoxChanged(textInfo.Text);
             }
         }
 

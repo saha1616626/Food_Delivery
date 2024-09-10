@@ -375,7 +375,7 @@ namespace Food_Delivery.ViewModel.Administrator
             }
         }
 
-        // отображение названия категории в Popup для удаления данных
+        // отображение название категории в Popup для удаления данных
         private string _nameOfCategoryDeleted { get; set; }
         public string NameOfCategoryDeleted
         {

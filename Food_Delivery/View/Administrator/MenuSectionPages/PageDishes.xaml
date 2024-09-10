@@ -221,7 +221,8 @@
                             <!--поле для вывода ошибок-->
                             <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6" Grid.RowSpan="3" HorizontalAlignment="Left" 
                                        Text="{Binding ErrorInputPopup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                       Height="60" Margin="40,-20,90,0" x:Name="ErrorInputPopup" FontWeight="DemiBold" FontSize="18" />
+                                       Height="60" Width="310" TextWrapping="Wrap" Margin="40,-20,90,0" x:Name="ErrorInputPopup" 
+                                       FontWeight="DemiBold" FontSize="18" />
 
                             <!--поле для ввода названия блюда-->
                             <TextBox Grid.Column="0" Grid.Row="1" x:Name="NameDishes" Height="50" Margin="30,40,0,0"
@@ -237,6 +238,7 @@
                             <TextBox Grid.Row="2" x:Name="DescriptionDishes" Height="80" 
                                  VerticalAlignment="Center" materialDesign:HintAssist.Hint="Введите описание блюда" 
                                  Text="{Binding OutNameDescription, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 materialDesign:TextFieldAssist.HasClearButton="True"
                                  materialDesign:TextFieldAssist.CharacterCounterVisibility="{Binding Path=IsChecked, 
                                  ElementName=MaterialDesignOutlinedTextBoxTextCountComboBox, Converter={StaticResource BooleanToVisibilityConverter}}"
                                  MaxLength="300" Style="{StaticResource MaterialDesignOutlinedTextBox}" TextWrapping="Wrap" 
@@ -266,7 +268,7 @@
                             <StackPanel Grid.Column="0" Grid.Row="5" Orientation="Horizontal" Margin="30,25,0,0" 
                                         HorizontalAlignment="Center">
                                 <TextBlock Text="Добавить товар в стоп-лист:" FontWeight="ExtraBold" FontSize="14"/>
-                                <CheckBox x:Name="CbIsChecked" IsChecked="{Binding IsCheckedStopList, Mode=TwoWay}" Margin="10,-11,0,0"/>
+                                <CheckBox x:Name="CbIsChecked" IsChecked="{Binding IsCheckedStopList, Mode=TwoWay}" Margin="10,-13,0,0"/>
                             </StackPanel>
 
                             <!--поле для ввода калорий-->
@@ -359,6 +361,69 @@ HorizontalAlignment="Center" VerticalAlignment="Center" Height="200" Width="200"
 
                             </Grid>
 
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Popup>
+        </Grid>
+
+        <!--Popup для удаления данных-->
+        <Grid>
+            <Popup x:Name="DeleteDataPopup" PlacementTarget="{Binding ElementName=positionPopup}" 
+            Placement="Center" Grid.ColumnSpan="4" Grid.RowSpan="4" HorizontalOffset="0" 
+            VerticalOffset="-40" StaysOpen="False" Closed="MyPopup_Closed" 
+            AllowsTransparency="False" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid Background="Gray">
+                    <!--фон-->
+                    <Border Background="AliceBlue" Style="{StaticResource OutlineOfPopup}" >
+                        <Grid Width="500" Height="330">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" Text="Удаление данных" 
+                                    Margin="0, 10, 0, 0" FontSize="30" FontWeight="Bold"/>
+
+                                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" 
+                                     Height="55" Margin="10,20,10,0">
+                                    <TextBlock Text="Вы действительно хотите удалить блюдо, а также все зависимые данные в корзинах?" FontSize="20" FontWeight="DemiBold" 
+                                        HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
+                                </StackPanel>
+
+                                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Height="100" Margin="0,0,0,15">
+                                    <TextBlock Text="{Binding NameOfDishesDeleted, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+    TextWrapping="Wrap" x:Name="NameOfCategoryDeleted" HorizontalAlignment="Center" 
+    VerticalAlignment="Center" Margin="25,0,25,0"  FontSize="20" FontWeight="DemiBold"/>
+                                </ScrollViewer>
+
+
+
+                                <Grid Grid.Row="3" Grid.Column="0" Margin="0,0,0,25" VerticalAlignment="Bottom">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Button Grid.Row="0" Grid.Column="0" Content="Отмена" Width="150" 
+                                     Height="35" Background="Gray" BorderBrush="Black" Command="{Binding ClosePopup}"/>
+                                    <Button Grid.Row="0" Grid.Column="1" Content="Удалить" Width="150" 
+                                     Height="35" Background="Gray" BorderBrush="Black" Margin="0,0,0,0" Command="{Binding Btn_DeleteData}"/>
+
+                                </Grid>
+
+                            </Grid>
                         </Grid>
                     </Border>
                 </Grid>
