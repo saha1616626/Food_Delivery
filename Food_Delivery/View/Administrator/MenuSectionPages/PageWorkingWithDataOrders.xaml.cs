@@ -17,6 +17,11 @@ using System.Windows.Shapes;
 using MaterialDesignThemes.Wpf;
 using Newtonsoft.Json;
 using System.IO;
+using Food_Delivery.Model.DPO;
+using System.Collections.ObjectModel;
+using Food_Delivery.Model;
+using Food_Delivery.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Food_Delivery.View.Administrator.MenuSectionPages
 {
@@ -43,7 +48,6 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
             DarkBackground.Visibility = Visibility.Collapsed;
         }
 
-
         // после того, как Popap был закрыт, мы оповещаем систему, что не надо запускать Popup после потери фокуса на приожении
         private void Window_LossOfFocus(object sender, MouseButtonEventArgs e)
         {
@@ -63,7 +67,18 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
             e.Handled = true;
         }
 
-        // закрываем "гамбургер" меню, если открыто, при нажатии на окно, но не на меню
+        // поиск блюда
+        private void DishesSearch(object sender, TextChangedEventArgs e)
+        {
+            // получаем текст из поля при поиске данных
+            var textInfo = sender as System.Windows.Controls.TextBox;
+            if (textInfo != null)
+            {
+                //_dishesViewModel.HandlerTextBoxChanged(textInfo.Text);
+            }
+        }
+
+        // закрываем "гамбургер" меню, если открыто, при нажатии на окно, но не на само меню
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             WorkingWithData.ExitHamburgerMenu();

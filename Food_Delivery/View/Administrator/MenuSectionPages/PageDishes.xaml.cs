@@ -65,7 +65,7 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
 
         #endregion
 
-        // поиск категории
+        // поиск блюда
         private void DishesSearch(object sender, TextChangedEventArgs e)
         {
             // получаем текст из поля при поиске данных

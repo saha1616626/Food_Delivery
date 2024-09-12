@@ -1,11 +1,14 @@
 ﻿using Food_Delivery.Data;
 using Food_Delivery.Helper;
 using Food_Delivery.Model;
+using Food_Delivery.Model.DPO;
 using Food_Delivery.View.Administrator.MenuSectionPages;
 using MaterialDesignThemes.Wpf;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
@@ -34,6 +37,42 @@ namespace Food_Delivery.ViewModel.Administrator
             // после получения фокуса данного приложения запукаем закрытый Popup
             WorkingWithData._launchPopupAfterReceivingFocusOrders += LaunchPopupAfterReceivingFocusOrders;
         }
+
+        // работа над добавлением блюда
+        #region WorkingWithAddingDishes
+
+        // список блюд для добавления в заказ (он содержит в себе все блюда и при этом может хранить кол-во добавленного товара)
+        private ObservableCollection<CompositionOrderDPO> _ListCompositionOrders { get; set; } = new ObservableCollection<CompositionOrderDPO>();
+        public ObservableCollection<CompositionOrderDPO> ListCompositionOrders
+        {
+            get { return _ListCompositionOrders; }
+            set { _ListCompositionOrders = value; OnPropertyChanged(nameof(ListCompositionOrders)); }
+        }
+
+        // метод обновления списка
+        private async Task WeGetListOfDishes()
+        {
+            ListCompositionOrders.Clear(); // очищаем список
+            // подключаемся к БД
+            using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+            {
+                List<Dishes> dishes = await foodDeliveryContext.Dishes.ToListAsync();
+
+                // передаем все блюда в список
+                foreach(Dishes dishesItem in dishes)
+                {
+                    if(dishesItem.stopList == false) // исключаем блюда, которые в стоп листе
+                    {
+                        CompositionOrderDPO compositionOrderDPO = new CompositionOrderDPO();
+                        compositionOrderDPO = await compositionOrderDPO.CompositionOrder(dishesItem);
+                        ListCompositionOrders.Add(compositionOrderDPO);
+                    }
+                }
+
+            }
+        }
+
+        #endregion
 
         // подготовка страницы
         #region PreparingPage
@@ -68,11 +107,12 @@ namespace Food_Delivery.ViewModel.Administrator
 
         #endregion
 
+        // работа с товарами в заказе
+        #region Popup
+
         // путь к json работа окна Popup
         readonly string pathDataPopup = @"E:\3comm\Documents\Предметы\Курс 3.2\Курсовая\Приложение\Программа\Food_Delivery\Food_Delivery\Data\СheckPopup.json";
 
-        // работа с товарами в заказе
-        #region Popup
 
         private bool IsCheckAddAndEditOrDeleteFocus; // true - добавление, редактирование или удаление данных.
                                                 // для удержания фокуса на приложении при переходе между окнами
@@ -88,6 +128,7 @@ namespace Food_Delivery.ViewModel.Administrator
                         DarkBackground = Visibility.Visible; // показать фон
                         StartPoupAddDishes = true; // запускаем Poup
                         IsCheckAddAndEditOrDeleteFocus = true; // режим добавления данных
+                        WeGetListOfDishes(); // обновляем список доступных блюд
 
                         NotificationOfThePopupLaunchJson(); // оповещаем JSON, чтомы запустили Popup
                     }, (obj) => true));
