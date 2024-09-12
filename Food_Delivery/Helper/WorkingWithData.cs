@@ -37,6 +37,13 @@ namespace Food_Delivery.Helper
             _openDishesPage?.Invoke(null, new EventAggregator()); // вызываем событие в HamburgerMenuViewModel
         }
 
+        // переход на страницу "заказы"
+        public static event EventHandler<EventAggregator> _openOrdersPage; // подписываемся в MainMenuViewModel
+        public static void OpenOrdersPage()
+        {
+            _openOrdersPage?.Invoke(null, new EventAggregator()); // вызываем событие в HamburgerMenuViewModel
+        }
+
         #endregion
 
         // открываем нужный Popup при получении фокуса страницы
@@ -54,6 +61,25 @@ namespace Food_Delivery.Helper
         public static void LaunchPopupAfterReceivingFocusDish()
         {
             _launchPopupAfterReceivingFocusDish?.Invoke(null, new EventAggregator()); // вызываем событие в MainWindow
+        }
+
+        // запуск Poup заказы
+        public static event EventHandler<EventAggregator> _launchPopupAfterReceivingFocusOrders; // подписываемся в WorkingWithDataOrdersViewModel
+        public static void LaunchPopupAfterReceivingFocusOrders()
+        {
+            _launchPopupAfterReceivingFocusOrders?.Invoke(null, new EventAggregator()); // вызываем событие в MainWindow
+        }
+
+        #endregion
+
+        // работа над заказами
+        #region
+
+        // закрываем страницу для редактирования и добавления данных и возвращаемся к общему списку заказов
+        public static event EventHandler<EventAggregator> _closingCorkWithDataOrdersPage; // подписываемся в OrdersViewModel
+        public static void ClosingCorkWithDataOrdersPage()
+        {
+            _closingCorkWithDataOrdersPage?.Invoke(null, new EventAggregator()); // вызываем событие в WorkingWithDataOrdersViewModel
         }
 
         #endregion

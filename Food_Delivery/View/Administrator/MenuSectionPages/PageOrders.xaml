@@ -1,0 +1,95 @@
+﻿<Page x:Class="Food_Delivery.View.Administrator.MenuSectionPages.PageOrders"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Food_Delivery.View.Administrator.MenuSectionPages"
+      xmlns:ViewModel="clr-namespace:Food_Delivery.ViewModel.Administrator"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      PreviewMouseLeftButtonUp="Window_MouseLeftButtonDown"
+      MouseLeftButtonDown="Window_LossOfFocus"
+      mc:Ignorable="d" 
+      MinHeight="700" Height="Auto"
+      Title="PageOrders">
+
+    <Page.Resources>
+        <ViewModel:OrdersViewModel x:Key="OrdersViewModel"/>
+
+        <!--анимация подсветки полей-->
+        <Storyboard x:Key="FieldIllumination">
+            <ColorAnimation Storyboard.TargetProperty="Background.(SolidColorBrush.Color)"
+        From="#de6d6d" To="Transparent" Duration="0:0:3" AutoReverse="False"/>
+        </Storyboard>
+    </Page.Resources>
+
+    <Grid Background="AliceBlue" DataContext="{StaticResource OrdersViewModel}">
+
+        <!--стили-->
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="\Dictionary\Table.xaml"/>
+                    <ResourceDictionary Source="\Dictionary\Popup.xaml"/>
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!--заголовок страницы-->
+        <TextBlock Text="Заказы клиентов" Grid.Row="0" FontSize="30" 
+           Foreground="Black" FontWeight="DemiBold"  Margin="50,10,50,15"/>
+
+        <!--поле для вывода ошибок-->
+        <TextBlock Grid.ColumnSpan="4" Grid.RowSpan="4" HorizontalAlignment="Center"
+   Text="{Binding ErrorInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+   Margin="0,300,0,0" x:Name="ErrorInput" FontWeight="DemiBold" FontSize="20" Panel.ZIndex="1"/>
+
+        <!--кнопки для взаиомодействия над таблицей-->
+        <Grid Grid.Row="1"  Margin="50,0,50,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBox Grid.Row="0" Grid.Column="0" x:Name="Search" 
+        Height="50" Margin="0,0,0,0"
+        VerticalAlignment="Center" HorizontalAlignment="Left"
+        Text="{Binding OrdersSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+        materialDesign:TextFieldAssist.HasClearButton="True"
+        TextChanged="OrdersSearch"
+        Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+        materialDesign:HintAssist.Hint="Поиск заказов" 
+        materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+        MaxLength="100" TextWrapping="Wrap" Width="300" />
+
+            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" >
+                <Button Content="Добавить" 
+           MinWidth="100" Height="35" Background="Gray" Command="{Binding Btn_OpenPopupToAddData}"
+           BorderBrush="Black"/>
+
+                <Button Content="Редктировать" Command="{Binding Btn_OpenPopupToEditData}"
+           MinWidth="100" Height="35" Background="Gray" BorderBrush="Black"
+           Margin="10,0,0,0" IsEnabled="{Binding IsWorkButtonEnable}"/>
+
+                <Button Content="Удалить" MinWidth="100" 
+           Height="35" Background="Gray" BorderBrush="Black" Command="{Binding Btn_OpenPopupToDeleteData}"
+           Margin="10,0,0,0" IsEnabled="{Binding IsWorkButtonEnable}"/>
+            </StackPanel>
+
+        </Grid>
+
+        <!--фрейм страницы для редактирования и добавления данных-->
+        <Frame x:Name="ordersFrame" Content="{Binding PageFrame, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+               NavigationUIVisibility="Hidden" Grid.ColumnSpan="3" Grid.RowSpan="3"/>
+        
+    </Grid>
+</Page>

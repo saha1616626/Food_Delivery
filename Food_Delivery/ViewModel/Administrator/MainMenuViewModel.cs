@@ -21,6 +21,8 @@ namespace Food_Delivery.ViewModel.Administrator
             WorkingWithData._openCategoryPage += OpenCategoryPage;
             // подписываемся на событие запуска страницы "блюда"
             WorkingWithData._openDishesPage += OpenDishesPage;
+            // подписываемся на событие запуска страницы "заказы"
+            WorkingWithData._openOrdersPage += OpenOrdersPage;
         }
 
         #region launchPage
@@ -47,6 +49,19 @@ namespace Food_Delivery.ViewModel.Administrator
             ClearMemoryAfterFrame(pageDishes); // очистка памяти
             pageDishes = new PageDishes();
             LaunchFrame.NavigationService.Navigate(pageDishes);
+            // закрываем "гамбургер" меню
+            WorkingWithData.ExitHamburgerMenu();
+        }
+
+        // класс "заказы"
+        PageOrders pageOrders { get; set; }
+
+        // запуск страницы "заказы"
+        private void OpenOrdersPage(object sender, EventAggregator e)
+        {
+            ClearMemoryAfterFrame(pageOrders); // очистка памяти
+            pageOrders = new PageOrders();
+            LaunchFrame.NavigationService.Navigate(pageOrders);
             // закрываем "гамбургер" меню
             WorkingWithData.ExitHamburgerMenu();
         }

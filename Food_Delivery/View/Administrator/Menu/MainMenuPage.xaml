@@ -30,7 +30,7 @@
         </Grid.RowDefinitions>
 
         <!--фон-->
-        <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Background="#FFC7F6C7"/>
+        <Grid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Background="#FFC7F6C7"/>
 
         <!--гамбургер меню-->
         <Grid Grid.Column="0" Grid.RowSpan="2" Panel.ZIndex="1">
@@ -43,6 +43,13 @@
             <!--название сервиса-->
             <TextBlock Text="ВкусноРолл.Admin" FontSize="24" Foreground="Black"
            VerticalAlignment="Center" FontWeight="ExtraBlack" Grid.Column="1" Margin="10,10,0,10"/>
+        </Grid>
+        
+        <!--роль пользователя-->
+        <Grid Grid.Row="0" Grid.Column="3" MouseLeftButtonDown="Window_MouseLeftButtonDown">
+            <!--название роли-->
+            <TextBlock Text="{Binding RoleUser, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="24" Foreground="Black"
+   VerticalAlignment="Center" FontWeight="Regular" HorizontalAlignment="Right" Grid.Column="1" Margin="0,10,30,10"/>
         </Grid>
 
         <Frame x:Name="mainAdminMenu" Grid.Row="1" Grid.ColumnSpan="3" NavigationUIVisibility="Hidden"/>

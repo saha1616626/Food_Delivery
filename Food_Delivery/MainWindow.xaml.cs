@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.IO;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -63,7 +64,11 @@ namespace Food_Delivery
                     WorkingWithData.LaunchPopupAfterReceivingFocusDish(); // событие запуска Popup
                 }
 
-
+                // заказы
+                if(data.popup == "Orders")
+                {
+                    WorkingWithData.LaunchPopupAfterReceivingFocusOrders(); // событие запуска Popup
+                }
             }
         }
 

@@ -55,6 +55,21 @@ namespace Food_Delivery.ViewModel.Administrator
             }
         }
 
+        // вызов события запуска страницы "заказы"
+        private RelayCommand _openOrdersPageButton { get; set; }
+        public RelayCommand OpenOrdersPageButton
+        {
+            get
+            {
+                return _openOrdersPageButton ??
+                    (_openOrdersPageButton = new RelayCommand((obj) =>
+                    {
+                        // запускаем страницу "заказы" из класса MainMenuViewModel
+                        WorkingWithData.OpenOrdersPage();
+                    }, (obj) => true));
+            }
+        }
+
         #endregion
 
         #region workHamburgerMenu

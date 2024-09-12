@@ -254,7 +254,7 @@
 
                             </ComboBox>
 
-                            <!--поле для ввода названия цены-->
+                            <!--поле для ввода цены-->
                             <TextBox Grid.Column="0" Grid.Row="4" x:Name="PriceDishes" Height="50" Margin="30,10,0,0"
                                     VerticalAlignment="Center" HorizontalAlignment="Center"
                                     Text="{Binding OutPriceDishes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   

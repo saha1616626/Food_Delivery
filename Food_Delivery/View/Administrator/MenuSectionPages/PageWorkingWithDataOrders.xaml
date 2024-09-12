@@ -1,0 +1,380 @@
+﻿<Page x:Class="Food_Delivery.View.Administrator.MenuSectionPages.PageWorkingWithDataOrders"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Food_Delivery.View.Administrator.MenuSectionPages"
+      xmlns:ViewModel="clr-namespace:Food_Delivery.ViewModel.Administrator"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      PreviewMouseLeftButtonUp="Window_MouseLeftButtonDown"
+      MouseLeftButtonDown="Window_LossOfFocus"
+      mc:Ignorable="d" 
+      MinHeight="700" Height="Auto"
+      Title="PageWorkingWithDataOrders">
+
+    <Page.Resources>
+        <ViewModel:WorkingWithDataOrdersViewModel x:Key="WorkingWithDataOrdersViewModel"/>
+
+        <!--анимация подсветки полей-->
+        <Storyboard x:Key="FieldIllumination">
+            <ColorAnimation Storyboard.TargetProperty="Background.(SolidColorBrush.Color)"
+        From="#de6d6d" To="Transparent" Duration="0:0:3" AutoReverse="False"/>
+        </Storyboard>
+    </Page.Resources>
+
+    <Grid Background="AliceBlue" DataContext="{StaticResource WorkingWithDataOrdersViewModel}">
+
+        <!--стили-->
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="\Dictionary\Table.xaml"/>
+                    <ResourceDictionary Source="\Dictionary\Popup.xaml"/>
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+
+        <ScrollViewer VerticalScrollBarVisibility="Hidden">
+
+            <Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Button Content="Вернуться" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                MinWidth="100" Height="35" Background="Gray" Command="{Binding Btn_ReturnPreviousPage}" Margin="30,20,0,0"
+                BorderBrush="Black"/>
+
+                <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="{Binding HeadingPage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                FontSize="30"
+                Foreground="Black" FontWeight="DemiBold" Margin="0,20,0,0" 
+                VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+                <Grid Grid.Row="1"  Margin="0,0,0,300">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Column="0" Grid.Row="0" Text="Данные клиента" FontWeight="Medium" 
+                       Margin="30,30,0,0" Opacity="0.8"/>
+
+                    <!--поле для ввода имя клиента-->
+                    <TextBox Grid.Column="0" Grid.Row="0" x:Name="ClientName" Height="50" Margin="30,60,0,0"
+                VerticalAlignment="Center" HorizontalAlignment="Center"
+                Text="{Binding OutClientName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                materialDesign:TextFieldAssist.HasClearButton="True"
+                Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                materialDesign:HintAssist.Hint="Имя*" 
+                materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                MaxLength="100" TextWrapping="Wrap" Width="320" />
+
+                    <!--поле для ввода фамилии клиента-->
+                    <TextBox Grid.Column="0" Grid.Row="1" x:Name="ClientSurname" Height="50" Margin="30,10,0,0"
+                VerticalAlignment="Center" HorizontalAlignment="Center"
+                Text="{Binding OutClientSurname, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                materialDesign:TextFieldAssist.HasClearButton="True"
+                Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                materialDesign:HintAssist.Hint="Фамилия*" 
+                materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                MaxLength="100" TextWrapping="Wrap" Width="320" />
+
+                    <!--поле для ввода отчества клиента-->
+                    <TextBox Grid.Column="0" Grid.Row="2" x:Name="ClientPatronymic" Height="50" Margin="30,10,0,0"
+                VerticalAlignment="Center" HorizontalAlignment="Center"
+                Text="{Binding OutClientPatronymic, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                materialDesign:TextFieldAssist.HasClearButton="True"
+                Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                materialDesign:HintAssist.Hint="Отчество" 
+                materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                MaxLength="100" TextWrapping="Wrap" Width="320" />
+
+                    <!--поле для ввода города клиента-->
+                    <TextBox Grid.Column="0" Grid.Row="3" x:Name="ClientCity" Height="50" Margin="30,0,0,0"
+                VerticalAlignment="Center" HorizontalAlignment="Center"
+                Text="{Binding OutClientCity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                materialDesign:TextFieldAssist.HasClearButton="True"
+                Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                materialDesign:HintAssist.Hint="Город*" 
+                materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                MaxLength="50" TextWrapping="Wrap" Width="320" />
+
+                    <!--поле для ввода улицы клиента-->
+                    <TextBox Grid.Column="0" Grid.Row="4" x:Name="ClientStreet" Height="50" Margin="30,-20,0,0"
+                VerticalAlignment="Center" HorizontalAlignment="Center"
+                Text="{Binding OutClientStreet, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                materialDesign:TextFieldAssist.HasClearButton="True"
+                Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                materialDesign:HintAssist.Hint="Улица*" 
+                materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                MaxLength="150" TextWrapping="Wrap" Width="320" />
+
+                    <Grid Grid.Column="0" Grid.Row="5">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!--поле для ввода дома клиента-->
+                        <TextBox Grid.Column="0" Grid.Row="0" x:Name="ClientHouse" Height="50" Margin="30,-10,0,0"
+                VerticalAlignment="Center" HorizontalAlignment="Center"
+                Text="{Binding OutClientHouse, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                materialDesign:TextFieldAssist.HasClearButton="True"
+                Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                materialDesign:HintAssist.Hint="Дом*" 
+                materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                MaxLength="10" TextWrapping="Wrap" Width="145" />
+
+                        <!--поле для ввода квартиры клиента-->
+                        <TextBox Grid.Column="1" Grid.Row="0" x:Name="ClientApartment" Height="50" Margin="30,-10,0,0"
+                VerticalAlignment="Center" HorizontalAlignment="Center"
+                Text="{Binding OutClientApartment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                materialDesign:TextFieldAssist.HasClearButton="True"
+                Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                materialDesign:HintAssist.Hint="Квартира" 
+                materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                MaxLength="10" TextWrapping="Wrap" Width="145" />
+
+                    </Grid>
+
+                    <!--поле для ввода номера телефона клиента-->
+                    <TextBox Grid.Column="0" Grid.Row="6" x:Name="ClientNumberPhone" Height="50" Margin="30,-60,0,0"
+                VerticalAlignment="Center" HorizontalAlignment="Center"
+                Text="{Binding OutClientNumberPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                materialDesign:TextFieldAssist.HasClearButton="True"
+                Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                materialDesign:HintAssist.Hint="Номер телефона*" 
+                materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                MaxLength="11" TextWrapping="Wrap" Width="320" />
+
+                    <!--поле для ввода номера Email клиента-->
+                    <TextBox Grid.Column="0" Grid.Row="7" x:Name="ClientEmail" Height="50" Margin="30,-30,0,100"
+                VerticalAlignment="Center" HorizontalAlignment="Center"
+                Text="{Binding OutClientEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                materialDesign:TextFieldAssist.HasClearButton="True"
+                Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                materialDesign:HintAssist.Hint="Email" 
+                materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                MaxLength="11" TextWrapping="Wrap" Width="320" />
+
+                    <TextBlock Grid.Column="1" Grid.Row="0" Text="Детали заказа" FontWeight="Medium" 
+           Margin="60,30,0,0" Opacity="0.8"/>
+
+                    <!--дата доставки-->
+                    <DatePicker
+                    Grid.Row="0" Grid.Column="1" Margin="60,60,0,0"  Width="320"
+                    x:Name="nameDateInput" Language="Rus" SelectedDateFormat="Short"
+                    materialDesign:DatePickerAssist.OutlinedBorderActiveThickness="3"
+                    materialDesign:DatePickerAssist.OutlinedBorderInactiveThickness="1"
+                    materialDesign:HintAssist.FloatingOffset="0,-23"
+                    materialDesign:HintAssist.Hint="Дата доставки*" IsTodayHighlighted="True"
+                    SelectedDate="{Binding SelectedDate, Mode=TwoWay}"
+                    Style="{StaticResource MaterialDesignOutlinedDatePicker}" VerticalAlignment="Top"/>
+
+                    <!--начало времени доставки-->
+                    <materialDesign:TimePicker 
+                    Grid.Row="1" Grid.Column="1" Margin="60,10,0,0"
+                    Width="320" x:Name="startDesiredDeliveryTime"
+                    materialDesign:HintAssist.FloatingOffset="0,-23"
+                    materialDesign:HintAssist.Hint="Время доставки от"
+                    SelectedTimeFormat="Short" PreviewTextInput="DeliveryDateAndTime"
+                    materialDesign:TimePickerAssist.OutlinedBorderActiveThickness="3"
+                    materialDesign:TimePickerAssist.OutlinedBorderInactiveThickness="1"
+                    SelectedTime="{Binding SelectedStartTimeDelivery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Style="{StaticResource MaterialDesignOutlinedTimePicker}"
+                    Is24Hours="True"/>
+
+                    <!--конец времени доставки-->
+                    <materialDesign:TimePicker 
+                    Grid.Row="2" Grid.Column="1" Margin="60,10,0,0"
+                    Width="320" x:Name="endDesiredDeliveryTime"
+                    materialDesign:HintAssist.FloatingOffset="0,-23"
+                    materialDesign:HintAssist.Hint="Время доставки до" IsEnabled="False"
+                    SelectedTimeFormat="Short" PreviewTextInput="DeliveryDateAndTime"
+                    materialDesign:TimePickerAssist.OutlinedBorderActiveThickness="3"
+                    materialDesign:TimePickerAssist.OutlinedBorderInactiveThickness="1"
+                    SelectedTime="{Binding SelectedEndTimeDelivery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Style="{StaticResource MaterialDesignOutlinedTimePicker}"
+                    Is24Hours="True"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="1" Text="Тип оплаты" FontWeight="Medium" 
+           Margin="60,25,0,0" Opacity="0.8"/>
+
+                    <!--тип оплаты-->
+                    <Grid Grid.Row="3" Grid.Column="1" Margin="60,45,0,0">
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 0, 0, 0">
+                            <RadioButton Margin="0, 0, 10, 0" FontSize="16" Padding="5, 0, 0, 2" FontWeight="DemiBold"
+                               Content="Наличные" GroupName="pay" IsChecked="{Binding IsOptionCashSelected}"
+                               Style="{StaticResource MaterialDesignRadioButton}"
+                               Tag="True">
+                            </RadioButton>
+
+                            <RadioButton Margin="10, 0, 0, 0" FontSize="16" Padding="5, 0, 0, 2" FontWeight="DemiBold"
+                               Content="Карта" GroupName="pay" IsChecked="{Binding IsOptionCardSelected}"
+                               Style="{StaticResource MaterialDesignRadioButton}"
+                               Tag="True">
+                            </RadioButton>
+                        </StackPanel>
+
+                    </Grid>
+
+                    <!--подготовить сдачу от суммы-->
+                    <TextBox x:Name="TypePaymentDishes" Height="50" Grid.Row="4" Grid.Column="1" Margin="60,20,0,0"
+                        VerticalAlignment="Center" HorizontalAlignment="Center" IsEnabled="{Binding IsFieldVisibilityTypePayment, Converter={StaticResource InvertBooleanConverter}}"
+                        Text="{Binding OutTypePayment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                        materialDesign:TextFieldAssist.HasClearButton="True"
+                        Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                        materialDesign:HintAssist.Hint="Подготовить сдачу с суммы" 
+                        materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                        MaxLength="4" TextWrapping="Wrap" Width="320" />
+
+                    <!--статус заказа-->
+                    <ComboBox ItemsSource="{Binding OptionsOrderStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                        Grid.Column="1" Grid.Row="5"
+                        SelectedValue="{Binding SelectedOrderStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        IsReadOnly="True" VerticalAlignment="Top" Width="320" Margin="60,20,0,0" 
+                        materialDesign:HintAssist.Hint="Выберете сатус заказа*" IsEditable="True"
+                        Style="{StaticResource MaterialDesignOutlinedComboBox}"/>
+
+
+                    <!--сумма заказа-->
+                    <TextBox x:Name="CostPrice" Height="50" Grid.Row="6" Grid.Column="1" Margin="60,20,0,0"
+                        VerticalAlignment="Center" HorizontalAlignment="Center" 
+                        IsEnabled="False"
+                        Text="{Binding OutCostPrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  
+                        Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                        materialDesign:HintAssist.Hint="Стоимость заказа" 
+                        materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                        MaxLength="4" TextWrapping="Wrap" Width="320" />
+
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Список блюд в заказе" FontWeight="Medium" 
+           Margin="60,25,0,0" Opacity="0.8"/>
+
+                    <!--Добавленные блюда-->
+                    <Grid Grid.Column="2" Grid.Row="1" Grid.RowSpan="8" Margin="0,-65,0,0">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Button Content="Изменить список" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Top"
+                MinWidth="100" Height="35" Background="Gray" Command="{Binding Btn_AddDishes}" 
+                IsEnabled="{Binding IsAddDishes}" Margin="0,20,0,  0"
+                BorderBrush="Black"/>
+
+                        <!--список добавленных товаров-->
+                        <Border Width="450" Height="400" HorizontalAlignment="Center">
+                             
+                        </Border>
+                        
+                        <!--кнопки сохранения действия-->
+                        <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,20,0,0">
+                            <Button Grid.Row="0" Content="Отмена" 
+Width="150" Height="35" Background="Gray" 
+BorderBrush="Black" Command="{Binding ClosePopup}" />
+                            <Button Grid.Row="1" Content="Изменить"
+Width="150" Height="35" Margin="10,0,0,0"
+Background="Gray" BorderBrush="Black" Command="{Binding Btn_SaveData}"/>
+                        </StackPanel>
+
+                    </Grid>
+                    
+                </Grid>
+
+            </Grid>
+
+        </ScrollViewer>
+
+        <!--Poup списка товаров для добавления в заказ-->
+
+        <!--фон для Popup-->
+        <Border Grid.ColumnSpan="8" Grid.RowSpan="8" x:Name="DarkBackground" 
+  Visibility="{Binding DarkBackground, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+  Background="#80000000" Panel.ZIndex="0" 
+  Margin="-500,0,-500,-500"/>
+
+        <!-- размещение Popup относительно данного grid-->
+        <Grid x:Name="positionPopup" Grid.RowSpan="8" Grid.ColumnSpan="8" 
+HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <Grid>
+            <Popup x:Name="AddDishesOrderPopup" PlacementTarget="{Binding ElementName=positionPopup}" 
+           Placement="Center" Grid.ColumnSpan="8" Grid.RowSpan="8" HorizontalOffset="0"
+           VerticalOffset="-40" StaysOpen="False" Closed="PopupAddDishesOrder_Closed"
+           IsOpen="{Binding StartPoupAddDishes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+           AllowsTransparency="False" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid Background="Gray">
+                    <!--фон-->
+                    <Border Background="AliceBlue" Style="{StaticResource OutlineOfPopup}" >
+                        <Grid Width="1000" Height="550">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <!--название Popup-->
+                            
+                            <!--фильтр блюд-->
+                            
+                            <!--список блюд-->
+                            
+                            <!--Здесь будет распологаться список товаров, которые можно добавлять, убирать и изменять кол-во в заказе.
+                            Здесь будут отображаться товары, которые есть в заказе и их кол-во. На странице со списком товаров в заказе 
+                            можно удалять и изменять кол-во. Данные сохраняются при итоговом сохранении.--> 
+                            
+                            <!--кнопки-->
+                            <Grid Grid.Row="3" Grid.Column="0" Margin="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                                <StackPanel Orientation="Horizontal" Margin="20,0,0,25">
+                                    <Button Grid.Row="0" Content="Отмена" 
+    Width="150" Height="35" Background="Gray" 
+    BorderBrush="Black" Command="{Binding ClosePopup}" />
+                                    <Button Grid.Row="1" Content="Изменить"
+    Width="150" Height="35" Margin="10,0,0,0"
+    Background="Gray" BorderBrush="Black" Command="{Binding Btn_SaveData}"/>
+                                </StackPanel>
+
+                            </Grid>
+
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Popup>
+        </Grid>
+        
+    </Grid>
+</Page>
