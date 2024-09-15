@@ -376,7 +376,7 @@ namespace Food_Delivery.ViewModel.Administrator
             return croppedBitmap;
         }
 
-        // скрываем Popup с кнопки
+        // скрываем Popup
         private RelayCommand _closePopup { get; set; }
         public RelayCommand ClosePopup
         {

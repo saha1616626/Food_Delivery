@@ -347,12 +347,12 @@ HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Grid.RowDefinitions>
 
                             <!--название Popup-->
-                            <TextBlock Grid.Column="0" Grid.Row="0" Text="Добавить блюдо" FontSize="30"
+                            <TextBlock Grid.Column="0" Grid.Row="0" Text="Работа со списоком блюд" FontSize="30"
                                HorizontalAlignment="Center" Foreground="Black" FontWeight="DemiBold" Margin="0,15,0,0"/>
 
                             <!--поиск блюд-->
                             <TextBox Grid.Row="1" Grid.Column="0" x:Name="Search" 
-                                Height="50" Margin="50,30,0,0"
+                                Height="50" Margin="100,30,0,0"
                                 VerticalAlignment="Center" HorizontalAlignment="Left"
                                 Text="{Binding NameDishes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                 materialDesign:TextFieldAssist.HasClearButton="True"
@@ -381,49 +381,53 @@ HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                             <Border Width="800" Margin="0,2,0,0" BorderBrush="Black" BorderThickness="0.5">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="250"/>
+                                                        <ColumnDefinition Width="190"/>
                                                         <ColumnDefinition Width="400"/>
-                                                        <ColumnDefinition Width="150"/>
+                                                        <ColumnDefinition Width="210"/>
                                                     </Grid.ColumnDefinitions>
 
                                                     <!--изображение-->
-                                                    <Image Grid.Column="0" Source="{Binding image}" Width="200" Height="200" Stretch="Uniform"
-                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    <Image Grid.Column="0" Source="{Binding image}" Width="150" Height="150" Stretch="Uniform"
+                                                           HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,5,5,5"/>
                                                     
                                                     <!--название, описание, цена и прочяя инфорамация-->
-                                                    <Grid>
+                                                    <Grid Grid.Column="1">
                                                         <Grid.RowDefinitions>
-                                                            <RowDefinition Height="Auto"/>
-                                                            <RowDefinition Height="Auto"/>
-                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="20*"/>
+                                                            <RowDefinition Height="60*"/>
+                                                            <RowDefinition Height="20*"/>
                                                         </Grid.RowDefinitions>
 
                                                         <!--название-->
-                                                        <TextBlock Grid.Row="0" Text="{Binding nameDishes}" HorizontalAlignment="Left" FontWeight="Light"
-                                                                   FontSize="20" Margin="0,0,0,0"/>
+                                                        <TextBlock Grid.Row="0" Text="{Binding nameDishes}" HorizontalAlignment="Left" FontWeight="DemiBold"
+                                                                   FontSize="18" Margin="0,0,0,0" TextWrapping="Wrap" Height="50"/>
 
                                                         <!--описание-->
                                                         <TextBlock Grid.Row="1" Text="{Binding descriptionDishes}" HorizontalAlignment="Left" FontWeight="Light"
-                                                                   FontSize="16" Margin="0,0,0,0"/>
+                                                                   TextWrapping="Wrap" FontSize="15" Margin="0,10,0,0" FontStyle="Italic" Height="70"/>
 
                                                         <!--калории и цена-->
                                                         <Grid Grid.Row="2">
                                                             <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="Auto"/>
-                                                                <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="*"/>
                                                             </Grid.ColumnDefinitions>
 
                                                             <!--калории-->
-                                                            <TextBlock Grid.Column="0" Text="{Binding calories}" HorizontalAlignment="Right" FontWeight="Light"
-                                                                FontSize="16" Margin="0,0,0,0"/>
-
-                                                            <!--цена-->
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <TextBlock Grid.Column="0" Text="Стоимость" HorizontalAlignment="Right" FontWeight="Light"
+                                                            <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                                                                <TextBlock Grid.Column="0" Text="Калории: " HorizontalAlignment="Right" FontWeight="Light"
                                                                     FontSize="16" Margin="0,0,0,0"/>
-                                                                <TextBlock Grid.Column="0" Text="{Binding price}" HorizontalAlignment="Right" FontWeight="Light"
+                                                                <TextBlock Grid.Column="0" Text="{Binding calories}" HorizontalAlignment="Left" FontWeight="Light"
+                                                                    FontSize="16" Margin="0,0,0,0"/>
+                                                            </StackPanel>
+                                           
+                                                            <!--цена-->
+                                                            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
+                                                                <TextBlock Grid.Column="0" Text="Стоимость:" HorizontalAlignment="Right" FontWeight="DemiBold"      
+                                                                    FontSize="16" Margin="0,0,0,0"/>
+                                                                <TextBlock Grid.Column="0" Text="{Binding price}" HorizontalAlignment="Right" FontWeight="DemiBold"
                                                                     FontSize="16" Margin="10,0,0,0"/>
-                                                                <TextBlock Grid.Column="0" Text="₽" HorizontalAlignment="Left" FontWeight="Light"
+                                                                <TextBlock Grid.Column="0" Text="₽" HorizontalAlignment="Left" FontWeight="DemiBold"
                                                                     FontSize="16" Margin="2,0,0,0"/>
                                                             </StackPanel>
                                                             
@@ -431,7 +435,60 @@ HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                         
                                                     </Grid>
                                                     
-                                                    <!--кнопки--> 
+                                                    <!--кнопки-->
+                                                    <Grid Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                                                        <Button Content="Добавить" Background="LightSeaGreen" BorderBrush="Black" Foreground="White" BorderThickness="1"
+                                                                Click="AddDishPopup">
+                                                            <Button.Style>
+                                                                <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatDarkBgButton}">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsAddDishButton}" Value="false">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Button.Style>
+                                                        </Button>
+                                                        
+                                                       <!--кнопки управления кол-ва выбора-->
+                                                        <Grid Margin="0,0,0,0">
+                                                            <Grid.Style>
+                                                                <Style TargetType="Grid">
+                                                                    <Setter Property="Visibility" Value="Hidden"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsEditDishButton}" Value="true">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Grid.Style>
+
+                                                            <StackPanel Orientation="Vertical">
+                                                                <Grid Grid.Row="0" Margin="-10,60,-10,30">
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="50*"/>
+                                                                        <ColumnDefinition Width="20*"/>
+                                                                        <ColumnDefinition Width="50*"/>
+                                                                    </Grid.ColumnDefinitions>
+
+                                                                    <Button x:Name="Delete" Grid.Column="0" Content="-" Margin="0, 0, 0, 0" Width="40" Click="Btn_DeleteItems" HorizontalAlignment="Center"/>
+                                                                    <TextBox x:Name="QuantitySelected" Grid.Column="1" Text="{Binding QuantityInOrder}" Margin="0, 0, 0, 0" IsReadOnly="True" HorizontalAlignment="Center"/>
+                                                                    <Button x:Name="AddCart" Grid.Column="2" Content="+" Margin="0, 0, 0, 0" Width="40"  Click="Btn_AddItems" HorizontalAlignment="Center"/>
+
+                                                                </Grid>
+
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <TextBlock Text="Сумма: " HorizontalAlignment="Center" Margin="0, 4, 0, 0" FontWeight="Bold" FontSize="18"/>
+                                                                    <TextBlock Text="{Binding AmountProduct}" Margin="0, 4, 0, 0" FontWeight="Bold" FontSize="18"/>
+                                                                    <TextBlock Text=" ₽" HorizontalAlignment="Center" Margin="0, 4, 0, 0" FontWeight="Bold" FontSize="18"/>
+                                                                </StackPanel>
+                                                            </StackPanel>
+                                                           
+                                                        </Grid>
+
+                                                    </Grid>
                                                     
                                                 </Grid>
                                             </Border>
@@ -449,12 +506,9 @@ HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             <Grid Grid.Row="3" Grid.Column="0" Margin="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
 
                                 <StackPanel Orientation="Horizontal" Margin="20,0,0,25">
-                                    <Button Grid.Row="0" Content="Отмена" 
+                                    <Button Grid.Row="0" Content="Закрыть" 
     Width="150" Height="35" Background="Gray" 
     BorderBrush="Black" Command="{Binding ClosePopup}" />
-                                    <Button Grid.Row="1" Content="Изменить"
-    Width="150" Height="35" Margin="10,0,0,0"
-    Background="Gray" BorderBrush="Black" Command="{Binding Btn_SaveData}"/>
                                 </StackPanel>
 
                             </Grid>

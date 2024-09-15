@@ -36,11 +36,47 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
         {
             InitializeComponent();
 
-            _workingWithDataOrdersViewModel = (WorkingWithDataOrdersViewModel)this.Resources["WorkingWithDataOrdersViewModel"]; 
+            _workingWithDataOrdersViewModel = (WorkingWithDataOrdersViewModel)this.Resources["WorkingWithDataOrdersViewModel"];
             _workingWithDataOrdersViewModel.ChangingName(IsAddData); // передаём состояния работы страницы (добавление или редактирование данных
         }
 
         #region Popup
+
+        // кнопка + на товаре
+        public void Btn_AddItems(object sender, RoutedEventArgs e)
+        {
+            // получаем элемент после нажатия на кнопку "+"
+            var currentItem = (e.Source as FrameworkElement)?.DataContext as CompositionOrderDPO;
+            if (currentItem != null) // если не пустой объект
+            {
+                // изменяем кол-во товара
+                _workingWithDataOrdersViewModel.EditProductList(currentItem, true);
+            }
+        }
+
+        // кнопка - на товаре
+        public void Btn_DeleteItems(object sender, RoutedEventArgs e)
+        {
+            // получаем элемент после нажатия на кнопку "-"
+            var currentItem = (e.Source as FrameworkElement)?.DataContext as CompositionOrderDPO;
+            if (currentItem != null) // если не пустой объект
+            {
+                // изменяем кол-во товара
+                _workingWithDataOrdersViewModel.EditProductList(currentItem, false);
+            }
+        }
+
+        // кнопка добавить товар в список заказа
+        private async void AddDishPopup(object sender, RoutedEventArgs e)
+        {
+            // получаем объект списка на котором была нажата кнопка "добавить"
+            CompositionOrderDPO compositionOrderDPO = (e.Source as FrameworkElement)?.DataContext as CompositionOrderDPO;
+
+            if (compositionOrderDPO != null) // если обект получен, то мы запускаем метод добавления товара в список заказов 
+            {
+                _workingWithDataOrdersViewModel.AddProductList(compositionOrderDPO);
+            }
+        }
 
         // после скрытия Poup изменяем фон
         private void PopupAddDishesOrder_Closed(object sender, EventArgs e)

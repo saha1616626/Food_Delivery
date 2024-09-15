@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Identity.Client.NativeInterop;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -63,8 +64,8 @@ namespace Food_Delivery.Model.DPO
             set { _weight = value; OnPropertyChanged(nameof(weight)); }
         }
 
-        private int? _quantityInOrder { get; set; } // кол-во в заказе, а не в товаре
-        public int? QuantityInOrder
+        private int _quantityInOrder { get; set; } // кол-во в заказе, а не в товаре
+        public int QuantityInOrder
         {
             get { return _quantityInOrder; }
             set { _quantityInOrder = value; OnPropertyChanged(nameof(QuantityInOrder)); }
@@ -89,6 +90,30 @@ namespace Food_Delivery.Model.DPO
         {
             get { return _image; }
             set { _image = value; OnPropertyChanged(nameof(image)); }
+        }
+
+        // видимость кнопки добавить товар
+        private bool _isAddDishButton { get; set; }
+        public bool IsAddDishButton
+        {
+            get { return _isAddDishButton; }
+            set { _isAddDishButton = value; OnPropertyChanged(nameof(IsAddDishButton)); }
+        }
+
+        // видиомость кнопок для изменения кол-во товара в заказе
+        private bool _isEditDishButton { get; set; }
+        public bool IsEditDishButton
+        {
+            get { return _isEditDishButton; }
+            set { _isEditDishButton = value; OnPropertyChanged(nameof(IsEditDishButton)); }
+        }
+
+        // сумма денег по выбранному товару
+        private int _amountProduct { get; set; }
+        public int AmountProduct
+        {
+            get { return _amountProduct; }
+            set { _amountProduct = value; OnPropertyChanged(nameof(AmountProduct)); }
         }
 
         // получаем блюда из Dishes
@@ -134,6 +159,10 @@ namespace Food_Delivery.Model.DPO
 
                 compositionOrderDPO.image = bitmap;
             }
+
+            compositionOrderDPO.IsAddDishButton = true; // видимость кнопк добавить товар в список
+            compositionOrderDPO.IsEditDishButton = false; // видиомость кнопок для изменения кол - во товара в заказе
+            compositionOrderDPO.AmountProduct = 0; // сумма денег по выбранному товару
 
             return compositionOrderDPO;
         }

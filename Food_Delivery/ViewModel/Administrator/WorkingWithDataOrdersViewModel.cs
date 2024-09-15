@@ -41,7 +41,7 @@ namespace Food_Delivery.ViewModel.Administrator
         // работа над добавлением блюда
         #region WorkingWithAddingDishes
 
-        // список блюд для добавления в заказ (он содержит в себе все блюда и при этом может хранить кол-во добавленного товара)
+        // общий список блюд для добавления в заказ с учетом выбранных пользователем
         private ObservableCollection<CompositionOrderDPO> _ListCompositionOrders { get; set; } = new ObservableCollection<CompositionOrderDPO>();
         public ObservableCollection<CompositionOrderDPO> ListCompositionOrders
         {
@@ -49,9 +49,21 @@ namespace Food_Delivery.ViewModel.Administrator
             set { _ListCompositionOrders = value; OnPropertyChanged(nameof(ListCompositionOrders)); }
         }
 
+
+        // дублирующий список товаров, чтобы при обновлении списка не сбрасвался товар выбранный ранее
+        private ObservableCollection<CompositionOrderDPO> _listOrderCopy { get; set; } = new ObservableCollection<CompositionOrderDPO>();
+        public ObservableCollection<CompositionOrderDPO> ListOrderCopy
+        {
+            get { return _listOrderCopy; }
+            set { _listOrderCopy = value; OnPropertyChanged(nameof(ListOrderCopy)); }
+        }
+
         // метод обновления списка
         private async Task WeGetListOfDishes()
         {
+            //ListOrderCopy.Clear();
+            // копируем список
+            ListOrderCopy = new ObservableCollection<CompositionOrderDPO>(ListCompositionOrders);
             ListCompositionOrders.Clear(); // очищаем список
             // подключаемся к БД
             using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
@@ -59,18 +71,108 @@ namespace Food_Delivery.ViewModel.Administrator
                 List<Dishes> dishes = await foodDeliveryContext.Dishes.ToListAsync();
 
                 // передаем все блюда в список
-                foreach(Dishes dishesItem in dishes)
+                foreach (Dishes dishesItem in dishes)
                 {
-                    if(dishesItem.stopList == false) // исключаем блюда, которые в стоп листе
+                    // проверяем, есть было ли блюдо добавлено ранее.
+                    CompositionOrderDPO compositionOrder = await Task.Run(() => ListOrderCopy.FirstOrDefault(c => c.dishesId == dishesItem.id));
+                    if (compositionOrder != null) // блюдо было добавлено ранее
                     {
                         CompositionOrderDPO compositionOrderDPO = new CompositionOrderDPO();
                         compositionOrderDPO = await compositionOrderDPO.CompositionOrder(dishesItem);
+                        // изменяем кол-во товаров
+                        compositionOrderDPO.QuantityInOrder = compositionOrder.QuantityInOrder;
+                        // выключаем кнопку добавить
+                        compositionOrderDPO.IsAddDishButton = compositionOrder.IsAddDishButton;
+                        // включаем кнопки управлением кол-вом
+                        compositionOrderDPO.IsEditDishButton = compositionOrder.IsEditDishButton;
+                        // сумма денег по выбранному товару
+                        compositionOrderDPO.AmountProduct = compositionOrder.AmountProduct;
                         ListCompositionOrders.Add(compositionOrderDPO);
+                    }
+                    else // блюдо не было добавлено ранее
+                    {
+                        if (dishesItem.stopList == false) // исключаем блюда, которые в стоп листе
+                        {
+                            CompositionOrderDPO compositionOrderDPO = new CompositionOrderDPO();
+                            compositionOrderDPO = await compositionOrderDPO.CompositionOrder(dishesItem);
+                            ListCompositionOrders.Add(compositionOrderDPO);
+                        }
+                    }
+
+                }
+            }
+        }
+
+        // метод добавления товара в список
+        public async Task AddProductList(CompositionOrderDPO compositionOrderDPO)
+        {
+            // находим нужный товар в общем списке 
+            CompositionOrderDPO resCompositionOrderDPO = await Task.Run(() => ListCompositionOrders.FirstOrDefault(c => c.dishesId == compositionOrderDPO.dishesId)); // создаём новый фоновый поток, в
+                                                                                                                                                                      // котором выполлняем метод FirstOrDefault. ObservableCollection - синхронная коллекция
+            if (resCompositionOrderDPO != null)
+            {
+                // проверяем, что кол-во не >0
+                if (resCompositionOrderDPO.QuantityInOrder >= 0)
+                {
+                    // изменяем кол-во товаров
+                    resCompositionOrderDPO.QuantityInOrder += 1;
+
+                    // выключаем кнопку добавить
+                    resCompositionOrderDPO.IsAddDishButton = false;
+                    // включаем кнопки управлением кол-вом
+                    resCompositionOrderDPO.IsEditDishButton = true;
+                    // сумма денег по выбранному товару
+                    resCompositionOrderDPO.AmountProduct = compositionOrderDPO.QuantityInOrder * compositionOrderDPO.price;
+
+                    // обновляем список
+                    int index = ListCompositionOrders.IndexOf(resCompositionOrderDPO);
+                    ListCompositionOrders[index] = resCompositionOrderDPO;
+                }
+            }
+        }
+
+        // изменение кол-во товара в списке
+        public async Task EditProductList(CompositionOrderDPO compositionOrderDPO, bool typeOperation)
+        {
+            // находим нужный товар в общем списке 
+            CompositionOrderDPO resCompositionOrderDPO = await Task.Run(() => ListCompositionOrders.FirstOrDefault(c => c.dishesId == compositionOrderDPO.dishesId));
+            if (resCompositionOrderDPO != null)
+            {
+                // проверка операции. Добавление или убавление кол-ва
+                if (typeOperation) // прибавить
+                {
+                    resCompositionOrderDPO.QuantityInOrder += 1;
+                    // сумма денег по выбранному товару
+                    resCompositionOrderDPO.AmountProduct = resCompositionOrderDPO.price * resCompositionOrderDPO.QuantityInOrder;
+                }
+                else // убавить
+                {
+                    if (compositionOrderDPO.QuantityInOrder == 1)
+                    {
+                        resCompositionOrderDPO.QuantityInOrder = 0;
+                        // включаем кнопку добавить
+                        resCompositionOrderDPO.IsAddDishButton = true;
+                        // выключаем кнопки управлением кол-вом
+                        resCompositionOrderDPO.IsEditDishButton = false;
+                        // сумма денег по выбранному товару
+                        resCompositionOrderDPO.AmountProduct = 0;
+                    }
+                    else // если позиции больше чем еденица
+                    {
+                        resCompositionOrderDPO.QuantityInOrder -= 1;
+                        // сумма денег по выбранному товару
+                        resCompositionOrderDPO.AmountProduct = resCompositionOrderDPO.price * resCompositionOrderDPO.QuantityInOrder;
                     }
                 }
 
+                // обновляем список
+                int index = ListCompositionOrders.IndexOf(resCompositionOrderDPO);
+                ListCompositionOrders[index] = resCompositionOrderDPO;
             }
         }
+
+        // при редактировании списка данных о товаре может не быть, так как он может быть удален, поэтому нам нужно к списку товаров доавить
+        // недостающие все возможные блюда, которых нету в добавленном списке. предпросмотр добавленных позици включает все возможное, а лишнее скрвается благодаря условию bool
 
         #endregion
 
@@ -115,8 +217,9 @@ namespace Food_Delivery.ViewModel.Administrator
 
 
         private bool IsCheckAddAndEditOrDeleteFocus; // true - добавление, редактирование или удаление данных.
-                                                // для удержания фокуса на приложении при переходе между окнами
+                                                     // для удержания фокуса на приложении при переходе между окнами
 
+        // запуск Popup при добавлении данных
         private RelayCommand _btn_AddDishes { get; set; }
         public RelayCommand Btn_AddDishes
         {
@@ -127,10 +230,24 @@ namespace Food_Delivery.ViewModel.Administrator
                     {
                         DarkBackground = Visibility.Visible; // показать фон
                         StartPoupAddDishes = true; // запускаем Poup
-                        IsCheckAddAndEditOrDeleteFocus = true; // режим добавления данных
-                        WeGetListOfDishes(); // обновляем список доступных блюд
-
+                        IsCheckAddAndEditOrDeleteFocus = true; // режим добавления данных                                 
+                        await WeGetListOfDishes(); // обновляем список доступных блюд, с учётом добавленных
                         NotificationOfThePopupLaunchJson(); // оповещаем JSON, чтомы запустили Popup
+                    }, (obj) => true));
+            }
+        }
+
+        // скрываем Popup
+        private RelayCommand _closePopup { get; set; }
+        public RelayCommand ClosePopup
+        {
+            get
+            {
+                return _closePopup ??
+                    (_closePopup = new RelayCommand((obj) =>
+                    {
+                        DarkBackground = Visibility.Visible; // показать фон
+                        StartPoupAddDishes = false; // закрываем Poup
                     }, (obj) => true));
             }
         }
@@ -154,15 +271,17 @@ namespace Food_Delivery.ViewModel.Administrator
             }
             else // если это удаление данных 
             {
-                
+
             }
             DarkBackground = Visibility.Visible; // показать фон
             WorkingWithData.ExitHamburgerMenu(); // закрываем, если открыто "гамбургер меню"
         }
+
         #endregion
 
         // свойства
         #region Features
+
 
         // фон для Popup
         private Visibility _darkBackground { get; set; }
@@ -177,12 +296,15 @@ namespace Food_Delivery.ViewModel.Administrator
         }
 
         //  запуск Popup добавления товаров в заказ
-        private bool _startPoupAddDishes {  get; set; }
+        private bool _startPoupAddDishes { get; set; }
         public bool StartPoupAddDishes
         {
             get { return _startPoupAddDishes; }
-            set {  _startPoupAddDishes = value; 
-            OnPropertyChanged(nameof(StartPoupAddDishes)); }
+            set
+            {
+                _startPoupAddDishes = value;
+                OnPropertyChanged(nameof(StartPoupAddDishes));
+            }
         }
 
         // видимость кнопки "добавить товар в заказ"
