@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Media.Animation;
 
 namespace Food_Delivery.ViewModel.Administrator
 {
@@ -33,6 +34,7 @@ namespace Food_Delivery.ViewModel.Administrator
             IsFieldVisibilityTypePayment = true; // делаем недоступное поле для ввода суммы сдачи, так как выбрана карта
             SelectedOrderStatus = "Новый заказ"; // при создании заказа по умолчанию ставим "Новый заказ"
             DarkBackground = Visibility.Collapsed; // фон для Popup скрыт
+            OutCostPrice = "0"; // нулевая начальная стоимость заказа
 
             // после получения фокуса данного приложения запукаем закрытый Popup
             WorkingWithData._launchPopupAfterReceivingFocusOrders += LaunchPopupAfterReceivingFocusOrders;
@@ -73,7 +75,7 @@ namespace Food_Delivery.ViewModel.Administrator
                 // передаем все блюда в список
                 foreach (Dishes dishesItem in dishes)
                 {
-                    // проверяем, есть было ли блюдо добавлено ранее.
+                    // проверяем, было ли блюдо добавлено ранее.
                     CompositionOrderDPO compositionOrder = await Task.Run(() => ListOrderCopy.FirstOrDefault(c => c.dishesId == dishesItem.id));
                     if (compositionOrder != null) // блюдо было добавлено ранее
                     {
@@ -98,8 +100,14 @@ namespace Food_Delivery.ViewModel.Administrator
                             ListCompositionOrders.Add(compositionOrderDPO);
                         }
                     }
-
                 }
+
+                // сортируем массив. сначала добавленные в список элементы
+                var ListCompositionOrdersOrderBy = ListCompositionOrders.OrderByDescending(o => o.IsEditDishButton).ToArray();
+                ListCompositionOrders = new ObservableCollection<CompositionOrderDPO>(ListCompositionOrdersOrderBy);
+
+                // резервируем список ListCompositionOrders и копируем в ListOrderCopy
+                ListOrderCopy = new ObservableCollection<CompositionOrderDPO>(ListCompositionOrders);
             }
         }
 
@@ -123,10 +131,15 @@ namespace Food_Delivery.ViewModel.Administrator
                     resCompositionOrderDPO.IsEditDishButton = true;
                     // сумма денег по выбранному товару
                     resCompositionOrderDPO.AmountProduct = compositionOrderDPO.QuantityInOrder * compositionOrderDPO.price;
-
+                    // изменяем итоговую сумму денег
+                    CostPrice += compositionOrderDPO.QuantityInOrder * compositionOrderDPO.price;
+                    OutCostPrice = CostPrice.ToString();
                     // обновляем список
                     int index = ListCompositionOrders.IndexOf(resCompositionOrderDPO);
                     ListCompositionOrders[index] = resCompositionOrderDPO;
+
+                    // резервируем список ListCompositionOrders и копируем в ListOrderCopy
+                    ListOrderCopy = new ObservableCollection<CompositionOrderDPO>(ListCompositionOrders);
                 }
             }
         }
@@ -144,6 +157,9 @@ namespace Food_Delivery.ViewModel.Administrator
                     resCompositionOrderDPO.QuantityInOrder += 1;
                     // сумма денег по выбранному товару
                     resCompositionOrderDPO.AmountProduct = resCompositionOrderDPO.price * resCompositionOrderDPO.QuantityInOrder;
+                    // изменяем итоговую сумму денег
+                    CostPrice += resCompositionOrderDPO.price;
+                    OutCostPrice = CostPrice.ToString();
                 }
                 else // убавить
                 {
@@ -156,23 +172,51 @@ namespace Food_Delivery.ViewModel.Administrator
                         resCompositionOrderDPO.IsEditDishButton = false;
                         // сумма денег по выбранному товару
                         resCompositionOrderDPO.AmountProduct = 0;
+                        // изменяем итоговую сумму денег
+                        CostPrice -= resCompositionOrderDPO.price;
+                        OutCostPrice = CostPrice.ToString();
                     }
                     else // если позиции больше чем еденица
                     {
                         resCompositionOrderDPO.QuantityInOrder -= 1;
                         // сумма денег по выбранному товару
                         resCompositionOrderDPO.AmountProduct = resCompositionOrderDPO.price * resCompositionOrderDPO.QuantityInOrder;
+                        // изменяем итоговую сумму денег
+                        CostPrice -= resCompositionOrderDPO.price;
+                        OutCostPrice = CostPrice.ToString();
                     }
                 }
 
                 // обновляем список
                 int index = ListCompositionOrders.IndexOf(resCompositionOrderDPO);
                 ListCompositionOrders[index] = resCompositionOrderDPO;
+
+                // резервируем список ListCompositionOrders и копируем в ListOrderCopy
+                ListOrderCopy = new ObservableCollection<CompositionOrderDPO>(ListCompositionOrders);
             }
         }
 
-        // при редактировании списка данных о товаре может не быть, так как он может быть удален, поэтому нам нужно к списку товаров доавить
-        // недостающие все возможные блюда, которых нету в добавленном списке. предпросмотр добавленных позици включает все возможное, а лишнее скрвается благодаря условию bool
+        // добавление или редактирование данных
+        private RelayCommand _btn_SaveData { get; set; }
+        public RelayCommand Btn_SaveData
+        {
+            get
+            {
+                return _btn_SaveData ??
+                    (_btn_SaveData = new RelayCommand(async (obj) =>
+                    {
+                        // проверка наличия обязательных данных
+                        if (true)
+                        {
+
+                        }
+                        else
+                        {
+
+                        }
+                    }, (obj) => true));
+            }
+        }
 
         #endregion
 
@@ -282,39 +326,115 @@ namespace Food_Delivery.ViewModel.Administrator
         // свойства
         #region Features
 
+        public TextBox AnimationOutName { get; set; } // поле для ввода текста "имя клиента". Вывод подсветки поля
+        public TextBox AnimationOutSurname { get; set; } // поле для ввода текста "фамилия клиента". Вывод подсветки поля
+        public TextBox AnimationOutPatronymic { get; set; } // поле для ввода текста "отчество клиента". Вывод подсветки поля
+        public TextBox AnimationOutCity { get; set; } // поле для ввода текста "город клиента". Вывод подсветки поля
+        public TextBox AnimationOutStreet { get; set; } // поле для ввода текста "улица клиента". Вывод подсветки поля
+        public TextBox AnimationOutHouse { get; set; } // поле для ввода текста "дом клиента". Вывод подсветки поля
+        public TextBox AnimationOutApartment { get; set; } // поле для ввода текста "квартира клиента". Вывод подсветки поля
+        public TextBox AnimationOutNumberPhone { get; set; } // поле для ввода текста "номер телефона клиента". Вывод подсветки поля
+        public TextBox AnimationOutEmail { get; set; } // поле для ввода текста "email клиента". Вывод подсветки поля
+        public DatePicker AnimationDeliveryDate { get; set; } // поле для ввода даты доставки. Вывод подсветки поля
+        public TimePicker AnimationStartDesiredDeliveryTime { get; set; } // поле для ввода начала интервала доставки. Вывод подсветки поля
+        public TimePicker AnimationEndDesiredDeliveryTime { get; set; } // поле для ввода конца интервала доставки. Вывод подсветки поля
+        public TextBox AnimationAmountChange { get; set; } // поле для ввода текста "сумма сдачи". Вывод подсветки поля
+        public TextBox AnimationOrderStatus { get; set; } // поле для выбора статуса заказа. Вывод подсветки поля
+        public TextBox AnimationCostPrice { get; set; } // поле ценой заказа. Вывод подсветки поля
+        public TextBlock AnimationErrorInputPopup { get; set; } // объект текстового поля. Анимация затухания текста после вывода сообщения.
+        public Storyboard FieldIllumination { get; set; } // анимация объектов
 
-        // фон для Popup
-        private Visibility _darkBackground { get; set; }
-        public Visibility DarkBackground
+        // ассинхронно получаем информацию из PageWorkingWithDataOrders 
+        public async Task InitializeAsync(TextBlock AnimationErrorInputPopup, Storyboard FieldIllumination, TextBox AnimationOutName,
+            TextBox AnimationOutSurname, TextBox AnimationOutPatronymic, TextBox AnimationOutCity, TextBox AnimationOutStreet,
+            TextBox AnimationOuttHouse, TextBox AnimationOutApartment, TextBox AnimationOutNumberPhone, TextBox AnimationOutEmail,
+            DatePicker AnimationDeliveryDate, TimePicker AnimationStartDesiredDeliveryTime, TimePicker AnimationEndDesiredDeliveryTime,
+            TextBox AnimationAmountChange, TextBox AnimationOrderStatus, TextBox AnimationCostPrice)
         {
-            get { return _darkBackground; }
-            set
+            if (AnimationErrorInputPopup != null)
             {
-                _darkBackground = value;
-                OnPropertyChanged(nameof(DarkBackground));
+                this.AnimationErrorInputPopup = AnimationErrorInputPopup;
+            }
+            if (FieldIllumination != null)
+            {
+                this.FieldIllumination = FieldIllumination;
+            }
+            if(AnimationOutName != null)
+            {
+                this.AnimationOutName = AnimationOutName;
+            }
+            if(AnimationOutSurname != null)
+            {
+                this.AnimationOutSurname = AnimationOutSurname;
+            }
+            if(AnimationOutPatronymic != null)
+            {
+                this.AnimationOutPatronymic = AnimationOutPatronymic;
+            }
+            if(AnimationOutCity != null)
+            {
+                this.AnimationOutCity = AnimationOutCity;
+            }
+            if(AnimationOutStreet != null)
+            {
+                this.AnimationOutStreet = AnimationOutStreet;
+            }
+            if(AnimationOutHouse != null)
+            {
+                this.AnimationOutHouse = AnimationOutHouse;
+            }
+            if(AnimationOutApartment != null)
+            {
+                this.AnimationOutApartment = AnimationOutApartment;
+            }
+            if(AnimationOutNumberPhone != null)
+            {
+                this.AnimationOutNumberPhone = AnimationOutNumberPhone;
+            }
+            if(AnimationOutEmail != null)
+            {
+                this.AnimationOutEmail = AnimationOutEmail;
+            }
+            if(AnimationDeliveryDate != null)
+            {
+                this.AnimationDeliveryDate = AnimationDeliveryDate;
+            }
+            if(AnimationStartDesiredDeliveryTime != null)
+            {
+                this.AnimationStartDesiredDeliveryTime = AnimationStartDesiredDeliveryTime;
+            }
+            if(AnimationEndDesiredDeliveryTime != null)
+            {
+                this.AnimationEndDesiredDeliveryTime = AnimationEndDesiredDeliveryTime;
+            }
+            if(AnimationAmountChange != null)
+            {
+                this.AnimationAmountChange = AnimationAmountChange;
+            }
+            if(AnimationOrderStatus != null)
+            {
+                this.AnimationOrderStatus = AnimationOrderStatus;
+            }
+            if(AnimationCostPrice != null)
+            {
+                this.AnimationCostPrice = AnimationCostPrice;
             }
         }
 
-        //  запуск Popup добавления товаров в заказ
-        private bool _startPoupAddDishes { get; set; }
-        public bool StartPoupAddDishes
-        {
-            get { return _startPoupAddDishes; }
-            set
-            {
-                _startPoupAddDishes = value;
-                OnPropertyChanged(nameof(StartPoupAddDishes));
-            }
-        }
+        #region Client
 
-        // видимость кнопки "добавить товар в заказ"
-        private bool _isAddDishes { get; set; }
-        public bool IsAddDishes
+        // переменная с суммой заказа
+        private int CostPrice = 0;
+
+        // поле с суммой заказа
+        private string _outCostPrice;
+        public string OutCostPrice
         {
-            get { return _isAddDishes; }
+            get { return _outCostPrice; }
             set
             {
-                _isAddDishes = value; OnPropertyChanged(nameof(IsAddDishes));
+                _outCostPrice = value;
+                OnPropertyChanged(nameof(OutCostPrice));
             }
         }
 
@@ -355,7 +475,7 @@ namespace Food_Delivery.ViewModel.Administrator
             }
         }
 
-        // оплата картой
+        // выбор оплата картой
         private bool _isOptionCardSelected { get; set; }
         public bool IsOptionCardSelected
         {
@@ -367,7 +487,7 @@ namespace Food_Delivery.ViewModel.Administrator
             } // делаем поле для ввода сдачи недоступным
         }
 
-        // оплата наличными
+        // выбор оплата наличными
         private bool _isOptionCashSelected { get; set; }
         public bool IsOptionCashSelected
         {
@@ -391,24 +511,12 @@ namespace Food_Delivery.ViewModel.Administrator
             }
         }
 
-        // сумма заказа
-        private string _outCostPrice;
-        public string OutCostPrice
+        // поле подготовить сдачу от суммы
+        private string _outAmountChange { get; set; }
+        public string OutAmountChange
         {
-            get { return _outCostPrice; }
-            set
-            {
-                _outCostPrice = value;
-                OnPropertyChanged(nameof(OutCostPrice));
-            }
-        }
-
-        // название страницы
-        private string _headingPage { get; set; }
-        public string HeadingPage
-        {
-            get { return _headingPage; }
-            set { _headingPage = value; OnPropertyChanged(nameof(HeadingPage)); }
+            get { return _outAmountChange; }
+            set { _outAmountChange = value; OnPropertyChanged(nameof(OutAmountChange)); }
         }
 
         // дата доставки 
@@ -435,6 +543,130 @@ namespace Food_Delivery.ViewModel.Administrator
             set { _selectedEndTimeDelivery = value; OnPropertyChanged(nameof(SelectedEndTimeDelivery)); }
         }
 
+        // email клиента
+        private string _outClientEmail { get; set; }
+        public string OutClientEmail
+        {
+            get { return _outClientEmail; }
+            set { _outClientEmail = value; OnPropertyChanged(nameof(OutClientEmail)); }
+        }
+
+        // номер телефона клиента
+        private string _outClientNumberPhone { get; set; }
+        public string OutClientNumberPhone
+        {
+            get { return _outClientNumberPhone; }
+            set { _outClientNumberPhone = value; OnPropertyChanged(nameof(OutClientNumberPhone)); }
+        }
+
+        // квартира клиента
+        private string _outClientApartment { get; set; }
+        public string OutClientApartment
+        {
+            get { return _outClientApartment; }
+            set { _outClientApartment = value; OnPropertyChanged(nameof(OutClientApartment)); }
+        }
+
+        // дом клиента
+        private string _outClientHouse { get; set; }
+        public string OutClientHouse
+        {
+            get { return _outClientHouse; }
+            set { _outClientHouse = value; OnPropertyChanged(nameof(OutClientHouse)); }
+        }
+
+        // улица клиента
+        private string _outClientStreet { get; set; }
+        public string OutClientStreet
+        {
+            get { return _outClientStreet; }
+            set { _outClientStreet = value; OnPropertyChanged(nameof(OutClientStreet)); }
+        }
+
+        // город клиента
+        private string _outClientCity { get; set; }
+        public string OutClientCity
+        {
+            get { return _outClientCity; }
+            set { _outClientCity = value; OnPropertyChanged(nameof(OutClientCity)); }
+        }
+
+        // отчество клиента
+        private string _outClientPatronymic { get; set; }
+        public string OutClientPatronymic
+        {
+            get { return _outClientPatronymic; }
+            set { _outClientPatronymic = value; OnPropertyChanged(nameof(OutClientPatronymic)); }
+        }
+
+        // фамилия клиента
+        private string _outClientSurname { get; set; }
+        public string OutClientSurname
+        {
+            get { return _outClientSurname; }
+            set { _outClientSurname = value; OnPropertyChanged(nameof(OutClientSurname)); }
+        }
+
+        // имя клиента
+        private string _outClientName { get; set; }
+        public string OutClientName
+        {
+            get { return _outClientName; }
+            set { _outClientName = value; OnPropertyChanged(nameof(OutClientName)); }
+        }
+
+        #endregion
+
+        // свойство для вывода текстовой ошибки при добавлении или редактировании данных
+        private string _errorInputPopup { get; set; }
+        public string ErrorInputPopup
+        {
+            get { return _errorInputPopup; }
+            set { _errorInputPopup = value; OnPropertyChanged(nameof(ErrorInputPopup)); }
+        }
+
+        // фон для Popup
+        private Visibility _darkBackground { get; set; }
+        public Visibility DarkBackground
+        {
+            get { return _darkBackground; }
+            set
+            {
+                _darkBackground = value;
+                OnPropertyChanged(nameof(DarkBackground));
+            }
+        }
+
+        //  запуск Popup добавления товаров в заказ
+        private bool _startPoupAddDishes { get; set; }
+        public bool StartPoupAddDishes
+        {
+            get { return _startPoupAddDishes; }
+            set
+            {
+                _startPoupAddDishes = value;
+                OnPropertyChanged(nameof(StartPoupAddDishes));
+            }
+        }
+
+        // видимость кнопки "добавить товар в заказ"
+        private bool _isAddDishes { get; set; }
+        public bool IsAddDishes
+        {
+            get { return _isAddDishes; }
+            set
+            {
+                _isAddDishes = value; OnPropertyChanged(nameof(IsAddDishes));
+            }
+        }
+
+        // название страницы
+        private string _headingPage { get; set; }
+        public string HeadingPage
+        {
+            get { return _headingPage; }
+            set { _headingPage = value; OnPropertyChanged(nameof(HeadingPage)); }
+        }
 
         #endregion
 
@@ -470,6 +702,81 @@ namespace Food_Delivery.ViewModel.Administrator
                 }
             }
 
+        }
+
+        #endregion
+
+        // поиск данных в таблице
+        #region SearchCompositionOrder
+
+        public async Task HandlerTextBoxChanged(string searchByValue)
+        {
+            searchByValue = searchByValue.Trim(); // убираем пробелы
+            if (!string.IsNullOrWhiteSpace(searchByValue))
+            {
+                ListCompositionOrders = ListOrderCopy; // копируем список с последними изменениями
+                await WeGetListOfDishes(); // обновляем список (нужно для того, если вдруг появились новые блюда в БД)
+                // создаём список с поиском по введенным данным в таблице
+                var searchResult = ListCompositionOrders.Where(c => c.nameDishes.ToLowerInvariant()
+                .Contains(searchByValue.ToLowerInvariant())).ToList();
+
+                ListCompositionOrders.Clear(); // очищаем список отображения данных в таблице
+                // вносим актуальные данные основного списка с учётом фильтра
+                ListCompositionOrders = new ObservableCollection<CompositionOrderDPO>(searchResult);
+            }
+            else
+            {
+                ListCompositionOrders.Clear(); // очищаем список отображения данных в таблице
+                ListCompositionOrders = ListOrderCopy; // обновляем список
+            }
+
+            if (ListCompositionOrders.Count == 0)
+            {
+                ErrorInputPopup = "Блюдо не найдено!"; // собщение об ошибке
+                BeginFadeAnimation(AnimationErrorInputPopup); // анимация затухания ошибки
+            }
+        }
+
+        #endregion
+
+        // анимации
+        #region Animation
+
+        // анимация затухания текста
+        private void BeginFadeAnimation(TextBlock textBlock)
+        {
+            textBlock.IsEnabled = true;
+            textBlock.Opacity = 1.0;
+
+            Storyboard storyboard = new Storyboard();
+            DoubleAnimation fadeAnimation = new DoubleAnimation
+            {
+                From = 1.0,
+                To = 0.0,
+                Duration = TimeSpan.FromSeconds(1)
+            };
+            Storyboard.SetTargetProperty(fadeAnimation, new PropertyPath(TextBlock.OpacityProperty));
+            storyboard.Children.Add(fadeAnimation);
+            storyboard.Completed += (s, e) => textBlock.IsEnabled = false;
+            storyboard.Begin(textBlock);
+        }
+
+        // запуск анимации подсвечивания объекта
+        private void StartFieldIllumination(TextBox textBox)
+        {
+            FieldIllumination.Begin(textBox);
+        }
+        private void StartFieldIllumination(ComboBox comboBox)
+        {
+            FieldIllumination.Begin(comboBox);
+        }
+        private void StartFieldIllumination(DatePicker datePicker)
+        {
+            FieldIllumination.Begin(datePicker);
+        }
+        private void StartFieldIllumination(TimePicker timePicker)
+        {
+            FieldIllumination.Begin(timePicker);
         }
 
         #endregion

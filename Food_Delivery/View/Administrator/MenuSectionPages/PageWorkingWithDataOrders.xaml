@@ -163,7 +163,7 @@
                 Text="{Binding OutClientNumberPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
                 materialDesign:TextFieldAssist.HasClearButton="True"
                 Style="{StaticResource MaterialDesignOutlinedTextBox}" 
-                materialDesign:HintAssist.Hint="Номер телефона*" 
+                materialDesign:HintAssist.Hint="Номер телефона* (формат: 79009991122)" 
                 materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
                 MaxLength="11" TextWrapping="Wrap" Width="320" />
 
@@ -183,7 +183,7 @@
                     <!--дата доставки-->
                     <DatePicker
                     Grid.Row="0" Grid.Column="1" Margin="60,60,0,0"  Width="320"
-                    x:Name="nameDateInput" Language="Rus" SelectedDateFormat="Short"
+                    x:Name="DeliveryDate" Language="Rus" SelectedDateFormat="Short"
                     materialDesign:DatePickerAssist.OutlinedBorderActiveThickness="3"
                     materialDesign:DatePickerAssist.OutlinedBorderInactiveThickness="1"
                     materialDesign:HintAssist.FloatingOffset="0,-23"
@@ -194,7 +194,7 @@
                     <!--начало времени доставки-->
                     <materialDesign:TimePicker 
                     Grid.Row="1" Grid.Column="1" Margin="60,10,0,0"
-                    Width="320" x:Name="startDesiredDeliveryTime"
+                    Width="320" x:Name="StartDesiredDeliveryTime"
                     materialDesign:HintAssist.FloatingOffset="0,-23"
                     materialDesign:HintAssist.Hint="Время доставки от"
                     SelectedTimeFormat="Short" PreviewTextInput="DeliveryDateAndTime"
@@ -207,7 +207,7 @@
                     <!--конец времени доставки-->
                     <materialDesign:TimePicker 
                     Grid.Row="2" Grid.Column="1" Margin="60,10,0,0"
-                    Width="320" x:Name="endDesiredDeliveryTime"
+                    Width="320" x:Name="EndDesiredDeliveryTime"
                     materialDesign:HintAssist.FloatingOffset="0,-23"
                     materialDesign:HintAssist.Hint="Время доставки до" IsEnabled="False"
                     SelectedTimeFormat="Short" PreviewTextInput="DeliveryDateAndTime"
@@ -240,9 +240,9 @@
                     </Grid>
 
                     <!--подготовить сдачу от суммы-->
-                    <TextBox x:Name="TypePaymentDishes" Height="50" Grid.Row="4" Grid.Column="1" Margin="60,20,0,0"
+                    <TextBox x:Name="AmountChange" Height="50" Grid.Row="4" Grid.Column="1" Margin="60,20,0,0"
                         VerticalAlignment="Center" HorizontalAlignment="Center" IsEnabled="{Binding IsFieldVisibilityTypePayment, Converter={StaticResource InvertBooleanConverter}}"
-                        Text="{Binding OutTypePayment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                        Text="{Binding OutAmountChange, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
                         materialDesign:TextFieldAssist.HasClearButton="True"
                         Style="{StaticResource MaterialDesignOutlinedTextBox}" 
                         materialDesign:HintAssist.Hint="Подготовить сдачу с суммы" 
@@ -251,7 +251,7 @@
 
                     <!--статус заказа-->
                     <ComboBox ItemsSource="{Binding OptionsOrderStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                        Grid.Column="1" Grid.Row="5"
+                        Grid.Column="1" Grid.Row="5" x:Name="StatusOrder"
                         SelectedValue="{Binding SelectedOrderStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         IsReadOnly="True" VerticalAlignment="Top" Width="320" Margin="60,20,0,0" 
                         materialDesign:HintAssist.Hint="Выберете сатус заказа*" IsEditable="True"
@@ -272,7 +272,7 @@
            Margin="60,25,0,0" Opacity="0.8"/>
 
                     <!--Добавленные блюда-->
-                    <Grid Grid.Column="2" Grid.Row="1" Grid.RowSpan="8" Margin="0,-65,0,0">
+                    <Grid Grid.Column="2" Grid.Row="1" Grid.RowSpan="8" Margin="0,-65,0,0" Width="450">
 
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -286,19 +286,104 @@
 
                         <Button Content="Изменить список" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Top"
                 MinWidth="100" Height="35" Background="Gray" Command="{Binding Btn_AddDishes}" 
-                IsEnabled="{Binding IsAddDishes}" Margin="0,20,0,  0"
+                IsEnabled="{Binding IsAddDishes}" Margin="0,20,0,0"
                 BorderBrush="Black"/>
 
                         <!--список добавленных товаров-->
-                        <Border Width="450" Height="400" HorizontalAlignment="Center">
+                        <ScrollViewer Grid.Row="1" Width="Auto" Height="330" HorizontalAlignment="Center" VerticalScrollBarVisibility="Auto"
+                                      Margin="10,20,0,0">
+                            <!--список блюд в заказе-->
+                            <ItemsControl ItemsSource="{Binding ListCompositionOrders}">
 
-                        </Border>
+                                <!--расположение элементов раскрывающегося списка-->
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Vertical"  HorizontalAlignment="Center"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+
+                                <!--дизайн макет карточек товара блюд-->
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <!--размеры и отступы карточек-->
+                                        <Border Width="330" Margin="0,2,0,0" BorderBrush="Black" BorderThickness="0.5">
+                                            <!--убираем блюда, которые не выбраны-->
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsEditDishButton}" Value="true">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="120"/>
+                                                    <ColumnDefinition Width="200"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <!--изображение-->
+                                                <Image Grid.Column="0" Source="{Binding image}" Width="100" Height="100" Stretch="Uniform"
+                                                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5"/>
+
+                                                <!--название, кол-во и цена-->
+                                                <Grid Grid.Column="1">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="20*"/>
+                                                        <RowDefinition Height="60*"/>
+                                                        <RowDefinition Height="20*"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <!--название-->
+                                                    <TextBlock Grid.Row="0" Text="{Binding nameDishes}" HorizontalAlignment="Left" FontWeight="DemiBold"
+                                                        FontSize="12" Margin="0,10,0,0" TextWrapping="Wrap" Height="50"/>
+
+                                                    <!--кол-во и цена-->
+                                                    <Grid Grid.Row="2" Margin="0,0,0,10">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="*"/>
+                                                            <RowDefinition Height="*"/>
+                                                        </Grid.RowDefinitions>
+
+                                                        <!--кол-во-->
+                                                        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                                                            <TextBlock Grid.Column="0" Text="Количество: " HorizontalAlignment="Right" FontWeight="Light"
+                                                                FontSize="13" Margin="0,0,0,0"/>
+                                                            <TextBlock Grid.Column="0" Text="{Binding QuantityInOrder}" HorizontalAlignment="Left" FontWeight="Light"
+                                                                FontSize="13" Margin="0,0,0,0"/>
+                                                        </StackPanel>
+
+                                                        <!--цена-->
+                                                        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left">
+                                                            <TextBlock Text="Стоимость:" HorizontalAlignment="Right" FontWeight="DemiBold"      
+                                                                FontSize="13" Margin="0,0,0,0"/>
+                                                            <TextBlock Text="{Binding price}" HorizontalAlignment="Right" FontWeight="DemiBold"
+                                                                FontSize="13" Margin="10,0,0,0"/>
+                                                            <TextBlock Text="₽" HorizontalAlignment="Left" FontWeight="DemiBold"
+                                                                FontSize="13" Margin="2,0,0,0"/>
+                                                        </StackPanel>
+
+                                                    </Grid>
+
+
+                                                </Grid>
+
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+
+                            </ItemsControl>
+                        </ScrollViewer>
 
                         <!--кнопки сохранения действия-->
-                        <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,20,25,0">
+                        <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,35,0,0">
                             <Button Grid.Row="0" Content="Отмена" 
 Width="150" Height="35" Background="Gray" 
-BorderBrush="Black" Command="{Binding ClosePopup}" />
+BorderBrush="Black" Command="{Binding Btn_ReturnPreviousPage}"/>
                             <Button Grid.Row="1" Content="Сохранить"
 Width="150" Height="35" Margin="10,0,0,0"
 Background="Gray" BorderBrush="Black" Command="{Binding Btn_SaveData}"/>
@@ -350,9 +435,16 @@ HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             <TextBlock Grid.Column="0" Grid.Row="0" Text="Работа со списоком блюд" FontSize="30"
                                HorizontalAlignment="Center" Foreground="Black" FontWeight="DemiBold" Margin="0,15,0,0"/>
 
+                            <!--поле для вывода ошибок-->
+                            <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Grid.RowSpan="4" HorizontalAlignment="Center" 
+                                Text="{Binding ErrorInputPopup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                VerticalAlignment="Center" 
+                                TextWrapping="Wrap" Margin="25,0,0,0" x:Name="ErrorInputPopup" 
+                                FontWeight="DemiBold" FontSize="18" />
+
                             <!--поиск блюд-->
                             <TextBox Grid.Row="1" Grid.Column="0" x:Name="Search" 
-                                Height="50" Margin="100,30,0,0"
+                                Height="50" Margin="90,30,0,0"
                                 VerticalAlignment="Center" HorizontalAlignment="Left"
                                 Text="{Binding NameDishes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                 materialDesign:TextFieldAssist.HasClearButton="True"
@@ -363,7 +455,7 @@ HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 MaxLength="100" TextWrapping="Wrap" Width="300" />
 
                             <!--скролл блюд-->
-                            <ScrollViewer Grid.Row="2" Grid.Column="0" Margin="50,30,50,0" VerticalScrollBarVisibility="Auto">
+                            <ScrollViewer Grid.Row="2" Grid.Column="0" Margin="50,30,50,10" VerticalScrollBarVisibility="Auto">
                                 <!--список блюд-->
                                 <ItemsControl ItemsSource="{Binding ListCompositionOrders}">
 
@@ -373,7 +465,7 @@ HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                             <WrapPanel Orientation="Vertical"  HorizontalAlignment="Center"/>
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
-                                    
+
                                     <!--дизайн макет карточек товара блюд-->
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
@@ -389,7 +481,7 @@ HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     <!--изображение-->
                                                     <Image Grid.Column="0" Source="{Binding image}" Width="150" Height="150" Stretch="Uniform"
                                                            HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,5,5,5"/>
-                                                    
+
                                                     <!--название, описание, цена и прочяя инфорамация-->
                                                     <Grid Grid.Column="1">
                                                         <Grid.RowDefinitions>
@@ -420,7 +512,7 @@ HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                                 <TextBlock Grid.Column="0" Text="{Binding calories}" HorizontalAlignment="Left" FontWeight="Light"
                                                                     FontSize="16" Margin="0,0,0,0"/>
                                                             </StackPanel>
-                                           
+
                                                             <!--цена-->
                                                             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
                                                                 <TextBlock Grid.Column="0" Text="Стоимость:" HorizontalAlignment="Right" FontWeight="DemiBold"      
@@ -430,11 +522,11 @@ HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                                 <TextBlock Grid.Column="0" Text="₽" HorizontalAlignment="Left" FontWeight="DemiBold"
                                                                     FontSize="16" Margin="2,0,0,0"/>
                                                             </StackPanel>
-                                                            
+
                                                         </Grid>
-                                                        
+
                                                     </Grid>
-                                                    
+
                                                     <!--кнопки-->
                                                     <Grid Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center">
 
@@ -451,8 +543,8 @@ HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                                 </Style>
                                                             </Button.Style>
                                                         </Button>
-                                                        
-                                                       <!--кнопки управления кол-ва выбора-->
+
+                                                        <!--кнопки управления кол-ва выбора-->
                                                         <Grid Margin="0,0,0,0">
                                                             <Grid.Style>
                                                                 <Style TargetType="Grid">
@@ -485,27 +577,23 @@ HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                                     <TextBlock Text=" ₽" HorizontalAlignment="Center" Margin="0, 4, 0, 0" FontWeight="Bold" FontSize="18"/>
                                                                 </StackPanel>
                                                             </StackPanel>
-                                                           
+
                                                         </Grid>
 
                                                     </Grid>
-                                                    
+
                                                 </Grid>
                                             </Border>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
-                                    
+
                                 </ItemsControl>
                             </ScrollViewer>
 
-                            <!--Здесь будет распологаться список товаров, которые можно добавлять, убирать и изменять кол-во в заказе.
-                            Здесь будут отображаться товары, которые есть в заказе и их кол-во. На странице со списком товаров в заказе 
-                            можно удалять и изменять кол-во. Данные сохраняются при итоговом сохранении.-->
-
                             <!--кнопки-->
-                            <Grid Grid.Row="3" Grid.Column="0" Margin="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Grid Grid.Row="3" Grid.Column="0" Margin="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Bottom">
 
-                                <StackPanel Orientation="Horizontal" Margin="20,0,0,25">
+                                <StackPanel Orientation="Horizontal" Margin="20,0,0,12">
                                     <Button Grid.Row="0" Content="Закрыть" 
     Width="150" Height="35" Background="Gray" 
     BorderBrush="Black" Command="{Binding ClosePopup}" />

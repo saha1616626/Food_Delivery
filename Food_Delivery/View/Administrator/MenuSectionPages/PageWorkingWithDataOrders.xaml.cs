@@ -22,6 +22,7 @@ using System.Collections.ObjectModel;
 using Food_Delivery.Model;
 using Food_Delivery.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Windows.Media.Animation;
 
 namespace Food_Delivery.View.Administrator.MenuSectionPages
 {
@@ -38,6 +39,9 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
 
             _workingWithDataOrdersViewModel = (WorkingWithDataOrdersViewModel)this.Resources["WorkingWithDataOrdersViewModel"];
             _workingWithDataOrdersViewModel.ChangingName(IsAddData); // передаём состояния работы страницы (добавление или редактирование данных
+            _workingWithDataOrdersViewModel.InitializeAsync(ErrorInputPopup, (Storyboard)FindResource("FieldIllumination"), ClientName,
+                ClientSurname, ClientPatronymic, ClientCity, ClientStreet, ClientHouse, ClientApartment, ClientNumberPhone, ClientEmail,
+                DeliveryDate, StartDesiredDeliveryTime, EndDesiredDeliveryTime, AmountChange, StatusOrder, CostPrice);
         }
 
         #region Popup
@@ -110,7 +114,7 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
             var textInfo = sender as System.Windows.Controls.TextBox;
             if (textInfo != null)
             {
-                //_dishesViewModel.HandlerTextBoxChanged(textInfo.Text);
+                _workingWithDataOrdersViewModel.HandlerTextBoxChanged(textInfo.Text);
             }
         }
 
