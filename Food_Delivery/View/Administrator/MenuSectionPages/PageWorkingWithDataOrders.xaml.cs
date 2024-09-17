@@ -41,7 +41,9 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
             _workingWithDataOrdersViewModel.ChangingName(IsAddData); // передаём состояния работы страницы (добавление или редактирование данных
             _workingWithDataOrdersViewModel.InitializeAsync(ErrorInputPopup, (Storyboard)FindResource("FieldIllumination"), ClientName,
                 ClientSurname, ClientPatronymic, ClientCity, ClientStreet, ClientHouse, ClientApartment, ClientNumberPhone, ClientEmail,
-                DeliveryDate, StartDesiredDeliveryTime, EndDesiredDeliveryTime, AmountChange, StatusOrder, CostPrice);
+                DeliveryDate, StartDesiredDeliveryTime, EndDesiredDeliveryTime, AmountChange, StatusOrder, CostPrice, ErrorInput);
+
+            SetDatePickerLimits(); // работа над датой заказа
         }
 
         #region Popup
@@ -101,10 +103,27 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
         }
         #endregion
 
+        // устанавливаем дату для заказа, а также ограничиваем список для выбора. Нельзя сделать заказ после 20:00
+        private void SetDatePickerLimits()
+        {
+            DateTime dateTime = DateTime.Now;
+            TimeSpan nowTime = dateTime.TimeOfDay;
+            if (nowTime > new TimeSpan(8, 0, 0))
+            {
+                DeliveryDate.SelectedDate = (new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day + 1)); // установка начальной даты заказа
+                DeliveryDate.BlackoutDates.Add(new CalendarDateRange(DateTime.MinValue, DateTime.Today));
+            }
+            else
+            {
+                DeliveryDate.SelectedDate = (new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day + 1)); // установка начальной даты заказа
+                DeliveryDate.BlackoutDates.Add(new CalendarDateRange(DateTime.MinValue, DateTime.Today.AddDays(-1)));
+            }
+        }
+
         // нельзя в дату и время вручную внести данные
         private void DeliveryDateAndTime(object sender, TextCompositionEventArgs e)
         {
-            e.Handled = true;
+            e.Handled = true; // Запрещаем ввод с клавиатуры
         }
 
         // поиск блюда

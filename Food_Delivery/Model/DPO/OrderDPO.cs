@@ -182,10 +182,6 @@ namespace Food_Delivery.Model.DPO
             {
                 orderDPO.accountId = order.accountId;
             }
-            if(order.orderStatusId != null)
-            {
-                orderDPO.orderStatusId = order.orderStatusId;
-            }
             if (order.name != null)
             {
                 orderDPO.name = order.name;
@@ -234,12 +230,24 @@ namespace Food_Delivery.Model.DPO
             // получаем список товаров заказа
             using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
             {
-                List<CompositionOrder> compositionOrders = await foodDeliveryContext.CompositionOrders.ToListAsync();
-                // получаем список блюд
-                List<CompositionOrder> dishesOrder = compositionOrders.FindAll(d => d.orderId == order.id);
+                List<OrderStatus> orderStatuses = await foodDeliveryContext.OrderStatus.ToListAsync(); // получаем список статусов заказов
+                List<CompositionOrder> compositionOrders = await foodDeliveryContext.CompositionOrders.ToListAsync(); // получаем список блюд
+                List<CompositionOrder> dishesOrder = await Task.Run(() => compositionOrders.FindAll(d => d.orderId == order.id));
                 if(dishesOrder.Count > 0)
                 {
                     orderDPO.compositionOrder = dishesOrder;
+                }
+
+                if (order.orderStatusId != null)
+                {
+                    orderDPO.orderStatusId = order.orderStatusId;
+
+                    OrderStatus status = new OrderStatus();
+                    status = await Task.Run(() => orderStatuses.FirstOrDefault(s => s.id == order.id));
+                    if(status != null)
+                    {
+                        orderDPO.statusName = status.name;
+                    }
                 }
             }
 

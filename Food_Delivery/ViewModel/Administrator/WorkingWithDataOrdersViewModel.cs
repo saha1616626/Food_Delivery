@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -28,11 +29,13 @@ namespace Food_Delivery.ViewModel.Administrator
     {
         public WorkingWithDataOrdersViewModel()
         {
+            // получаем список статусов заказа
+            OrderStatuses();
+
             // подготовка полей
             SelectedStartTimeDelivery = new DateTime(1, 1, 1, 9, 0, 0, 0); // устанавливаем начальное время
             IsOptionCardSelected = true; // по умолчанию выбрана карта
             IsFieldVisibilityTypePayment = true; // делаем недоступное поле для ввода суммы сдачи, так как выбрана карта
-            SelectedOrderStatus = "Новый заказ"; // при создании заказа по умолчанию ставим "Новый заказ"
             DarkBackground = Visibility.Collapsed; // фон для Popup скрыт
             OutCostPrice = "0"; // нулевая начальная стоимость заказа
 
@@ -40,7 +43,7 @@ namespace Food_Delivery.ViewModel.Administrator
             WorkingWithData._launchPopupAfterReceivingFocusOrders += LaunchPopupAfterReceivingFocusOrders;
         }
 
-        // работа над добавлением блюда
+        // работа над добавлением заказа
         #region WorkingWithAddingDishes
 
         // общий список блюд для добавления в заказ с учетом выбранных пользователем
@@ -206,13 +209,181 @@ namespace Food_Delivery.ViewModel.Administrator
                     (_btn_SaveData = new RelayCommand(async (obj) =>
                     {
                         // проверка наличия обязательных данных
-                        if (true)
+                        if (!string.IsNullOrWhiteSpace(OutClientName) && !string.IsNullOrWhiteSpace(OutClientSurname) &&
+                        !string.IsNullOrWhiteSpace(OutClientCity) && !string.IsNullOrWhiteSpace(OutClientStreet) &&
+                        !string.IsNullOrWhiteSpace(OutClientHouse) && !string.IsNullOrWhiteSpace(OutClientNumberPhone) &&
+                        SelectedOrderStatus != null)
                         {
+                            // проверяем корректность введенных данных
+                            bool isCheckingNumbers = false; // переменная корректности введённого номера телефона
+                            bool isCheckingHouse = false; // переменная корректности введённого дома
+                            bool isCheckingApartment = false; // переменная корректности введённой квартиры
+                            bool isCheckingEmail = false; // переменная корректности введённого Email
 
+                            // проверяем целое число в поле "Дом"
+                            isCheckingHouse = int.TryParse(OutClientHouse.Trim(), out int house);
+                            if (!isCheckingHouse) // число не получено
+                            {
+                                StartFieldIllumination(AnimationOutHouse); // подсветка поля
+                                ErrorInput = "Введите целое число!"; // сообщение с обибкой
+                            }
+
+                            // проверяем цело число в поле "Квартира"
+                            if (OutClientApartment != null && OutClientApartment.Trim() != "")
+                            {
+                                isCheckingApartment = int.TryParse(OutClientApartment.Trim(), out int apartament);
+                                if (!isCheckingApartment) // число не получено
+                                {
+                                    StartFieldIllumination(AnimationOutApartment); // подсветка поля
+                                    ErrorInput = "Введите целое число!"; // сообщение с обибкой
+                                }
+                            }
+                            else
+                            {
+                                isCheckingApartment = true; // если квартира не выбрана, то проверка пройдена, так как атрибут не обязатльный
+                            }
+
+                            // проверяем цело число в поле "Номер телефона"
+                            isCheckingNumbers = (double.TryParse(OutClientNumberPhone.Trim(), out double number));
+                            if (!isCheckingNumbers) // если все числа корректны
+                            {
+                                StartFieldIllumination(AnimationOutNumberPhone); // подсветка поля
+                                ErrorInput += "\nФормат номера телефона нарушен! Только цифры!"; // сообщение с ошибкой
+                            }
+                            else
+                            {
+                                if (OutClientNumberPhone.Trim().Length == 11) // проверяем на кол-во цифр в номере телефона
+                                {
+                                    if (OutClientNumberPhone.Trim().StartsWith("7")) // проверка на 7 в начале
+                                    {
+
+                                    }
+                                    else
+                                    {
+                                        isCheckingNumbers = false;
+                                        StartFieldIllumination(AnimationOutNumberPhone); // подсветка поля
+                                        ErrorInput += "\nНомер телефона должен начинаться с \"7\"!"; // сообщение с ошибкой
+                                    }
+                                }
+                                else
+                                {
+                                    isCheckingNumbers = false;
+                                    StartFieldIllumination(AnimationOutNumberPhone); // подсветка поля
+                                    ErrorInput += "\nФормат номера телефона нарушен! 11 цифр!"; // сообщение с ошибкой
+                                }
+                            }
+
+                            // проверяем Email, если введен
+                            if (OutClientEmail != null && OutClientEmail.Trim() != "")
+                            {
+                                if (!OutClientEmail.Contains("@"))
+                                {
+                                    StartFieldIllumination(AnimationOutEmail); // подсветка поля
+                                    ErrorInput += "\nФормат Email нарушен! Нет знака \"@\"!"; // сообщение с ошибкой
+                                }
+                            }
+                            else
+                            {
+                                isCheckingEmail = true;
+                            }
+
+                            BeginFadeAnimation(AnimationErrorInput); // затухание сообщения об ошибке
+                            ErrorInput = "";
+
+                            // проверка формата данных
+                            if (isCheckingNumbers && isCheckingApartment && isCheckingHouse && isCheckingEmail)
+                            {
+                                // проверка на наличие выбранного(ых) блюда
+                                List<CompositionOrderDPO> compositionOrderDPOs = await Task.Run(() => ListCompositionOrders.Where(c => c.IsEditDishButton == true).ToList());
+
+                                if (compositionOrderDPOs.Count > 0)
+                                {
+                                    // проверка на добавление или редактирование
+                                    if (IsAddData) // добавление данных
+                                    {
+                                        using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+                                        {
+                                            List<Order> orders = await foodDeliveryContext.Orders.ToListAsync();
+                                            List<CompositionCart> carts = await foodDeliveryContext.CompositionCarts.ToListAsync();
+
+                                            // сначала добавляем данные о заказе
+                                            Order order = new Order();
+                                            order.dateTime = DateTime.Now;
+                                            order.startDesiredDeliveryTime = SelectedStartTimeDelivery;
+                                            order.endDesiredDeliveryTime = SelectedEndTimeDelivery;
+                                            order.orderStatusId = SelectedOrderStatus.id;
+                                            order.name = OutClientName.Trim();
+                                            order.surname = OutClientSurname.Trim();
+                                            if (OutClientPatronymic.Trim() != null)
+                                            {
+                                                order.patronymic = OutClientPatronymic.Trim();
+                                            }
+                                            order.city = OutClientCity.Trim();
+                                            order.street = OutClientStreet.Trim();
+                                            order.house = OutClientHouse.Trim();
+
+                                        }
+                                    }
+                                    else // редактирование данных
+                                    {
+
+                                    }
+                                }
+                                else
+                                {
+                                    ErrorInput = "Выберите блюдо(а)!"; // сообщение с ошибкой
+                                    BeginFadeAnimation(AnimationErrorInput); // затухание сообщения об ошибке
+                                }
+
+                            }
                         }
                         else
                         {
+                            ErrorInput = ""; // очищаем сообщение об ошибке
 
+                            if (string.IsNullOrWhiteSpace(OutClientName))
+                            {
+                                StartFieldIllumination(AnimationOutName); // подсветка поля
+                                ErrorInput = "Заполните обязательные поля!"; // сообщение с ошибкой
+                            }
+
+                            if (string.IsNullOrWhiteSpace(OutClientSurname))
+                            {
+                                StartFieldIllumination(AnimationOutSurname); // подсветка поля
+                                ErrorInput = "Заполните обязательные поля!"; // сообщение с ошибкой
+                            }
+
+                            if (string.IsNullOrWhiteSpace(OutClientCity))
+                            {
+                                StartFieldIllumination(AnimationOutCity); // подсветка поля
+                                ErrorInput = "Заполните обязательные поля!"; // сообщение с ошибкой
+                            }
+
+                            if (string.IsNullOrWhiteSpace(OutClientStreet))
+                            {
+                                StartFieldIllumination(AnimationOutStreet); // подсветка поля
+                                ErrorInput = "Заполните обязательные поля!"; // сообщение с ошибкой
+                            }
+
+                            if (string.IsNullOrWhiteSpace(OutClientHouse))
+                            {
+                                StartFieldIllumination(AnimationOutHouse); // подсветка поля
+                                ErrorInput = "Заполните обязательные поля!"; // сообщение с ошибкой
+                            }
+
+                            if (string.IsNullOrWhiteSpace(OutClientNumberPhone))
+                            {
+                                StartFieldIllumination(AnimationOutNumberPhone); // подсветка поля
+                                ErrorInput = "Заполните обязательные поля!"; // сообщение с ошибкой
+                            }
+
+                            if (SelectedOrderStatus == null)
+                            {
+                                StartFieldIllumination(AnimationOrderStatus); // подсветка поля
+                                ErrorInput = "Заполните обязательные поля!"; // сообщение с ошибкой
+                            }
+
+                            BeginFadeAnimation(AnimationErrorInput); // затухание сообщения об ошибке
                         }
                     }, (obj) => true));
             }
@@ -223,9 +394,13 @@ namespace Food_Delivery.ViewModel.Administrator
         // подготовка страницы
         #region PreparingPage
 
+        bool IsAddData; // редактируем или добавляем данные
+
         // изменяем названия страницы (редактируем или добавлем новые записи)
         public async Task ChangingName(bool IsAddData)
         {
+            this.IsAddData = IsAddData; // передаём значение
+
             if (IsAddData) // добавление данных
             {
                 HeadingPage = "Создание заказа";
@@ -339,9 +514,10 @@ namespace Food_Delivery.ViewModel.Administrator
         public TimePicker AnimationStartDesiredDeliveryTime { get; set; } // поле для ввода начала интервала доставки. Вывод подсветки поля
         public TimePicker AnimationEndDesiredDeliveryTime { get; set; } // поле для ввода конца интервала доставки. Вывод подсветки поля
         public TextBox AnimationAmountChange { get; set; } // поле для ввода текста "сумма сдачи". Вывод подсветки поля
-        public TextBox AnimationOrderStatus { get; set; } // поле для выбора статуса заказа. Вывод подсветки поля
+        public ComboBox AnimationOrderStatus { get; set; } // поле для выбора статуса заказа. Вывод подсветки поля
         public TextBox AnimationCostPrice { get; set; } // поле ценой заказа. Вывод подсветки поля
-        public TextBlock AnimationErrorInputPopup { get; set; } // объект текстового поля. Анимация затухания текста после вывода сообщения.
+        public TextBlock AnimationErrorInputPopup { get; set; } // объект текстового поля. Анимация затухания текста после вывода сообщения в Poup.
+        public TextBlock AnimationErrorInput { get; set; } // объект текстового поля. Анимация затухания текста после вывода сообщения.
         public Storyboard FieldIllumination { get; set; } // анимация объектов
 
         // ассинхронно получаем информацию из PageWorkingWithDataOrders 
@@ -349,7 +525,7 @@ namespace Food_Delivery.ViewModel.Administrator
             TextBox AnimationOutSurname, TextBox AnimationOutPatronymic, TextBox AnimationOutCity, TextBox AnimationOutStreet,
             TextBox AnimationOuttHouse, TextBox AnimationOutApartment, TextBox AnimationOutNumberPhone, TextBox AnimationOutEmail,
             DatePicker AnimationDeliveryDate, TimePicker AnimationStartDesiredDeliveryTime, TimePicker AnimationEndDesiredDeliveryTime,
-            TextBox AnimationAmountChange, TextBox AnimationOrderStatus, TextBox AnimationCostPrice)
+            TextBox AnimationAmountChange, ComboBox AnimationOrderStatus, TextBox AnimationCostPrice, TextBlock AnimationErrorInput)
         {
             if (AnimationErrorInputPopup != null)
             {
@@ -359,65 +535,69 @@ namespace Food_Delivery.ViewModel.Administrator
             {
                 this.FieldIllumination = FieldIllumination;
             }
-            if(AnimationOutName != null)
+            if (AnimationOutName != null)
             {
                 this.AnimationOutName = AnimationOutName;
             }
-            if(AnimationOutSurname != null)
+            if (AnimationOutSurname != null)
             {
                 this.AnimationOutSurname = AnimationOutSurname;
             }
-            if(AnimationOutPatronymic != null)
+            if (AnimationOutPatronymic != null)
             {
                 this.AnimationOutPatronymic = AnimationOutPatronymic;
             }
-            if(AnimationOutCity != null)
+            if (AnimationOutCity != null)
             {
                 this.AnimationOutCity = AnimationOutCity;
             }
-            if(AnimationOutStreet != null)
+            if (AnimationOutStreet != null)
             {
                 this.AnimationOutStreet = AnimationOutStreet;
             }
-            if(AnimationOutHouse != null)
+            if (AnimationOuttHouse != null)
             {
-                this.AnimationOutHouse = AnimationOutHouse;
+                this.AnimationOutHouse = AnimationOuttHouse;
             }
-            if(AnimationOutApartment != null)
+            if (AnimationOutApartment != null)
             {
                 this.AnimationOutApartment = AnimationOutApartment;
             }
-            if(AnimationOutNumberPhone != null)
+            if (AnimationOutNumberPhone != null)
             {
                 this.AnimationOutNumberPhone = AnimationOutNumberPhone;
             }
-            if(AnimationOutEmail != null)
+            if (AnimationOutEmail != null)
             {
                 this.AnimationOutEmail = AnimationOutEmail;
             }
-            if(AnimationDeliveryDate != null)
+            if (AnimationDeliveryDate != null)
             {
                 this.AnimationDeliveryDate = AnimationDeliveryDate;
             }
-            if(AnimationStartDesiredDeliveryTime != null)
+            if (AnimationStartDesiredDeliveryTime != null)
             {
                 this.AnimationStartDesiredDeliveryTime = AnimationStartDesiredDeliveryTime;
             }
-            if(AnimationEndDesiredDeliveryTime != null)
+            if (AnimationEndDesiredDeliveryTime != null)
             {
                 this.AnimationEndDesiredDeliveryTime = AnimationEndDesiredDeliveryTime;
             }
-            if(AnimationAmountChange != null)
+            if (AnimationAmountChange != null)
             {
                 this.AnimationAmountChange = AnimationAmountChange;
             }
-            if(AnimationOrderStatus != null)
+            if (AnimationOrderStatus != null)
             {
                 this.AnimationOrderStatus = AnimationOrderStatus;
             }
-            if(AnimationCostPrice != null)
+            if (AnimationCostPrice != null)
             {
                 this.AnimationCostPrice = AnimationCostPrice;
+            }
+            if (AnimationErrorInput != null)
+            {
+                this.AnimationErrorInput = AnimationErrorInput;
             }
         }
 
@@ -439,16 +619,16 @@ namespace Food_Delivery.ViewModel.Administrator
         }
 
         // выбранный статус заказа
-        private string _selectedOrderStatus { get; set; }
-        public string SelectedOrderStatus
+        private OrderStatus _selectedOrderStatus { get; set; }
+        public OrderStatus SelectedOrderStatus
         {
             get { return _selectedOrderStatus; }
             set
             {
                 _selectedOrderStatus = value; OnPropertyChanged(nameof(SelectedOrderStatus));
                 // если заказ имеет один из статусов, то мы не даём нажать на кноку "добавить товар"
-                if (SelectedOrderStatus == "Готов" || SelectedOrderStatus == "Доставляется" ||
-                    SelectedOrderStatus == "Отменен" || SelectedOrderStatus == "Отклонен" || SelectedOrderStatus == "Доставлен")
+                if (SelectedOrderStatus.name == "Готов" || SelectedOrderStatus.name == "Доставляется" ||
+                    SelectedOrderStatus.name == "Отменен" || SelectedOrderStatus.name == "Отклонен" || SelectedOrderStatus.name == "Доставлен")
                 {
                     IsAddDishes = false;
                 }
@@ -460,18 +640,34 @@ namespace Food_Delivery.ViewModel.Administrator
         }
 
         // список статусов заказа
-        private List<string> _optionsOrderStatus { get; set; }
-        public List<string> OptionsOrderStatus
+        private List<OrderStatus> _optionsOrderStatus { get; set; }
+        public List<OrderStatus> OptionsOrderStatus
         {
             get
             {
-                return _optionsOrderStatus = new List<string>
-            { "Новый заказ", "В обработке", "Готов", "Доставляется", "Доставлен", "Отменен", "Отклонен" };
+                return _optionsOrderStatus;
             }
             set
             {
                 _optionsOrderStatus = value;
                 OnPropertyChanged(nameof(OptionsOrderStatus));
+            }
+        }
+
+        // получаем список статусов заказа
+        private async Task OrderStatuses()
+        {
+            using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+            {
+                List<OrderStatus> orderStatuses = await foodDeliveryContext.OrderStatus.ToListAsync(); // получаем список статусов заказов
+                OptionsOrderStatus = new List<OrderStatus>(orderStatuses);
+
+                OrderStatus orderStatus = await Task.Run(() => orderStatuses.FirstOrDefault(o => o.id == 1));
+                if (orderStatus != null)
+                {
+                    // устанавливаем начальный статус
+                    SelectedOrderStatus = orderStatus; // при создании заказа по умолчанию ставим "Новый заказ"
+                }
             }
         }
 
@@ -520,8 +716,8 @@ namespace Food_Delivery.ViewModel.Administrator
         }
 
         // дата доставки 
-        private DatePicker _selectedDate { get; set; }
-        public DatePicker SelectedDate
+        private DateTime _selectedDate { get; set; }
+        public DateTime SelectedDate
         {
             get { return _selectedDate; }
             set { _selectedDate = value; OnPropertyChanged(nameof(SelectedDate)); }
@@ -618,11 +814,11 @@ namespace Food_Delivery.ViewModel.Administrator
         #endregion
 
         // свойство для вывода текстовой ошибки при добавлении или редактировании данных
-        private string _errorInputPopup { get; set; }
-        public string ErrorInputPopup
+        private string _errorInput { get; set; }
+        public string ErrorInput
         {
-            get { return _errorInputPopup; }
-            set { _errorInputPopup = value; OnPropertyChanged(nameof(ErrorInputPopup)); }
+            get { return _errorInput; }
+            set { _errorInput = value; OnPropertyChanged(nameof(ErrorInput)); }
         }
 
         // фон для Popup
@@ -666,6 +862,14 @@ namespace Food_Delivery.ViewModel.Administrator
         {
             get { return _headingPage; }
             set { _headingPage = value; OnPropertyChanged(nameof(HeadingPage)); }
+        }
+
+        // свойство для вывода ошибки при добавлении или редактировании данных
+        private string _errorInputPopup { get; set; }
+        public string ErrorInputPopup
+        {
+            get { return _errorInputPopup; }
+            set { _errorInputPopup = value; OnPropertyChanged(nameof(ErrorInputPopup)); }
         }
 
         #endregion
@@ -743,7 +947,7 @@ namespace Food_Delivery.ViewModel.Administrator
         #region Animation
 
         // анимация затухания текста
-        private void BeginFadeAnimation(TextBlock textBlock)
+        private async Task BeginFadeAnimation(TextBlock textBlock)
         {
             textBlock.IsEnabled = true;
             textBlock.Opacity = 1.0;

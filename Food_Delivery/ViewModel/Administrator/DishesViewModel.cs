@@ -413,7 +413,13 @@ namespace Food_Delivery.ViewModel.Administrator
                         !string.IsNullOrWhiteSpace(OutPriceDishes) && !string.IsNullOrWhiteSpace(OutQuantityDishes) && imageBd != null)
                         {
                             // проверяем корректность введенных данных
-                            bool isCheckingNumbers = false; // переменная корректности введенных чисел
+                            bool isCheckingPriceDishes = false; // переменная корректности введенных чисел
+                            bool isCheckingСaloriesDishes = false; // переменная корректности введенных чисел
+                            bool isCheckingFatsDishes = false; // переменная корректности введенных чисел
+                            bool isCheckingSquirrelsDishes = false; // переменная корректности введенных чисел
+                            bool isCheckingСarbohydratesDishes = false; // переменная корректности введенных чисел
+                            bool isCheckingWeightDishes = false; // переменная корректности введенных чисел
+                            bool isCheckingQuantityDishes = false; // переменная корректности введенных чисел
 
                             int price = 0; // цена
                             int calories = 0; // калории
@@ -426,8 +432,8 @@ namespace Food_Delivery.ViewModel.Administrator
                             ErrorInputPopup = ""; // очищаем сообщение об ошибке
 
                             // проверяем цело число в поле "Цена"
-                            isCheckingNumbers = int.TryParse(OutPriceDishes.Trim(), out price);
-                            if (!isCheckingNumbers) // число не получено
+                            isCheckingPriceDishes = int.TryParse(OutPriceDishes.Trim(), out price);
+                            if (!isCheckingPriceDishes) // число не получено
                             {
                                 StartFieldIllumination(AnimationPrice); // подсветка поля
                                 ErrorInputPopup = "Введите целое число!"; // сообщение с обибкой
@@ -436,8 +442,8 @@ namespace Food_Delivery.ViewModel.Administrator
                             if (!string.IsNullOrWhiteSpace(OutСaloriesDishes)) // если поле не нулевое
                             {
                                 // проверяем цело число в поле "калории"
-                                isCheckingNumbers = int.TryParse(OutСaloriesDishes.Trim(), out calories);
-                                if (!isCheckingNumbers) // число не получено
+                                isCheckingСaloriesDishes = int.TryParse(OutСaloriesDishes.Trim(), out calories);
+                                if (!isCheckingСaloriesDishes) // число не получено
                                 {
                                     StartFieldIllumination(AnimationСalories); // подсветка поля
                                     ErrorInputPopup = "Введите целое число!"; // сообщение с обибкой
@@ -447,8 +453,8 @@ namespace Food_Delivery.ViewModel.Administrator
                             if (!string.IsNullOrWhiteSpace(OutFatsDishes)) // если поле не нулевое
                             {
                                 // проверяем цело число в поле "жиры"
-                                isCheckingNumbers = int.TryParse(OutFatsDishes.Trim(), out fats);
-                                if (!isCheckingNumbers) // число не получено
+                                isCheckingFatsDishes = int.TryParse(OutFatsDishes.Trim(), out fats);
+                                if (!isCheckingFatsDishes) // число не получено
                                 {
                                     StartFieldIllumination(AnimationFats); // подсветка поля
                                     ErrorInputPopup = "Введите целое число!"; // сообщение с обибкой
@@ -458,8 +464,8 @@ namespace Food_Delivery.ViewModel.Administrator
                             if (!string.IsNullOrWhiteSpace(OutSquirrelsDishes)) // если поле не нулевое
                             {
                                 // проверяем цело число в поле "белки"
-                                isCheckingNumbers = int.TryParse(OutSquirrelsDishes.Trim(), out squirrels);
-                                if (!isCheckingNumbers) // число не получено
+                                isCheckingSquirrelsDishes = int.TryParse(OutSquirrelsDishes.Trim(), out squirrels);
+                                if (!isCheckingSquirrelsDishes) // число не получено
                                 {
                                     StartFieldIllumination(AnimationSquirrels); // подсветка поля
                                     ErrorInputPopup = "Введите целое число!"; // сообщение с обибкой
@@ -469,8 +475,8 @@ namespace Food_Delivery.ViewModel.Administrator
                             if (!string.IsNullOrWhiteSpace(OutСarbohydratesDishes)) // если поле не нулевое
                             {
                                 // проверяем цело число в поле "углеводы"
-                                isCheckingNumbers = int.TryParse(OutСarbohydratesDishes.Trim(), out carbohydrates);
-                                if (!isCheckingNumbers) // число не получено
+                                isCheckingСarbohydratesDishes = int.TryParse(OutСarbohydratesDishes.Trim(), out carbohydrates);
+                                if (!isCheckingСarbohydratesDishes) // число не получено
                                 {
                                     StartFieldIllumination(AnimationCarbohydrates); // подсветка поля
                                     ErrorInputPopup = "Введите целое число!"; // сообщение с обибкой
@@ -480,8 +486,8 @@ namespace Food_Delivery.ViewModel.Administrator
                             if (!string.IsNullOrWhiteSpace(OutWeightDishes)) // если поле не нулевое
                             {
                                 // проверяем цело число в поле "белки"
-                                isCheckingNumbers = int.TryParse(OutWeightDishes.Trim(), out weight);
-                                if (!isCheckingNumbers) // число не получено
+                                isCheckingWeightDishes = int.TryParse(OutWeightDishes.Trim(), out weight);
+                                if (!isCheckingWeightDishes) // число не получено
                                 {
                                     StartFieldIllumination(AnimationWeight); // подсветка поля
                                     ErrorInputPopup = "Введите целое число!"; // сообщение с обибкой
@@ -489,8 +495,8 @@ namespace Food_Delivery.ViewModel.Administrator
                             }
 
                             // проверяем цело число в поле "Кол-во в упаковке"
-                            isCheckingNumbers = int.TryParse(OutQuantityDishes.Trim(), out quantity);
-                            if (!isCheckingNumbers) // число не получено
+                            isCheckingQuantityDishes = int.TryParse(OutQuantityDishes.Trim(), out quantity);
+                            if (!isCheckingQuantityDishes) // число не получено
                             {
                                 StartFieldIllumination(AnimationQuantity); // подсветка поля
                                 ErrorInputPopup = "Введите целое число!"; // сообщение с обибкой
@@ -498,7 +504,10 @@ namespace Food_Delivery.ViewModel.Administrator
 
                             BeginFadeAnimation(AnimationErrorInputPopup); // затухание сообщения об ошибке
 
-                            if (isCheckingNumbers) // если все данные корректны
+                            if (isCheckingPriceDishes && isCheckingСaloriesDishes &&
+                            isCheckingFatsDishes && isCheckingSquirrelsDishes &&
+                            isCheckingСarbohydratesDishes && isCheckingWeightDishes &&
+                            isCheckingQuantityDishes) // если все данные корректны
                             {
                                 if (IsAddData) // добавление данных
                                 {
@@ -642,7 +651,7 @@ namespace Food_Delivery.ViewModel.Administrator
                             if (string.IsNullOrWhiteSpace(OutNameDishes))
                             {
                                 StartFieldIllumination(AnimationOutName); // подсветка поля
-                                ErrorInputPopup = "Заполните обязательные поля!"; // сообщение с обибкой
+                                ErrorInputPopup = "Заполните обязательные поля!"; // сообщение с ошибкой
                             }
 
                             if(SelectedCategory == null)
