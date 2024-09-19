@@ -84,7 +84,7 @@ namespace Food_Delivery
                 {
                     await Task.Run(async () =>
                     {
-                        await Task.Delay(500); // Ждем завершения загрузки
+                        await Task.Delay(1500); // Ждем завершения загрузки
                         System.Windows.Application.Current.Dispatcher.Invoke(() =>
                         {
                             mainFrame.Navigate(mainMenuPage);

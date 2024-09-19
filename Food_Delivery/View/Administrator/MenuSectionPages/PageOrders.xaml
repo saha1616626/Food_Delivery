@@ -87,6 +87,9 @@
 
         </Grid>
 
+        <!--таблица с заказами-->
+        
+        
         <!--фрейм страницы для редактирования и добавления данных-->
         <Frame x:Name="ordersFrame" Content="{Binding PageFrame, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                NavigationUIVisibility="Hidden" Grid.ColumnSpan="3" Grid.RowSpan="3"/>

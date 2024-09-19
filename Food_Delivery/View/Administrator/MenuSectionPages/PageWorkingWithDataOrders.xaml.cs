@@ -108,14 +108,14 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
         {
             DateTime dateTime = DateTime.Now;
             TimeSpan nowTime = dateTime.TimeOfDay;
-            if (nowTime > new TimeSpan(8, 0, 0))
+            if (nowTime > new TimeSpan(20, 0, 0))
             {
                 DeliveryDate.SelectedDate = (new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day + 1)); // установка начальной даты заказа
                 DeliveryDate.BlackoutDates.Add(new CalendarDateRange(DateTime.MinValue, DateTime.Today));
             }
             else
             {
-                DeliveryDate.SelectedDate = (new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day + 1)); // установка начальной даты заказа
+                DeliveryDate.SelectedDate = (new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day)); // установка начальной даты заказа
                 DeliveryDate.BlackoutDates.Add(new CalendarDateRange(DateTime.MinValue, DateTime.Today.AddDays(-1)));
             }
         }

@@ -22,6 +22,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 
 namespace Food_Delivery.ViewModel.Administrator
 {
@@ -31,13 +32,6 @@ namespace Food_Delivery.ViewModel.Administrator
         {
             // получаем список статусов заказа
             OrderStatuses();
-
-            // подготовка полей
-            SelectedStartTimeDelivery = new DateTime(1, 1, 1, 9, 0, 0, 0); // устанавливаем начальное время
-            IsOptionCardSelected = true; // по умолчанию выбрана карта
-            IsFieldVisibilityTypePayment = true; // делаем недоступное поле для ввода суммы сдачи, так как выбрана карта
-            DarkBackground = Visibility.Collapsed; // фон для Popup скрыт
-            OutCostPrice = "0"; // нулевая начальная стоимость заказа
 
             // после получения фокуса данного приложения запукаем закрытый Popup
             WorkingWithData._launchPopupAfterReceivingFocusOrders += LaunchPopupAfterReceivingFocusOrders;
@@ -219,6 +213,9 @@ namespace Food_Delivery.ViewModel.Administrator
                             bool isCheckingHouse = false; // переменная корректности введённого дома
                             bool isCheckingApartment = false; // переменная корректности введённой квартиры
                             bool isCheckingEmail = false; // переменная корректности введённого Email
+                            bool isAmountChange = false; // переменная коррекности введённой суммы сдачи
+
+                            ErrorInput = ""; // очищаем поле ошибки
 
                             // проверяем целое число в поле "Дом"
                             isCheckingHouse = int.TryParse(OutClientHouse.Trim(), out int house);
@@ -256,7 +253,7 @@ namespace Food_Delivery.ViewModel.Administrator
                                 {
                                     if (OutClientNumberPhone.Trim().StartsWith("7")) // проверка на 7 в начале
                                     {
-
+                                        
                                     }
                                     else
                                     {
@@ -287,11 +284,28 @@ namespace Food_Delivery.ViewModel.Administrator
                                 isCheckingEmail = true;
                             }
 
+
+                            // проверяем сумму сдачи, если выбраны наличные
+                            if (!string.IsNullOrWhiteSpace(OutAmountChange))
+                            {
+                                isAmountChange = int.TryParse(OutAmountChange.Trim(), out int amount);
+                                if (!isAmountChange)
+                                {
+                                    StartFieldIllumination(AnimationAmountChange); // подсветка поля
+                                    ErrorInput += "\nВведите целое число!"; // сообщение с ошибкой
+                                }
+                            }
+                            else
+                            {
+                                isAmountChange = true; //если поле не заполнено, то условие успешно,
+                                                       //так как данные не обязательны для заполнения
+                            }
+
                             BeginFadeAnimation(AnimationErrorInput); // затухание сообщения об ошибке
-                            ErrorInput = "";
+                            //ErrorInput = "";
 
                             // проверка формата данных
-                            if (isCheckingNumbers && isCheckingApartment && isCheckingHouse && isCheckingEmail)
+                            if (isCheckingNumbers && isCheckingApartment && isCheckingHouse && isCheckingEmail && isAmountChange)
                             {
                                 // проверка на наличие выбранного(ых) блюда
                                 List<CompositionOrderDPO> compositionOrderDPOs = await Task.Run(() => ListCompositionOrders.Where(c => c.IsEditDishButton == true).ToList());
@@ -309,19 +323,104 @@ namespace Food_Delivery.ViewModel.Administrator
                                             // сначала добавляем данные о заказе
                                             Order order = new Order();
                                             order.dateTime = DateTime.Now;
+
+                                            // получаем id пользователя, если заказ оформлял определенный клиент
+
                                             order.startDesiredDeliveryTime = SelectedStartTimeDelivery;
                                             order.endDesiredDeliveryTime = SelectedEndTimeDelivery;
                                             order.orderStatusId = SelectedOrderStatus.id;
                                             order.name = OutClientName.Trim();
                                             order.surname = OutClientSurname.Trim();
-                                            if (OutClientPatronymic.Trim() != null)
+                                            if (!string.IsNullOrWhiteSpace(OutClientPatronymic))
                                             {
                                                 order.patronymic = OutClientPatronymic.Trim();
                                             }
                                             order.city = OutClientCity.Trim();
                                             order.street = OutClientStreet.Trim();
                                             order.house = OutClientHouse.Trim();
+                                            if (!string.IsNullOrWhiteSpace(OutClientApartment))
+                                            {
+                                                order.apartment = OutClientApartment.Trim();
+                                            }
+                                            order.numberPhone = OutClientNumberPhone.Trim();
+                                            if (!string.IsNullOrWhiteSpace(OutClientEmail))
+                                            {
+                                                order.email = OutClientEmail.Trim();
+                                            }
+                                            order.costPrice = int.Parse(OutCostPrice.Trim());
 
+                                            // проверка статуса оплаты
+                                            if (IsOptionCardSelected) // если выбрана карта
+                                            {
+                                                order.typePayment = "Карта";
+                                            }
+                                            else // если выбраны наличные
+                                            {
+                                                // получаем сумму сдачи
+                                                order.typePayment = "Наличные";
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(OutAmountChange))
+                                            {
+                                                order.prepareChangeMoney = int.Parse((string)OutAmountChange.Trim());
+                                            }
+
+                                            await foodDeliveryContext.Orders.AddAsync(order); // добавляем данные в список БД
+                                            await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных
+
+                                            // теперь добавляем даннные заказа (список блюд)
+                                            foreach(CompositionOrderDPO item in compositionOrderDPOs)
+                                            {
+                                                CompositionOrder compositionOrder = new CompositionOrder();
+                                                compositionOrder.orderId = (int)order.id; // берём id из созданного заказа
+                                                if(item.dishesId != null)
+                                                {
+                                                    compositionOrder.dishesId = item.dishesId;
+                                                }
+                                                compositionOrder.nameDishes = item.nameDishes;
+                                                if (string.IsNullOrWhiteSpace(item.descriptionDishes))
+                                                {
+                                                    compositionOrder.descriptionDishes = item.descriptionDishes;
+                                                }
+                                                if (item.calories != null)
+                                                {
+                                                    compositionOrder.calories = item.calories;
+                                                }
+                                                if (item.squirrels != null)
+                                                {
+                                                    compositionOrder.squirrels = item.squirrels;
+                                                }
+                                                if (item.fats != null)
+                                                {
+                                                    compositionOrder.fats = item.fats;
+                                                }
+                                                if (item.carbohydrates != null)
+                                                {
+                                                    compositionOrder.carbohydrates = item.carbohydrates;
+                                                }
+                                                if (item.weight != null)
+                                                {
+                                                    compositionOrder.weight = item.weight;
+                                                }
+                                                compositionOrder.quantity = item.QuantityInOrder;
+                                                compositionOrder.price = item.price;
+
+                                                // преобразовываем изображение в массив байтов
+                                                using (MemoryStream memoryStream = new MemoryStream())
+                                                {
+                                                    PngBitmapEncoder encoder = new PngBitmapEncoder(); // кодируем в формат PNG
+                                                    encoder.Frames.Add(BitmapFrame.Create(item.image)); // преобразовываем полученное изображение в нужный формат
+                                                    encoder.Save(memoryStream);
+                                                    compositionOrder.image = memoryStream.ToArray();
+                                                }
+
+                                                await foodDeliveryContext.CompositionOrders.AddAsync(compositionOrder); // добавляем данные в список БД
+                                            }
+
+                                            await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных
+
+                                            // закрываем страницу добавления данных
+                                            WorkingWithData.ClosingCorkWithDataOrdersPage(); // вызываем событие перехода на страницу "заказы"
                                         }
                                     }
                                     else // редактирование данных
@@ -408,6 +507,20 @@ namespace Food_Delivery.ViewModel.Administrator
             else // редактирование данных
             {
                 HeadingPage = "Изменение заказа";
+            }
+
+            // если добавление данных, то мы подгатавливаем поля
+            if (IsAddData)
+            {
+                SelectedStartTimeDelivery = new DateTime((int)DateTime.Now.Year, (int)DateTime.Now.Month, (int)DateTime.Now.Day, 9, 0, 0, 0); // устанавливаем начальное время
+                IsOptionCardSelected = true; // по умолчанию выбрана карта
+                IsFieldVisibilityTypePayment = true; // делаем недоступное поле для ввода суммы сдачи, так как выбрана карта
+                DarkBackground = Visibility.Collapsed; // фон для Popup скрыт
+                OutCostPrice = "0"; // нулевая начальная стоимость заказа
+            }
+            else // если редактирование
+            {
+
             }
         }
 
@@ -891,18 +1004,18 @@ namespace Food_Delivery.ViewModel.Administrator
                 if (selectedTime < minTime) // если выбранное время меньше времени открытия доставки, то ставим
                                             // минимальную дату доставки, а также ближайшее время по конечному интервалу доставки
                 {
-                    SelectedStartTimeDelivery = new DateTime(1, 1, 1, (int)minTime.TotalHours, (int)minTime.Minutes, (int)minTime.Seconds);
-                    SelectedEndTimeDelivery = new DateTime(1, 1, 1, 11, 0, 0, 0);
+                    SelectedStartTimeDelivery = new DateTime((int)DateTime.Now.Year, (int)DateTime.Now.Month, (int)DateTime.Now.Day, (int)minTime.TotalHours, (int)minTime.Minutes, (int)minTime.Seconds);
+                    SelectedEndTimeDelivery = new DateTime((int)DateTime.Now.Year, (int)DateTime.Now.Month, (int)DateTime.Now.Day, 11, 0, 0);
                 }
                 else if (selectedTime > maxTime) // если выбранное время больше времени закрытия ссервиса доставки, то ставим
                                                  // максимальную дату доставки, а также ближайшее время по конечному интервалу доставки
                 {
-                    SelectedStartTimeDelivery = new DateTime(1, 1, 1, (int)maxTime.TotalHours, (int)maxTime.Minutes, (int)maxTime.Seconds);
-                    SelectedEndTimeDelivery = new DateTime(1, 1, 1, 22, 0, 0, 0);
+                    SelectedStartTimeDelivery = new DateTime((int)DateTime.Now.Year, (int)DateTime.Now.Month, (int)DateTime.Now.Day, (int)maxTime.TotalHours, (int)maxTime.Minutes, (int)maxTime.Seconds);
+                    SelectedEndTimeDelivery = new DateTime((int)DateTime.Now.Year, (int)DateTime.Now.Month, (int)DateTime.Now.Day, 22, 0, 0);
                 }
                 else
                 {
-                    SelectedEndTimeDelivery = new DateTime(1, 1, 1, (int)selectedTime.TotalHours + 2, (int)selectedTime.Minutes, (int)selectedTime.Seconds);
+                    SelectedEndTimeDelivery = new DateTime((int)DateTime.Now.Year, (int)DateTime.Now.Month, (int)DateTime.Now.Day, (int)selectedTime.TotalHours + 2, (int)selectedTime.Minutes, (int)selectedTime.Seconds);
                 }
             }
 
