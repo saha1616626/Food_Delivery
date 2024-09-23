@@ -1,4 +1,6 @@
-﻿using Microsoft.Identity.Client.NativeInterop;
+﻿using Food_Delivery.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client.NativeInterop;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -71,8 +73,8 @@ namespace Food_Delivery.Model.DPO
             set { _quantityInOrder = value; OnPropertyChanged(nameof(QuantityInOrder)); }
         }
 
-        private int? _quantityInProduct { get; set; } // кол-во штук в товаре, а не кол-во товаров в заказе
-        public int? QuantityInProduct
+        private int _quantityInProduct { get; set; } // кол-во штук в товаре, а не кол-во товаров в заказе
+        public int QuantityInProduct
         {
             get { return _quantityInProduct; }
             set { _quantityInProduct = value; OnPropertyChanged(nameof(QuantityInProduct)); }
@@ -109,8 +111,8 @@ namespace Food_Delivery.Model.DPO
         }
 
         // сумма денег по выбранному товару
-        private int _amountProduct { get; set; }
-        public int AmountProduct
+        private int? _amountProduct { get; set; }
+        public int? AmountProduct
         {
             get { return _amountProduct; }
             set { _amountProduct = value; OnPropertyChanged(nameof(AmountProduct)); }
@@ -146,7 +148,7 @@ namespace Food_Delivery.Model.DPO
                 compositionOrderDPO.weight = dishes.weight;
             }
             compositionOrderDPO.QuantityInOrder = 0;
-            compositionOrderDPO.QuantityInProduct = dishes.quantity;
+            compositionOrderDPO.QuantityInProduct = (int)dishes.quantity;
             compositionOrderDPO.price = dishes.price;
 
             // преобразуем массив byte в изображение
@@ -163,6 +165,74 @@ namespace Food_Delivery.Model.DPO
             compositionOrderDPO.IsAddDishButton = true; // видимость кнопк добавить товар в список
             compositionOrderDPO.IsEditDishButton = false; // видиомость кнопок для изменения кол - во товара в заказе
             compositionOrderDPO.AmountProduct = 0; // сумма денег по выбранному товару
+
+            return compositionOrderDPO;
+        }
+
+        // получаем CompositionOrderDPO из CompositionOrder
+        public async Task<CompositionOrderDPO> CompositionOrder(CompositionOrder compositionOrder)
+        {
+            CompositionOrderDPO compositionOrderDPO = new CompositionOrderDPO();
+            compositionOrderDPO.id = compositionOrder.id;
+            compositionOrderDPO.orderId = compositionOrder.orderId;
+            if(compositionOrder.dishesId != null)
+            {
+                compositionOrderDPO.dishesId = compositionOrder.dishesId;
+
+                using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+                {
+                    List<Dishes> dishes = await foodDeliveryContext.Dishes.ToListAsync();
+                    // находим блюдо
+                    Dishes res = dishes.FirstOrDefault(d => d.id == compositionOrder.dishesId);
+                    if (res != null)
+                    {
+                        compositionOrderDPO.QuantityInProduct = (int)res.quantity;
+                    }
+                }
+            }
+            compositionOrderDPO.nameDishes = compositionOrder.nameDishes;
+            if (compositionOrder.descriptionDishes != null)
+            {
+                compositionOrderDPO.descriptionDishes = compositionOrder.descriptionDishes;
+            }
+            if (compositionOrder.calories != null)
+            {
+                compositionOrderDPO.calories = compositionOrder.calories;
+            }
+            if (compositionOrder.squirrels != null)
+            {
+                compositionOrderDPO.squirrels = compositionOrder.squirrels;
+            }
+            if (compositionOrder.fats != null)
+            {
+                compositionOrderDPO.fats = compositionOrder.fats;
+            }
+            if (compositionOrder.carbohydrates != null)
+            {
+                compositionOrderDPO.carbohydrates = compositionOrder.carbohydrates;
+            }
+            if (compositionOrder.weight != null)
+            {
+                compositionOrderDPO.weight = compositionOrder.weight;
+            }
+            compositionOrderDPO.QuantityInOrder = (int)compositionOrder.quantity;
+
+            compositionOrderDPO.price = compositionOrder.price;
+
+            // преобразуем массив byte в изображение
+            if (compositionOrder.image != null)
+            {
+                BitmapImage bitmap = new BitmapImage();
+                bitmap.BeginInit(); // устанавливаем свойства объекта без инициализации
+                bitmap.StreamSource = new MemoryStream(compositionOrder.image);
+                bitmap.EndInit(); // сообщаем, что объект может выполнить необходимые операции для заверешения инициализации
+
+                compositionOrderDPO.image = bitmap;
+            }
+
+            compositionOrderDPO.IsAddDishButton = false; // видимость кнопк добавить товар в список
+            compositionOrderDPO.IsEditDishButton = true; // видиомость кнопок для изменения кол - во товара в заказе
+            compositionOrderDPO.AmountProduct = compositionOrder.quantity * compositionOrder.price; // сумма денег по выбранному товару
 
             return compositionOrderDPO;
         }

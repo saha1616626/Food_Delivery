@@ -161,7 +161,7 @@ namespace Food_Delivery.Model.DPO
         public OrderDPO() { }
 
         // получаем заказ из Order с заменой id и детализацией всех блюд в заказе
-        public async Task<OrderDPO> CopyFromCompositionCart(Order order)
+        public async Task<OrderDPO> CopyFromOrder(Order order)
         {
             OrderDPO orderDPO = new OrderDPO();
 
@@ -243,7 +243,7 @@ namespace Food_Delivery.Model.DPO
                     orderDPO.orderStatusId = order.orderStatusId;
 
                     OrderStatus status = new OrderStatus();
-                    status = await Task.Run(() => orderStatuses.FirstOrDefault(s => s.id == order.id));
+                    status = await Task.Run(() => orderStatuses.FirstOrDefault(s => s.id == order.orderStatusId));
                     if(status != null)
                     {
                         orderDPO.statusName = status.name;

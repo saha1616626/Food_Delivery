@@ -449,6 +449,10 @@ namespace Food_Delivery.ViewModel.Administrator
                                     ErrorInputPopup = "Введите целое число!"; // сообщение с обибкой
                                 }
                             }
+                            else
+                            {
+                                isCheckingСaloriesDishes = true;
+                            }
 
                             if (!string.IsNullOrWhiteSpace(OutFatsDishes)) // если поле не нулевое
                             {
@@ -459,6 +463,10 @@ namespace Food_Delivery.ViewModel.Administrator
                                     StartFieldIllumination(AnimationFats); // подсветка поля
                                     ErrorInputPopup = "Введите целое число!"; // сообщение с обибкой
                                 }
+                            }
+                            else
+                            {
+                                isCheckingFatsDishes = true;
                             }
 
                             if (!string.IsNullOrWhiteSpace(OutSquirrelsDishes)) // если поле не нулевое
@@ -471,6 +479,10 @@ namespace Food_Delivery.ViewModel.Administrator
                                     ErrorInputPopup = "Введите целое число!"; // сообщение с обибкой
                                 }
                             }
+                            else
+                            {
+                                isCheckingSquirrelsDishes = true;
+                            }
 
                             if (!string.IsNullOrWhiteSpace(OutСarbohydratesDishes)) // если поле не нулевое
                             {
@@ -482,16 +494,24 @@ namespace Food_Delivery.ViewModel.Administrator
                                     ErrorInputPopup = "Введите целое число!"; // сообщение с обибкой
                                 }
                             }
+                            else
+                            {
+                                isCheckingСarbohydratesDishes = true;
+                            }
 
                             if (!string.IsNullOrWhiteSpace(OutWeightDishes)) // если поле не нулевое
                             {
-                                // проверяем цело число в поле "белки"
+                                // проверяем цело число в поле "вес блюда"
                                 isCheckingWeightDishes = int.TryParse(OutWeightDishes.Trim(), out weight);
                                 if (!isCheckingWeightDishes) // число не получено
                                 {
                                     StartFieldIllumination(AnimationWeight); // подсветка поля
                                     ErrorInputPopup = "Введите целое число!"; // сообщение с обибкой
                                 }
+                            }
+                            else
+                            {
+                                isCheckingWeightDishes = true;
                             }
 
                             // проверяем цело число в поле "Кол-во в упаковке"
@@ -515,7 +535,7 @@ namespace Food_Delivery.ViewModel.Administrator
                                     using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
                                     {
                                         List<Dishes> dishes = await foodDeliveryContext.Dishes.ToListAsync();
-                                        if (!dishes.Any(d => d.name.ToLowerInvariant().Contains(OutNameDishes.ToLowerInvariant().Trim())))
+                                        if (!dishes.Any(d => d.name.ToLowerInvariant() == OutNameDishes.ToLowerInvariant().Trim()))
                                         {
                                             // добавляем данные в БД
                                             Dishes dis = new Dishes();
@@ -569,7 +589,7 @@ namespace Food_Delivery.ViewModel.Administrator
                                         {
                                             // данные уже существуют
                                             StartFieldIllumination(AnimationOutName); // подсветка поля
-                                            ErrorInputPopup = "Категория с таким названием уже существует!"; // сообщение с обибкой
+                                            ErrorInputPopup = "Блюдо с таким названием уже существует!"; // сообщение с обибкой
                                             BeginFadeAnimation(AnimationErrorInputPopup); // затухание сообщения об ошибке
                                         }
                                     }

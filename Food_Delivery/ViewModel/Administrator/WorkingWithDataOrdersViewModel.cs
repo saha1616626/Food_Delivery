@@ -30,9 +30,6 @@ namespace Food_Delivery.ViewModel.Administrator
     {
         public WorkingWithDataOrdersViewModel()
         {
-            // получаем список статусов заказа
-            OrderStatuses();
-
             // после получения фокуса данного приложения запукаем закрытый Popup
             WorkingWithData._launchPopupAfterReceivingFocusOrders += LaunchPopupAfterReceivingFocusOrders;
         }
@@ -63,48 +60,74 @@ namespace Food_Delivery.ViewModel.Administrator
             //ListOrderCopy.Clear();
             // копируем список
             ListOrderCopy = new ObservableCollection<CompositionOrderDPO>(ListCompositionOrders);
-            ListCompositionOrders.Clear(); // очищаем список
+
             // подключаемся к БД
             using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
             {
                 List<Dishes> dishes = await foodDeliveryContext.Dishes.ToListAsync();
 
-                // передаем все блюда в список
-                foreach (Dishes dishesItem in dishes)
+                // изменяем список в зависимости от режима работы (добавление или редактирование данных)
+                if (IsAddData) // добавление данных
                 {
-                    // проверяем, было ли блюдо добавлено ранее.
-                    CompositionOrderDPO compositionOrder = await Task.Run(() => ListOrderCopy.FirstOrDefault(c => c.dishesId == dishesItem.id));
-                    if (compositionOrder != null) // блюдо было добавлено ранее
+                    ListCompositionOrders.Clear(); // очищаем список
+
+                    // передаем все блюда в список
+                    foreach (Dishes dishesItem in dishes)
                     {
-                        CompositionOrderDPO compositionOrderDPO = new CompositionOrderDPO();
-                        compositionOrderDPO = await compositionOrderDPO.CompositionOrder(dishesItem);
-                        // изменяем кол-во товаров
-                        compositionOrderDPO.QuantityInOrder = compositionOrder.QuantityInOrder;
-                        // выключаем кнопку добавить
-                        compositionOrderDPO.IsAddDishButton = compositionOrder.IsAddDishButton;
-                        // включаем кнопки управлением кол-вом
-                        compositionOrderDPO.IsEditDishButton = compositionOrder.IsEditDishButton;
-                        // сумма денег по выбранному товару
-                        compositionOrderDPO.AmountProduct = compositionOrder.AmountProduct;
-                        ListCompositionOrders.Add(compositionOrderDPO);
-                    }
-                    else // блюдо не было добавлено ранее
-                    {
-                        if (dishesItem.stopList == false) // исключаем блюда, которые в стоп листе
+                        // проверяем, было ли блюдо добавлено ранее.
+                        CompositionOrderDPO compositionOrder = await Task.Run(() => ListOrderCopy.FirstOrDefault(c => c.dishesId == dishesItem.id));
+                        if (compositionOrder != null) // блюдо было добавлено ранее
                         {
                             CompositionOrderDPO compositionOrderDPO = new CompositionOrderDPO();
                             compositionOrderDPO = await compositionOrderDPO.CompositionOrder(dishesItem);
+                            // изменяем кол-во товаров
+                            compositionOrderDPO.QuantityInOrder = compositionOrder.QuantityInOrder;
+                            // выключаем кнопку добавить
+                            compositionOrderDPO.IsAddDishButton = compositionOrder.IsAddDishButton;
+                            // включаем кнопки управлением кол-вом
+                            compositionOrderDPO.IsEditDishButton = compositionOrder.IsEditDishButton;
+                            // сумма денег по выбранному товару
+                            compositionOrderDPO.AmountProduct = compositionOrder.AmountProduct;
                             ListCompositionOrders.Add(compositionOrderDPO);
+                        }
+                        else // блюдо не было добавлено ранее
+                        {
+                            if (dishesItem.stopList == false) // исключаем блюда, которые в стоп листе
+                            {
+                                CompositionOrderDPO compositionOrderDPO = new CompositionOrderDPO();
+                                compositionOrderDPO = await compositionOrderDPO.CompositionOrder(dishesItem);
+                                ListCompositionOrders.Add(compositionOrderDPO);
+                            }
+                        }
+                    }
+
+                    // сортируем массив. сначала добавленные в список элементы
+                    var ListCompositionOrdersOrderBy = ListCompositionOrders.OrderByDescending(o => o.IsEditDishButton).ToArray();
+                    ListCompositionOrders = new ObservableCollection<CompositionOrderDPO>(ListCompositionOrdersOrderBy);
+
+                    // резервируем список ListCompositionOrders и копируем в ListOrderCopy
+                    ListOrderCopy = new ObservableCollection<CompositionOrderDPO>(ListCompositionOrders);
+                }
+                else // редактирование данных
+                {
+                    // добавляем блюда, которых нет в списке при редактирование
+                    // Внимание! Список для редактирования может содержать в себе: блюда архива, удаленные блюда. Фотографию, название, описание в 
+                    // добавленных ранее блюдах не обновляем
+
+                    foreach (Dishes item in dishes)
+                    {
+                        CompositionOrderDPO compositionOrderDPO = await Task.Run(() => ListCompositionOrders.FirstOrDefault(d => d.dishesId == item.id));
+                        if (compositionOrderDPO == null) // если блюдо отсутствует в списке заказов, то мы его добавляем 
+                        {
+                            compositionOrderDPO = new CompositionOrderDPO();
+                            if (item.stopList == false) // проверяем, что товар не в стоп листе
+                            {
+                                ListCompositionOrders.Add(await compositionOrderDPO.CompositionOrder(item));
+                            }
                         }
                     }
                 }
 
-                // сортируем массив. сначала добавленные в список элементы
-                var ListCompositionOrdersOrderBy = ListCompositionOrders.OrderByDescending(o => o.IsEditDishButton).ToArray();
-                ListCompositionOrders = new ObservableCollection<CompositionOrderDPO>(ListCompositionOrdersOrderBy);
-
-                // резервируем список ListCompositionOrders и копируем в ListOrderCopy
-                ListOrderCopy = new ObservableCollection<CompositionOrderDPO>(ListCompositionOrders);
             }
         }
 
@@ -112,8 +135,8 @@ namespace Food_Delivery.ViewModel.Administrator
         public async Task AddProductList(CompositionOrderDPO compositionOrderDPO)
         {
             // находим нужный товар в общем списке 
-            CompositionOrderDPO resCompositionOrderDPO = await Task.Run(() => ListCompositionOrders.FirstOrDefault(c => c.dishesId == compositionOrderDPO.dishesId)); // создаём новый фоновый поток, в
-                                                                                                                                                                      // котором выполлняем метод FirstOrDefault. ObservableCollection - синхронная коллекция
+            CompositionOrderDPO resCompositionOrderDPO = await Task.Run(() => ListCompositionOrders.FirstOrDefault(c => c.id == compositionOrderDPO.id)); // создаём новый фоновый поток, в
+                                                                                                                                                          // котором выполлняем метод FirstOrDefault. ObservableCollection - синхронная коллекция
             if (resCompositionOrderDPO != null)
             {
                 // проверяем, что кол-во не >0
@@ -145,7 +168,7 @@ namespace Food_Delivery.ViewModel.Administrator
         public async Task EditProductList(CompositionOrderDPO compositionOrderDPO, bool typeOperation)
         {
             // находим нужный товар в общем списке 
-            CompositionOrderDPO resCompositionOrderDPO = await Task.Run(() => ListCompositionOrders.FirstOrDefault(c => c.dishesId == compositionOrderDPO.dishesId));
+            CompositionOrderDPO resCompositionOrderDPO = await Task.Run(() => ListCompositionOrders.FirstOrDefault(c => c.id == compositionOrderDPO.id));
             if (resCompositionOrderDPO != null)
             {
                 // проверка операции. Добавление или убавление кол-ва
@@ -180,6 +203,11 @@ namespace Food_Delivery.ViewModel.Administrator
                         resCompositionOrderDPO.AmountProduct = resCompositionOrderDPO.price * resCompositionOrderDPO.QuantityInOrder;
                         // изменяем итоговую сумму денег
                         CostPrice -= resCompositionOrderDPO.price;
+                        OutCostPrice = CostPrice.ToString();
+                    }
+                    if (CostPrice < 0) // если сумма приняла отрицательный коэффицент
+                    {
+                        CostPrice = 0;
                         OutCostPrice = CostPrice.ToString();
                     }
                 }
@@ -253,7 +281,7 @@ namespace Food_Delivery.ViewModel.Administrator
                                 {
                                     if (OutClientNumberPhone.Trim().StartsWith("7")) // проверка на 7 в начале
                                     {
-                                        
+
                                     }
                                     else
                                     {
@@ -326,8 +354,12 @@ namespace Food_Delivery.ViewModel.Administrator
 
                                             // получаем id пользователя, если заказ оформлял определенный клиент
 
-                                            order.startDesiredDeliveryTime = SelectedStartTimeDelivery;
-                                            order.endDesiredDeliveryTime = SelectedEndTimeDelivery;
+                                            order.startDesiredDeliveryTime = new DateTime(SelectedDate.Year, SelectedDate.Month,
+                                                SelectedDate.Day, SelectedStartTimeDelivery.Hour, SelectedStartTimeDelivery.Minute,
+                                                SelectedStartTimeDelivery.Second);
+                                            order.endDesiredDeliveryTime = new DateTime(SelectedDate.Year, SelectedDate.Month,
+                                                SelectedDate.Day, SelectedEndTimeDelivery.Hour, SelectedEndTimeDelivery.Minute,
+                                                SelectedEndTimeDelivery.Second);
                                             order.orderStatusId = SelectedOrderStatus.id;
                                             order.name = OutClientName.Trim();
                                             order.surname = OutClientSurname.Trim();
@@ -369,11 +401,11 @@ namespace Food_Delivery.ViewModel.Administrator
                                             await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных
 
                                             // теперь добавляем даннные заказа (список блюд)
-                                            foreach(CompositionOrderDPO item in compositionOrderDPOs)
+                                            foreach (CompositionOrderDPO item in compositionOrderDPOs)
                                             {
                                                 CompositionOrder compositionOrder = new CompositionOrder();
                                                 compositionOrder.orderId = (int)order.id; // берём id из созданного заказа
-                                                if(item.dishesId != null)
+                                                if (item.dishesId != null)
                                                 {
                                                     compositionOrder.dishesId = item.dishesId;
                                                 }
@@ -425,7 +457,140 @@ namespace Food_Delivery.ViewModel.Administrator
                                     }
                                     else // редактирование данных
                                     {
+                                        using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+                                        {
+                                            List<Order> orders = await foodDeliveryContext.Orders.ToListAsync();
+                                            List<CompositionCart> carts = await foodDeliveryContext.CompositionCarts.ToListAsync();
 
+                                            // находим объект для изменения в БД
+                                            Order order = await foodDeliveryContext.Orders.FirstOrDefaultAsync(d => d.id == SelectedOrder.id);
+                                            if (order != null)
+                                            {
+                                                // изменяем данные
+
+                                                order.startDesiredDeliveryTime = new DateTime(SelectedDate.Year, SelectedDate.Month,
+                                                    SelectedDate.Day, SelectedStartTimeDelivery.Hour, SelectedStartTimeDelivery.Minute,
+                                                    SelectedStartTimeDelivery.Second);
+                                                order.endDesiredDeliveryTime = new DateTime(SelectedDate.Year, SelectedDate.Month,
+                                                    SelectedDate.Day, SelectedEndTimeDelivery.Hour, SelectedEndTimeDelivery.Minute,
+                                                    SelectedEndTimeDelivery.Second);
+                                                order.orderStatusId = SelectedOrderStatus.id;
+                                                order.name = OutClientName.Trim();
+                                                order.surname = OutClientSurname.Trim();
+                                                if (!string.IsNullOrWhiteSpace(OutClientPatronymic))
+                                                {
+                                                    order.patronymic = OutClientPatronymic.Trim();
+                                                }
+                                                order.city = OutClientCity.Trim();
+                                                order.street = OutClientStreet.Trim();
+                                                order.house = OutClientHouse.Trim();
+                                                if (!string.IsNullOrWhiteSpace(OutClientApartment))
+                                                {
+                                                    order.apartment = OutClientApartment.Trim();
+                                                }
+                                                order.numberPhone = OutClientNumberPhone.Trim();
+                                                if (!string.IsNullOrWhiteSpace(OutClientEmail))
+                                                {
+                                                    order.email = OutClientEmail.Trim();
+                                                }
+                                                order.costPrice = int.Parse(OutCostPrice.Trim());
+
+                                                // проверка статуса оплаты
+                                                if (IsOptionCardSelected) // если выбрана карта
+                                                {
+                                                    order.typePayment = "Карта";
+                                                }
+                                                else // если выбраны наличные
+                                                {
+                                                    // получаем сумму сдачи
+                                                    order.typePayment = "Наличные";
+                                                }
+
+                                                if (!string.IsNullOrWhiteSpace(OutAmountChange))
+                                                {
+                                                    order.prepareChangeMoney = int.Parse((string)OutAmountChange.Trim());
+                                                }
+
+                                                await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных
+
+                                            }
+
+                                            // список товаров в заказе
+                                            List<CompositionOrder> composition = new List<CompositionOrder>();
+
+                                            // преобразовываем список заказов в нужный тип данных
+                                            foreach (CompositionOrderDPO item in compositionOrderDPOs)
+                                            {
+                                                CompositionOrder compositionOrder = new CompositionOrder();
+                                                compositionOrder.orderId = SelectedOrder.id; // берём id из выбранного заказа
+                                                if (item.dishesId != null)
+                                                {
+                                                    compositionOrder.dishesId = item.dishesId;
+                                                }
+                                                compositionOrder.nameDishes = item.nameDishes;
+                                                if (string.IsNullOrWhiteSpace(item.descriptionDishes))
+                                                {
+                                                    compositionOrder.descriptionDishes = item.descriptionDishes;
+                                                }
+                                                if (item.calories != null)
+                                                {
+                                                    compositionOrder.calories = item.calories;
+                                                }
+                                                if (item.squirrels != null)
+                                                {
+                                                    compositionOrder.squirrels = item.squirrels;
+                                                }
+                                                if (item.fats != null)
+                                                {
+                                                    compositionOrder.fats = item.fats;
+                                                }
+                                                if (item.carbohydrates != null)
+                                                {
+                                                    compositionOrder.carbohydrates = item.carbohydrates;
+                                                }
+                                                if (item.weight != null)
+                                                {
+                                                    compositionOrder.weight = item.weight;
+                                                }
+                                                compositionOrder.quantity = item.QuantityInOrder;
+                                                compositionOrder.price = item.price;
+
+
+                                                // преобразовываем изображение в массив байтов
+                                                using (MemoryStream memoryStream = new MemoryStream())
+                                                {
+                                                    PngBitmapEncoder encoder = new PngBitmapEncoder(); // кодируем в формат PNG
+                                                    encoder.Frames.Add(BitmapFrame.Create(item.image)); // преобразовываем полученное изображение в нужный формат
+                                                    encoder.Save(memoryStream);
+                                                    compositionOrder.image = memoryStream.ToArray();
+                                                }
+
+                                                composition.Add(compositionOrder);
+                                            }
+
+                                            // берем все блюда данного заказа, удаляем и добавляем новые
+                                            List<CompositionOrder> compositionOrders = await Task.Run(() => foodDeliveryContext.CompositionOrders.Where(c => c.orderId == SelectedOrder.id).ToListAsync());
+                                            if (compositionOrders != null)
+                                            {
+                                                foreach (CompositionOrder itemOrder in compositionOrders)
+                                                {
+                                                    // удаляем товар из БД
+                                                    foodDeliveryContext.CompositionOrders.Remove(itemOrder);
+                                                }
+
+                                                // Добавляем обновленные товары в БД
+                                                foreach (var itemCompositionOrder in composition)
+                                                {
+                                                    await foodDeliveryContext.CompositionOrders.AddAsync(itemCompositionOrder);
+                                                }
+
+                                                // обновляем список БД
+                                                await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных
+                                            }
+
+                                            // закрываем страницу добавления данных
+                                            WorkingWithData.ClosingCorkWithDataOrdersPage(); // вызываем событие перехода на страницу "заказы"
+                                        }
                                     }
                                 }
                                 else
@@ -496,31 +661,104 @@ namespace Food_Delivery.ViewModel.Administrator
         bool IsAddData; // редактируем или добавляем данные
 
         // изменяем названия страницы (редактируем или добавлем новые записи)
-        public async Task ChangingName(bool IsAddData)
+        public async Task ChangingName(bool IsAddData, OrderDPO SelectedOrder)
         {
+            // получаем список статусов заказа
+            await OrderStatuses(IsAddData, SelectedOrder);
+
             this.IsAddData = IsAddData; // передаём значение
 
             if (IsAddData) // добавление данных
             {
                 HeadingPage = "Создание заказа";
-            }
-            else // редактирование данных
-            {
-                HeadingPage = "Изменение заказа";
-            }
 
-            // если добавление данных, то мы подгатавливаем поля
-            if (IsAddData)
-            {
+                // если добавление данных, то мы подгатавливаем поля
                 SelectedStartTimeDelivery = new DateTime((int)DateTime.Now.Year, (int)DateTime.Now.Month, (int)DateTime.Now.Day, 9, 0, 0, 0); // устанавливаем начальное время
+                SelectedDate = (new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day)); // установка начальной даты заказа
                 IsOptionCardSelected = true; // по умолчанию выбрана карта
                 IsFieldVisibilityTypePayment = true; // делаем недоступное поле для ввода суммы сдачи, так как выбрана карта
                 DarkBackground = Visibility.Collapsed; // фон для Popup скрыт
                 OutCostPrice = "0"; // нулевая начальная стоимость заказа
             }
-            else // если редактирование
+            else // редактирование данных
             {
+                HeadingPage = "Изменение заказа";
+                // проверяем, получили ли мы выбранный заказ, если да, то заполняем поля
+                if (SelectedOrder != null)
+                {
+                    this.SelectedOrder = SelectedOrder; // сохраняем в переменную для дальнейшей работы выбранный заказ
+                    DarkBackground = Visibility.Collapsed; // фон для Popup скрыт
 
+                    // устанавливаем начальные данные
+                    OutClientName = SelectedOrder.name;
+                    OutClientSurname = SelectedOrder.surname;
+                    if (SelectedOrder.patronymic != null)
+                    {
+                        OutClientPatronymic = SelectedOrder.patronymic;
+                    }
+                    OutClientCity = SelectedOrder.city;
+                    OutClientStreet = SelectedOrder.street;
+                    OutClientHouse = SelectedOrder.house;
+                    if (SelectedOrder.apartment != null)
+                    {
+                        OutClientApartment = SelectedOrder.apartment;
+                    }
+                    OutClientNumberPhone = SelectedOrder.numberPhone;
+                    if (SelectedOrder.email != null)
+                    {
+                        OutClientEmail = SelectedOrder.email;
+                    }
+                    CostPrice = SelectedOrder.costPrice;
+
+                    if (SelectedOrder.typePayment == "Карта") // если выбрана карта
+                    {
+                        IsOptionCashSelected = false;
+                        IsOptionCardSelected = true;
+                        IsFieldVisibilityTypePayment = true; // скрываем возможность ввода
+                                                             // суммы подготовки сдачи, если выбранна карта
+                    }
+                    else // если выбраны наличные
+                    {
+                        IsOptionCashSelected = true;
+                        IsOptionCardSelected = false;
+
+                        if (SelectedOrder.prepareChangeMoney != null)
+                        {
+                            OutAmountChange = SelectedOrder.prepareChangeMoney.ToString();
+                        }
+                    }
+
+                    SelectedDate = (DateTime)SelectedOrder.startDesiredDeliveryTime;
+                    SelectedStartTimeDelivery = (DateTime)SelectedOrder.startDesiredDeliveryTime;
+                    SelectedEndTimeDelivery = (DateTime)SelectedOrder.endDesiredDeliveryTime;
+
+                    // добавляем товары в список
+                    using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+                    {
+                        List<CompositionOrder> compositionOrders = await foodDeliveryContext.CompositionOrders.ToListAsync();
+                        List<Dishes> dishes = await foodDeliveryContext.Dishes.ToListAsync();
+
+                        // получаем список товаров в заказе
+                        List<CompositionOrder> compositions = new List<CompositionOrder>();
+                        compositions = await Task.Run(() => compositionOrders.Where(c => c.orderId == SelectedOrder.id).ToList());
+                        if (compositionOrders.Count > 0)
+                        {
+                            int costPrice = 0; // сумма заказа
+                            foreach (CompositionOrder item in compositions)
+                            {
+                                CompositionOrderDPO compositionOrderDPO = new CompositionOrderDPO();
+                                ListCompositionOrders.Add(await compositionOrderDPO.CompositionOrder(item));
+
+                                costPrice += (int)item.price * (int)item.quantity;
+                            }
+
+                            OutCostPrice += costPrice.ToString(); // сумма заказа
+
+                            // добавляем данные из списка основных блюд, в список выбранных.
+                            await WeGetListOfDishes();
+                        }
+                    }
+                }
             }
         }
 
@@ -614,6 +852,7 @@ namespace Food_Delivery.ViewModel.Administrator
         // свойства
         #region Features
 
+        public OrderDPO SelectedOrder; // выбранное блюдо
         public TextBox AnimationOutName { get; set; } // поле для ввода текста "имя клиента". Вывод подсветки поля
         public TextBox AnimationOutSurname { get; set; } // поле для ввода текста "фамилия клиента". Вывод подсветки поля
         public TextBox AnimationOutPatronymic { get; set; } // поле для ввода текста "отчество клиента". Вывод подсветки поля
@@ -717,7 +956,7 @@ namespace Food_Delivery.ViewModel.Administrator
         #region Client
 
         // переменная с суммой заказа
-        private int CostPrice = 0;
+        private int? CostPrice = 0;
 
         // поле с суммой заказа
         private string _outCostPrice;
@@ -768,18 +1007,29 @@ namespace Food_Delivery.ViewModel.Administrator
         }
 
         // получаем список статусов заказа
-        private async Task OrderStatuses()
+        private async Task OrderStatuses(bool IsAddData, OrderDPO SelectedOrder)
         {
             using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
             {
                 List<OrderStatus> orderStatuses = await foodDeliveryContext.OrderStatus.ToListAsync(); // получаем список статусов заказов
                 OptionsOrderStatus = new List<OrderStatus>(orderStatuses);
 
-                OrderStatus orderStatus = await Task.Run(() => orderStatuses.FirstOrDefault(o => o.id == 1));
-                if (orderStatus != null)
+
+                if (IsAddData) // устанавливаем начальный статус, если добавление данных
                 {
-                    // устанавливаем начальный статус
-                    SelectedOrderStatus = orderStatus; // при создании заказа по умолчанию ставим "Новый заказ"
+                    OrderStatus orderStatus = await Task.Run(() => orderStatuses.FirstOrDefault(o => o.id == 1));
+                    if (orderStatus != null)
+                    {
+                        SelectedOrderStatus = orderStatus; // при создании заказа по умолчанию ставим "Новый заказ"
+                    }
+                }
+                else
+                {
+                    OrderStatus orderStatus = await Task.Run(() => orderStatuses.FirstOrDefault(o => o.id == SelectedOrder.orderStatusId));
+                    if (orderStatus != null)
+                    {
+                        SelectedOrderStatus = orderStatus; // при создании заказа по умолчанию ставим "Новый заказ"
+                    }
                 }
             }
         }

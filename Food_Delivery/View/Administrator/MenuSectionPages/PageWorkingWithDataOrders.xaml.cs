@@ -33,17 +33,17 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
     {
         private readonly WorkingWithDataOrdersViewModel _workingWithDataOrdersViewModel; // объект класса
 
-        public PageWorkingWithDataOrders(bool IsAddData)
+        public PageWorkingWithDataOrders(bool IsAddData, OrderDPO SelectedOrder)
         {
             InitializeComponent();
 
             _workingWithDataOrdersViewModel = (WorkingWithDataOrdersViewModel)this.Resources["WorkingWithDataOrdersViewModel"];
-            _workingWithDataOrdersViewModel.ChangingName(IsAddData); // передаём состояния работы страницы (добавление или редактирование данных
+            _workingWithDataOrdersViewModel.ChangingName(IsAddData, SelectedOrder); // передаём состояния работы страницы (добавление или редактирование данных), а также выбранный заказ, если это редактирование
             _workingWithDataOrdersViewModel.InitializeAsync(ErrorInputPopup, (Storyboard)FindResource("FieldIllumination"), ClientName,
                 ClientSurname, ClientPatronymic, ClientCity, ClientStreet, ClientHouse, ClientApartment, ClientNumberPhone, ClientEmail,
                 DeliveryDate, StartDesiredDeliveryTime, EndDesiredDeliveryTime, AmountChange, StatusOrder, CostPrice, ErrorInput);
 
-            SetDatePickerLimits(); // работа над датой заказа
+            //SetDatePickerLimits(IsAddData, SelectedOrder); // работа над датой заказа !!!клиенту!!!
         }
 
         #region Popup
@@ -104,19 +104,27 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
         #endregion
 
         // устанавливаем дату для заказа, а также ограничиваем список для выбора. Нельзя сделать заказ после 20:00
-        private void SetDatePickerLimits()
+        private void SetDatePickerLimits(bool IsAddData, OrderDPO SelectedOrder)
         {
-            DateTime dateTime = DateTime.Now;
-            TimeSpan nowTime = dateTime.TimeOfDay;
-            if (nowTime > new TimeSpan(20, 0, 0))
+            if(IsAddData) // если добавляем данные
             {
-                DeliveryDate.SelectedDate = (new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day + 1)); // установка начальной даты заказа
-                DeliveryDate.BlackoutDates.Add(new CalendarDateRange(DateTime.MinValue, DateTime.Today));
+                DateTime dateTime = DateTime.Now;
+                TimeSpan nowTime = dateTime.TimeOfDay;
+                if (nowTime > new TimeSpan(20, 0, 0))
+                {
+                    DeliveryDate.SelectedDate = (new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day + 1)); // установка начальной даты заказа
+                    DeliveryDate.BlackoutDates.Add(new CalendarDateRange(DateTime.MinValue, DateTime.Today));
+                }
+                else
+                {
+                    DeliveryDate.SelectedDate = (new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day)); // установка начальной даты заказа
+                    DeliveryDate.BlackoutDates.Add(new CalendarDateRange(DateTime.MinValue, DateTime.Today.AddDays(-1)));
+                }
             }
-            else
+            else // если редактируем данные
             {
-                DeliveryDate.SelectedDate = (new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day)); // установка начальной даты заказа
-                DeliveryDate.BlackoutDates.Add(new CalendarDateRange(DateTime.MinValue, DateTime.Today.AddDays(-1)));
+                DeliveryDate.SelectedDate = SelectedOrder.startDesiredDeliveryTime; // устанавливае текущую дату
+                // заприщаем выбирать дату, которая уже завершилась
             }
         }
 

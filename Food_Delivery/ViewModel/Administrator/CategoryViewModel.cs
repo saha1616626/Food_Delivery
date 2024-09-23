@@ -194,7 +194,7 @@ namespace Food_Delivery.ViewModel.Administrator
                                 {
                                     List<Category> categories = await foodDeliveryContext.Categories.ToListAsync();
                                     if (!categories.Any(c => c.name.ToLowerInvariant()
-                .Contains(OutNameCategory.ToLowerInvariant().Trim())))
+                == OutNameCategory.ToLowerInvariant().Trim()))
                                     {
                                         // добавляем данные в БД
                                         Category category = new Category();

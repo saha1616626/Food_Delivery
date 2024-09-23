@@ -28,6 +28,8 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
         public PageOrders()
         {
             InitializeComponent();
+            _ordersViewModel = (OrdersViewModel)this.Resources["OrdersViewModel"];
+            _ordersViewModel.InitializeAsync(ErrorInput);
         }
 
         #region Popup
@@ -35,7 +37,7 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
         // скрыть фон при скрытие popup
         private void MyPopup_Closed(object sender, EventArgs e)
         {
-            //DarkBackground.Visibility = Visibility.Collapsed;
+            DarkBackground.Visibility = Visibility.Collapsed;
         }
 
         // после того, как Popap был закрыт, мы оповещаем систему, что не надо запускать Popup после потери фокуса на приложении
@@ -59,7 +61,7 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
             var textInfo = sender as System.Windows.Controls.TextBox;
             if (textInfo != null)
             {
-                //_ordersViewModel.HandlerTextBoxChanged(textInfo.Text);
+                _ordersViewModel.HandlerTextBoxChanged(textInfo.Text);
             }
         }
 

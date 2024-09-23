@@ -73,26 +73,194 @@
 
             <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" >
                 <Button Content="Добавить" 
-           MinWidth="100" Height="35" Background="Gray" Command="{Binding Btn_OpenPopupToAddData}"
+           MinWidth="100" Height="35" Background="Gray" Command="{Binding Btn_OpenPageToAddData}"
            BorderBrush="Black"/>
 
-                <Button Content="Редктировать" Command="{Binding Btn_OpenPopupToEditData}"
+                <Button Content="Редктировать" Command="{Binding Btn_OpenPageToEditData}"
            MinWidth="100" Height="35" Background="Gray" BorderBrush="Black"
            Margin="10,0,0,0" IsEnabled="{Binding IsWorkButtonEnable}"/>
 
                 <Button Content="Удалить" MinWidth="100" 
-           Height="35" Background="Gray" BorderBrush="Black" Command="{Binding Btn_OpenPopupToDeleteData}"
+           Height="35" Background="Gray" BorderBrush="Black" Command="{Binding Btn_OpenPopapToDeleteData}"
            Margin="10,0,0,0" IsEnabled="{Binding IsWorkButtonEnable}"/>
             </StackPanel>
 
         </Grid>
 
         <!--таблица с заказами-->
-        
+        <Grid  Grid.Row="2">
+            <DataGrid x:Name="Content" Margin="50,15,50,0"
+          Padding="0,0,0,50"
+          IsReadOnly="True" FontSize="11"
+          AutoGenerateColumns="False"
+          VerticalScrollBarVisibility="Auto"
+          ColumnHeaderStyle="{StaticResource columnTableHeaderOrder}"
+          ItemsSource="{Binding ListOrders}"
+          SelectedItem="{Binding SelectedOrder}">
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Width="50*" Header="Дата заказа" Binding="{Binding dateTime, StringFormat={}{0:dd.MM.yyyy}}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Left" />
+                                <Setter Property="Margin" Value="15,0,20,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Width="50*" Header="    Дата&#x0A;доставки" Binding="{Binding startDesiredDeliveryTime, StringFormat={}{0:dd.MM.yyyy}}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Left" />
+                                <Setter Property="Margin" Value="15,0,20,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Width="45*" Header="    Время&#x0A;доставки с" Binding="{Binding startDesiredDeliveryTime, StringFormat={}{0:HH:mm:ss}}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Left" />
+                                <Setter Property="Margin" Value="15,0,20,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Width="45*" Header="     Время&#x0A;доставки по" Binding="{Binding endDesiredDeliveryTime, StringFormat={}{0:HH:mm:ss}}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Left" />
+                                <Setter Property="Margin" Value="15,0,20,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Width="60*" Header="Статус заказа" Binding="{Binding statusName}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Left" />
+                                <Setter Property="Margin" Value="15,0,20,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Width="50*" Header="Имя клиента" Binding="{Binding name}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Left" />
+                                <Setter Property="Margin" Value="15,0,20,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Width="50*" Header="Фамилия&#x0A; клиента" Binding="{Binding surname}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Left" />
+                                <Setter Property="Margin" Value="15,0,20,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Width="60*" Header="  Номер&#x0A;телефона" Binding="{Binding numberPhone}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Left" />
+                                <Setter Property="Margin" Value="15,0,20,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Width="40*" Header="Сумма&#x0A;заказа" Binding="{Binding costPrice}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Left" />
+                                <Setter Property="Margin" Value="15,0,20,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+                
+            </DataGrid>
+        </Grid>
         
         <!--фрейм страницы для редактирования и добавления данных-->
         <Frame x:Name="ordersFrame" Content="{Binding PageFrame, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                NavigationUIVisibility="Hidden" Grid.ColumnSpan="3" Grid.RowSpan="3"/>
-        
+
+        <!--фон для Popup-->
+        <Border Grid.ColumnSpan="4" Grid.RowSpan="4" x:Name="DarkBackground" 
+  Visibility="{Binding DarkBackground, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+  Background="#80000000" Panel.ZIndex="1" 
+  Margin="-500,0,-500,-500"/>
+
+        <!-- размещение Popup относительно данного grid-->
+        <Grid x:Name="positionPopup" Grid.RowSpan="4" Grid.ColumnSpan="4" 
+HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <!--Popup для удаления данных-->
+        <Grid>
+            <Popup x:Name="DeleteDataPopup" PlacementTarget="{Binding ElementName=positionPopup}"
+            IsOpen="{Binding StartPoupAddOrders, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            Placement="Center" Grid.ColumnSpan="4" Grid.RowSpan="4" HorizontalOffset="0" 
+            VerticalOffset="-40" StaysOpen="False" Closed="MyPopup_Closed" 
+            AllowsTransparency="False" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid Background="Gray">
+                    <!--фон-->
+                    <Border Background="AliceBlue" Style="{StaticResource OutlineOfPopup}" >
+                        <Grid Width="500" Height="330">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" Text="Удаление данных" 
+                                    Margin="0, 10, 0, 0" FontSize="30" FontWeight="Bold"/>
+
+                                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" 
+                                     Height="55" Margin="10,20,10,0">
+                                    <TextBlock Text="Вы действительно хотите удалить заказ?" FontSize="20" FontWeight="DemiBold" 
+                                        HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
+                                </StackPanel>
+
+                                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Height="100" Margin="0,-30,0,15">
+                                    <TextBlock Text="{Binding DataOfOrderDeleted, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+    TextWrapping="Wrap" x:Name="NameOfOrderDeleted" HorizontalAlignment="Center" 
+    VerticalAlignment="Center" Margin="25,0,25,0"  FontSize="20" FontWeight="DemiBold"/>
+                                </ScrollViewer>
+
+
+
+                                <Grid Grid.Row="3" Grid.Column="0" Margin="0,0,0,25" VerticalAlignment="Bottom">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Button Grid.Row="0" Grid.Column="0" Content="Отмена" Width="150" 
+                                     Height="35" Background="Gray" BorderBrush="Black" Command="{Binding ClosePopup}"/>
+                                    <Button Grid.Row="0" Grid.Column="1" Content="Удалить" Width="150" 
+                                     Height="35" Background="Gray" BorderBrush="Black" Margin="0,0,0,0" Command="{Binding Btn_DeleteData}"/>
+
+                                </Grid>
+
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Popup>
+        </Grid>
+
     </Grid>
 </Page>
