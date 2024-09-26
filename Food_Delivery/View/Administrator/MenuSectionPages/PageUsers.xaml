@@ -1,0 +1,429 @@
+﻿<Page x:Class="Food_Delivery.View.Administrator.MenuSectionPages.PageUsers"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Food_Delivery.View.Administrator.MenuSectionPages"
+      xmlns:ViewModel="clr-namespace:Food_Delivery.ViewModel.Administrator"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      PreviewMouseLeftButtonUp="Window_MouseLeftButtonDown"
+      MouseLeftButtonDown="Window_LossOfFocus"
+      mc:Ignorable="d" 
+      MinHeight="700" Height="Auto"
+      Title="PageUsers">
+
+    <Page.Resources>
+        <!--связываем View и ViewModel-->
+        <ViewModel:UsersViewModel x:Key="UsersViewModel"/>
+        
+        <!--анимация подсветки полей-->
+        <Storyboard x:Key="FieldIllumination">
+            <ColorAnimation Storyboard.TargetProperty="Background.(SolidColorBrush.Color)"
+From="#de6d6d" To="Transparent" Duration="0:0:3" AutoReverse="False"/>
+        </Storyboard>
+    </Page.Resources>
+
+    <Grid DataContext="{StaticResource UsersViewModel}">
+        <!--стили-->
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="\Dictionary\Table.xaml"/>
+                    <ResourceDictionary Source="\Dictionary\Popup.xaml"/>
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!--заголовок-->
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Пользователи приложения" 
+                   FontSize="30" Foreground="Black" FontWeight="DemiBold" 
+                   Margin="50,10,50,15" VerticalAlignment="Center"/>
+
+        <!--поле для вывода ошибки-->
+        <TextBlock Grid.ColumnSpan="3" Grid.RowSpan="4" HorizontalAlignment="Center"
+Text="{Binding ErrorInputData, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+Margin="0,75,30,0" FontWeight="DemiBold" FontSize="20" Panel.ZIndex="1"/>
+
+        <!--поле для вывода информации об поиске-->
+        <TextBlock Grid.ColumnSpan="3" Grid.RowSpan="4" HorizontalAlignment="Center"
+Text="{Binding ErrorInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+Margin="0,300,0,0" x:Name="ErrorInput" FontWeight="DemiBold" FontSize="20" Panel.ZIndex="1"/>
+
+        <!--кнопки для взаиомодействия над таблицей-->
+        <Grid Grid.Row="1"  Margin="50,0,50,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBox Grid.Column="0" x:Name="Search" 
+        Height="50" Margin="0,0,0,0"
+        VerticalAlignment="Center" HorizontalAlignment="Left"
+        Text="{Binding OrdersSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+        materialDesign:TextFieldAssist.HasClearButton="True"
+        TextChanged="OrdersSearch"
+        Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+        materialDesign:HintAssist.Hint="Поиск пользователя" 
+        materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+        MaxLength="100" TextWrapping="Wrap" Width="300" />
+
+            <StackPanel Orientation="Horizontal" Grid.Column="1" >
+                <Button Content="Добавить" 
+           MinWidth="100" Height="35" Background="Gray" Command="{Binding Btn_OpenPopupToAddData}"
+           BorderBrush="Black"/>
+
+                <Button Content="Редктировать" Command="{Binding Btn_OpenPopupToEditData}"
+           MinWidth="100" Height="35" Background="Gray" BorderBrush="Black"
+           Margin="10,0,0,0" IsEnabled="{Binding IsWorkButtonEnable}"/>
+
+                <Button Content="Удалить" MinWidth="100" 
+           Height="35" Background="Gray" BorderBrush="Black" Command="{Binding Btn_OpenPopupToDeleteData}"
+           Margin="10,0,0,0" IsEnabled="{Binding IsWorkButtonEnable}"/>
+            </StackPanel>
+
+        </Grid>
+
+        <!--таблица пользователей приложения-->
+
+        <Grid Grid.Row="2"  Margin="50,15,50,100">
+            <DataGrid IsReadOnly="True" Height="Auto"
+   HorizontalAlignment="Center" FontSize="16"
+   AutoGenerateColumns="False"
+   VerticalScrollBarVisibility="Auto"
+   ItemsSource="{Binding ListAccounts}"
+   SelectedItem="{Binding SelectedAccount}"
+   Style="{StaticResource MaterialDesignDataGrid}"
+   ColumnHeaderStyle="{StaticResource columnTableHeader}">
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Дата регистрации" Binding="{Binding registrationDate, StringFormat={}{0:dd.MM.yyyy}}"  Width="*" IsReadOnly="True">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Center" />
+                                <Setter Property="Margin" Value="0,0,20,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Header="Логин" Binding="{Binding login}"  Width="*" IsReadOnly="True">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Center" />
+                                <Setter Property="Margin" Value="0,0,20,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Header="Роль" Binding="{Binding nameRole}"  Width="*" IsReadOnly="True">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Center" />
+                                <Setter Property="Margin" Value="0,0,20,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+
+            </DataGrid>
+        </Grid>
+
+        <!--Poup списка товаров для добавления в заказ-->
+
+        <!--фон для Popup-->
+        <Border Grid.ColumnSpan="8" Grid.RowSpan="8" x:Name="DarkBackground" 
+  Visibility="{Binding DarkBackground, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+  Background="#80000000" Panel.ZIndex="0" 
+  Margin="-500,0,-500,-500"/>
+
+        <!-- размещение Popup относительно данного grid-->
+        <Grid x:Name="positionPopup" Grid.RowSpan="8" Grid.ColumnSpan="8" 
+HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <!--Popup для редактирования или добавления данных-->
+        <Grid Grid.ColumnSpan="4" Grid.RowSpan="4">
+            <Popup x:Name="AddAndEditDataPopup" PlacementTarget="{Binding ElementName=positionPopup}" 
+           Placement="Center" HorizontalOffset="0"
+           VerticalOffset="-45" StaysOpen="False" Closed="MyPopup_Closed"
+           IsOpen="{Binding StartPoupOfUsers, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+           AllowsTransparency="False" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid Background="Gray">
+                    <!--фон-->
+                    <Border Background="AliceBlue" Style="{StaticResource OutlineOfPopup}" >
+                        <Grid Width="1000" Height="550" HorizontalAlignment="Center" Margin="0,0,0,0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!--название-->
+                            <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="{Binding HeadingPopup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                       FontSize="30" Foreground="Black" FontWeight="DemiBold" Margin="0,20,0,0" 
+                                       VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+                            <!--поле для вывода ошибок-->
+                            <TextBlock Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="3" Grid.RowSpan="9" HorizontalAlignment="Left" 
+                                       Text="{Binding ErrorInputPopup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                       Height="100" Width="330" TextWrapping="Wrap" Margin="35,-20,0,0" x:Name="ErrorInputPopup" 
+                                       FontWeight="DemiBold" FontSize="18" />
+
+                            <!--поле для ввода имение-->
+                            <TextBox Grid.Column="0" Grid.Row="1" x:Name="NameUser" Height="50" Margin="30,40,0,0"
+                                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Text="{Binding OutNameUser, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                    materialDesign:HintAssist.Hint="Имя" 
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                                    MaxLength="100" TextWrapping="Wrap" Width="320" />
+
+                            <!--поле для ввода фамилии-->
+                            <TextBox Grid.Column="0" Grid.Row="2" x:Name="NameSurname" Height="50" Margin="30,10,0,0"
+                                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Text="{Binding OutNameSurname, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                    materialDesign:HintAssist.Hint="Фамилия" 
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                                    MaxLength="100" TextWrapping="Wrap" Width="320" />
+
+                            <!--поле для ввода отчество-->
+                            <TextBox Grid.Column="0" Grid.Row="3" x:Name="NamePatronymic" Height="50" Margin="30,10,0,0"
+                                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Text="{Binding OutNamePatronymic, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                    materialDesign:HintAssist.Hint="Отчество" 
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                                    MaxLength="100" TextWrapping="Wrap" Width="320" />
+
+                            <!--поле для ввода номера телефона-->
+                            <TextBox Grid.Column="0" Grid.Row="4" x:Name="NameNumberPhone" Height="50" Margin="30,10,0,0"
+                                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Text="{Binding OutNamePatronymic, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                    materialDesign:HintAssist.Hint="Номер телефона" 
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                                    MaxLength="11" TextWrapping="Wrap" Width="320" />
+
+                            <!--поле для ввода номера Email клиента-->
+                            <TextBox Grid.Column="0" Grid.Row="5" x:Name="nameEmail" Height="50" Margin="30,10,0,100"
+                                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Text="{Binding OutClientEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                    materialDesign:HintAssist.Hint="Email" 
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                                    MaxLength="11" TextWrapping="Wrap" Width="320" />
+
+                            <!--поле для ввода города клиента-->
+                            <TextBox Grid.Column="1" Grid.Row="1" x:Name="ClientCity" Height="50" Margin="30,40,0,0"
+                                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Text="{Binding OutClientCity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                    materialDesign:HintAssist.Hint="Город" 
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                                    MaxLength="50" TextWrapping="Wrap" Width="320" />
+
+                            <!--поле для ввода улицы клиента-->
+                            <TextBox Grid.Column="1" Grid.Row="2" x:Name="ClientStreet" Height="50" Margin="30,10,0,0"
+                                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Text="{Binding OutClientStreet, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                    materialDesign:HintAssist.Hint="Улица" 
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                                    MaxLength="150" TextWrapping="Wrap" Width="320" />
+
+                            <Grid Grid.Column="1" Grid.Row="3">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!--поле для ввода дома клиента-->
+                                <TextBox Grid.Column="0" Grid.Row="0" x:Name="ClientHouse" Height="50" Margin="30,10,0,0"
+                                        VerticalAlignment="Center" HorizontalAlignment="Center"
+                                        Text="{Binding OutClientHouse, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                        materialDesign:TextFieldAssist.HasClearButton="True"
+                                        Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                        materialDesign:HintAssist.Hint="Дом" 
+                                        materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                                        MaxLength="10" TextWrapping="Wrap" Width="145" />
+
+                                <!--поле для ввода квартиры клиента-->
+                                <TextBox Grid.Column="1" Grid.Row="0" x:Name="ClientApartment" Height="50" Margin="30,10,0,0"
+                                        VerticalAlignment="Center" HorizontalAlignment="Center"
+                                        Text="{Binding OutClientApartment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                        materialDesign:TextFieldAssist.HasClearButton="True"
+                                        Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                        materialDesign:HintAssist.Hint="Квартира" 
+                                        materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                                        MaxLength="10" TextWrapping="Wrap" Width="145" />
+
+                            </Grid>
+   
+                                <!--выбор роли пользователя-->
+                                <ComboBox ItemsSource="{Binding OptionsRole, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                        Grid.Column="2" Grid.Row="1" x:Name="CbRole" DisplayMemberPath="name"
+                                        SelectedValue="{Binding SelectedRole, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        IsReadOnly="True" VerticalAlignment="Top" Width="220" Margin="0,40,0,0" 
+                                        materialDesign:HintAssist.Hint="Роль*" IsEditable="True"
+                                        Style="{StaticResource MaterialDesignOutlinedComboBox}">
+                                </ComboBox>
+
+                                <!--поля для ввода логина-->
+                            <TextBox Grid.Row="2" Grid.Column="2" Height="50" Margin="0,10,0,0" x:Name="NameLogin"
+                                         VerticalAlignment="Center" HorizontalAlignment="Center"
+                                         IsEnabled="{Binding IsEditUser, Converter={StaticResource InvertBooleanConverter}}"
+                                         Text="{Binding OutNameLogin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                         materialDesign:TextFieldAssist.HasClearButton="True"
+                                         Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                         materialDesign:HintAssist.Hint="Логин пользователя*"
+                                         materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                                         MaxLength="100" TextWrapping="Wrap" Width="220"/>
+
+                                <!--поля для ввода старого пароля-->
+                            <PasswordBox Grid.Row="3" Grid.Column="2" Height="50" Margin="0,10,0,0" x:Name="NamePassword"
+                                         VerticalAlignment="Center" HorizontalAlignment="Center"  
+                                         materialDesign:TextFieldAssist.HasClearButton="True"
+                                         Style="{StaticResource MaterialDesignOutlinedRevealPasswordBox}" 
+                                         materialDesign:HintAssist.Hint="Введите пароль*" 
+                                         materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                                         MaxLength="100" Width="220"/>
+
+                                <!--поля для ввода нового пароля-->
+                            <PasswordBox Grid.Row="4" Grid.Column="2" Height="50" Margin="0,10,0,0" x:Name="NameNewPassword"
+                                        VerticalAlignment="Center" HorizontalAlignment="Center"  
+                                        materialDesign:TextFieldAssist.HasClearButton="True"
+                                        Style="{StaticResource MaterialDesignOutlinedRevealPasswordBox}"
+                                        Visibility="{Binding IsEditUser, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        materialDesign:HintAssist.Hint="Введите новый пароль" 
+                                        materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                                        MaxLength="100" Width="220"/>
+
+                                    <!--кнопка для изменения пароля-->
+                            <Button Grid.Row="5" Grid.Column="2" Content="Изменить пароль"
+                                    Width="150" Height="35" HorizontalAlignment="Center"
+                                    Visibility="{Binding IsEditUser, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    Background="Gray" BorderBrush="Black" Margin="0,0,0,80" Command="{Binding Btn_EditPassword}"/>
+
+                            <!--кнопки-->
+                            <Grid Grid.Row="7" Grid.Column="1" Margin="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                                <StackPanel Orientation="Horizontal" Margin="0,-10,0,0">
+                                    <Button Grid.Row="0" Content="Отмена" 
+    Width="150" Height="35" Background="Gray" 
+    BorderBrush="Black" Command="{Binding ClosePopup}" />
+                                    <Button Grid.Row="1" Content="{Binding ActionConfirmationButton}"
+    x:Name="RenameButtonBrand" Width="150" Height="35" 
+    Background="Gray" BorderBrush="Black" Margin="15,0,0,0" Command="{Binding Btn_SaveData}"/>
+                                </StackPanel>
+
+                            </Grid>
+
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Popup>
+        </Grid>
+
+        <!--Popup для удаления данных-->
+        <Grid>
+            <Popup x:Name="DeleteDataPopup" PlacementTarget="{Binding ElementName=positionPopup}" 
+            IsOpen="{Binding StartPoupOfDelete, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            Placement="Center" Grid.ColumnSpan="4" Grid.RowSpan="4" HorizontalOffset="0" 
+            VerticalOffset="-40" StaysOpen="False" Closed="MyPopup_Closed" 
+            AllowsTransparency="False" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid Background="Gray">
+                    <!--фон-->
+                    <Border Background="AliceBlue" Style="{StaticResource OutlineOfPopup}" >
+                        <Grid Width="400" Height="250">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" Text="Удаление данных" 
+                                    Margin="0, 10, 0, 0" FontSize="30" FontWeight="Bold"/>
+
+                                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" 
+                                     Height="50" Margin="10,20,10,0">
+                                    <TextBlock Text="Вы действительно хотите удалить пользователя?" FontSize="20" FontWeight="DemiBold" 
+                                        HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
+                                </StackPanel>
+
+                                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Height="50" Margin="0,0,0,15">
+                                    <TextBlock Text="{Binding NameOfUserDeleted, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+    TextWrapping="Wrap" x:Name="NameOfCategoryDeleted" HorizontalAlignment="Center" 
+    VerticalAlignment="Center" Margin="25,0,25,0"  FontSize="20" FontWeight="DemiBold"/>
+                                </ScrollViewer>
+
+
+
+                                <Grid Grid.Row="3" Grid.Column="0" Margin="0,0,0,25" VerticalAlignment="Bottom">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Button Grid.Row="0" Grid.Column="0" Content="Отмена" Width="150" 
+                                     Height="35" Background="Gray" BorderBrush="Black" Command="{Binding ClosePopup}"/>
+                                    <Button Grid.Row="0" Grid.Column="1" Content="Удалить" Width="150" 
+                                     Height="35" Background="Gray" BorderBrush="Black" Margin="0,0,0,0" Command="{Binding Btn_DeleteData}"/>
+
+                                </Grid>
+
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Popup>
+        </Grid>
+
+    </Grid>
+</Page>

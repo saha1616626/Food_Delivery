@@ -69,6 +69,12 @@ namespace Food_Delivery
                 {
                     WorkingWithData.LaunchPopupAfterReceivingFocusOrders(); // событие запуска Popup
                 }
+
+                // пользователи
+                if(data.popup == "Users")
+                {
+                    WorkingWithData.LaunchPopupAfterReceivingFocusUsers(); // событие запуска Popup
+                }
             }
         }
 

@@ -13,6 +13,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -20,16 +21,18 @@ using System.Windows.Shapes;
 namespace Food_Delivery.View.Administrator.MenuSectionPages
 {
     /// <summary>
-    /// Interaction logic for PageOrders.xaml
+    /// Interaction logic for PageUsers.xaml
     /// </summary>
-    public partial class PageOrders : Page
+    public partial class PageUsers : Page
     {
-        private readonly OrdersViewModel _ordersViewModel; // объект класса
-        public PageOrders()
+        private readonly UsersViewModel _usersViewModel; // объект класса
+        public PageUsers()
         {
             InitializeComponent();
-            _ordersViewModel = (OrdersViewModel)this.Resources["OrdersViewModel"];
-            _ordersViewModel.InitializeAsync(ErrorInput);
+            _usersViewModel = (UsersViewModel)this.Resources["UsersViewModel"];
+            _usersViewModel.InitializeAsync(ErrorInput, ErrorInputPopup, NameUser, NameSurname, NamePatronymic,
+                ClientCity, ClientStreet, ClientHouse, ClientApartment, NameNumberPhone,
+                nameEmail, CbRole, NameLogin, (PasswordBox)NamePassword, (PasswordBox)NameNewPassword, (Storyboard)FindResource("FieldIllumination"));
         }
 
         #region Popup
@@ -54,14 +57,14 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
 
         #endregion
 
-        // поиск заказа
+        // поиск пользователя
         private void OrdersSearch(object sender, TextChangedEventArgs e)
         {
             // получаем текст из поля при поиске данных
             var textInfo = sender as System.Windows.Controls.TextBox;
             if (textInfo != null)
             {
-                _ordersViewModel.HandlerTextBoxChanged(textInfo.Text);
+                _usersViewModel.HandlerTextBoxChanged(textInfo.Text);
             }
         }
 

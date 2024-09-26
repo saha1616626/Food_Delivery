@@ -70,6 +70,21 @@ namespace Food_Delivery.ViewModel.Administrator
             }
         }
 
+        // вызов события запуска страницы "пользователи"
+        private RelayCommand _openUsersPageButton { get; set; }
+        public RelayCommand OpenUsersPageButton
+        {
+            get
+            {
+                return _openUsersPageButton ??
+                    (_openUsersPageButton = new RelayCommand((obj) =>
+                    {
+                        // запускаем страницу "пользователи" из класса MainMenuViewModel
+                        WorkingWithData.OpenUsersPage();
+                    }, (obj) => true));
+            }
+        }
+
         #endregion
 
         #region workHamburgerMenu

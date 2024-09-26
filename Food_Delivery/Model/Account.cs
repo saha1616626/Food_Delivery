@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Food_Delivery.Model
 {
-    // Аккаунт пользователя приожения
+    // Аккаунт пользователя приложения
     public class Account
     {
         public int id { get; set; }

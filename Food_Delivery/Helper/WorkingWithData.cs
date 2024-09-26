@@ -44,6 +44,13 @@ namespace Food_Delivery.Helper
             _openOrdersPage?.Invoke(null, new EventAggregator()); // вызываем событие в HamburgerMenuViewModel
         }
 
+        // переход на страницу "пользователи"
+        public static event EventHandler<EventAggregator> _openUsersPage; // подписываемся в MainMenuViewModel
+        public static void OpenUsersPage()
+        {
+            _openUsersPage?.Invoke(null, new EventAggregator()); // вызываем событие в HamburgerMenuViewModel
+        }
+
         #endregion
 
         // открываем нужный Popup при получении фокуса страницы
@@ -68,6 +75,13 @@ namespace Food_Delivery.Helper
         public static void LaunchPopupAfterReceivingFocusOrders()
         {
             _launchPopupAfterReceivingFocusOrders?.Invoke(null, new EventAggregator()); // вызываем событие в MainWindow
+        }
+
+        // запуск Poup пользователи
+        public static event EventHandler<EventAggregator> _launchPopupAfterReceivingFocusUsers; // подписываемся в UsersViewModel
+        public static void LaunchPopupAfterReceivingFocusUsers()
+        {
+            _launchPopupAfterReceivingFocusUsers?.Invoke(null, new EventAggregator()); // вызываем событие в MainWindow
         }
 
         #endregion

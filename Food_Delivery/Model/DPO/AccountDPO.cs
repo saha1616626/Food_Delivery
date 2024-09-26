@@ -124,7 +124,7 @@ namespace Food_Delivery.Model.DPO
             {
                 List<Role> roles = await foodDeliveryContext.Roles.ToListAsync();
                 // ищем роль присущую данному аккаунту
-                Role role = roles.FirstOrDefault(r => r.id == account.id);
+                Role role = roles.FirstOrDefault(r => r.id == account.roleId);
                 if (role != null)
                 {
                     accountDPO.nameRole = role.name;

@@ -59,15 +59,12 @@ namespace Food_Delivery.ViewModel.Administrator
                 // храним список заказов после замены id
                 List<OrderDPO> orderDPOs = new List<OrderDPO>(); 
 
-
                 // заполняем таблицу
                 foreach (Order item in orders)
                 {
                     OrderDPO orderDPO = new OrderDPO();
                     // заманяем id 
-                    orderDPO = await orderDPO.CopyFromOrder(item);
-
-                    orderDPOs.Add(orderDPO);
+                    orderDPOs.Add(await orderDPO.CopyFromOrder(item));
                 }
 
                 // делаем сортировку по статусу заказа (новый -> обработка -> принят к доставке и тд)

@@ -50,7 +50,7 @@ namespace Food_Delivery.Data
                 entity.Property(e => e.email).HasMaxLength(200).HasColumnName("email").IsRequired(false);
                 entity.Property(e => e.numberPhone).HasMaxLength(11).HasColumnName("numberPhone").IsRequired(false);
                 entity.Property(e => e.login).HasMaxLength(100).HasColumnName("login");
-                entity.Property(e => e.password).HasMaxLength(100).HasColumnName("password");
+                entity.Property(e => e.password).HasMaxLength(300).HasColumnName("password");
                 entity.Property(e => e.city).HasMaxLength(50).HasColumnName("city").IsRequired(false);
                 entity.Property(e => e.street).HasMaxLength(150).HasColumnName("street").IsRequired(false);
                 entity.Property(e => e.house).HasMaxLength(10).HasColumnName("house").IsRequired(false);
