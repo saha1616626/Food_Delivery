@@ -32,7 +32,8 @@ namespace Food_Delivery.View.Administrator.MenuSectionPages
             _usersViewModel = (UsersViewModel)this.Resources["UsersViewModel"];
             _usersViewModel.InitializeAsync(ErrorInput, ErrorInputPopup, NameUser, NameSurname, NamePatronymic,
                 ClientCity, ClientStreet, ClientHouse, ClientApartment, NameNumberPhone,
-                nameEmail, CbRole, NameLogin, (PasswordBox)NamePassword, (PasswordBox)NameNewPassword, (Storyboard)FindResource("FieldIllumination"));
+                nameEmail, CbRole, NameLogin, (PasswordBox)NamePassword, (PasswordBox)NameNewPassword, (Storyboard)FindResource("FieldIllumination"),
+                ErrorInputData);
         }
 
         #region Popup

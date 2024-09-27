@@ -1,4 +1,5 @@
 ﻿using Food_Delivery.Helper;
+using Food_Delivery.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,6 +20,9 @@ namespace Food_Delivery.ViewModel.Administrator
             WorkingWithData._exitHamburgerMenu += TurnOffSideMenu;
 
             IsMenuButtonVisibility = true;
+
+            // ограничиваем меню в зависимости от роли
+            LimitingMenuDependingRole();
         }
 
         #region pageTransitionEvent
@@ -140,6 +144,42 @@ namespace Food_Delivery.ViewModel.Administrator
             IsSideMenuVisible = false; // невидимое меню
             SideMenuWidth = 0; // изменяем ширину
             IsMenuButtonVisibility = IsSideMenuVisible ? false : true; // скрываем кнопку или показываем
+        }
+
+        #endregion
+
+        // настройка страницы
+        #region SettingUpPage
+
+        // ограничиваем меню в зависимости от роли
+        private async Task LimitingMenuDependingRole()
+        {
+            // получаем роль
+            AuthorizationViewModel authorizationViewModel = new AuthorizationViewModel();
+            string role = authorizationViewModel.WeGetRoleUser();
+            if (role == "Администратор")
+            {
+                // отображаем пункт меню с пользователями
+                IsUserSettings = true;
+            }
+            else if (role == "Менеджер")
+            {
+                // скрываем пункт меню с пользователями
+                IsUserSettings = false;
+            }
+        }
+
+        #endregion
+
+        // свойства 
+        #region Features
+
+        // свойство видимости кнопки "пользователи"
+        private bool _isUserSettings { get; set; }
+        public bool IsUserSettings
+        {
+            get { return _isUserSettings; }
+            set { _isUserSettings = value; OnPropertyChanged(nameof(IsUserSettings)); }
         }
 
         #endregion

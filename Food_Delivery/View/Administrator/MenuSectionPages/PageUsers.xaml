@@ -52,7 +52,7 @@ From="#de6d6d" To="Transparent" Duration="0:0:3" AutoReverse="False"/>
         <!--поле для вывода ошибки-->
         <TextBlock Grid.ColumnSpan="3" Grid.RowSpan="4" HorizontalAlignment="Center"
 Text="{Binding ErrorInputData, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-Margin="0,75,30,0" FontWeight="DemiBold" FontSize="20" Panel.ZIndex="1"/>
+Margin="0,75,30,0" Name="ErrorInputData" FontWeight="DemiBold" FontSize="20" Panel.ZIndex="1"/>
 
         <!--поле для вывода информации об поиске-->
         <TextBlock Grid.ColumnSpan="3" Grid.RowSpan="4" HorizontalAlignment="Center"

@@ -84,16 +84,42 @@ namespace Food_Delivery.Helper
             _launchPopupAfterReceivingFocusUsers?.Invoke(null, new EventAggregator()); // вызываем событие в MainWindow
         }
 
+        // запуск Poup меню администратора
+        public static event EventHandler<EventAggregator> _launchPopupAfterReceivingFocusMainMenu; // подписываемся в MainMenuViewModel
+        public static void LaunchPopupAfterReceivingFocusMainMenu()
+        {
+            _launchPopupAfterReceivingFocusMainMenu?.Invoke(null, new EventAggregator()); // вызываем событие в MainWindow
+        }
+
         #endregion
 
         // работа над заказами
-        #region
+        #region Orders
 
         // закрываем страницу для редактирования и добавления данных и возвращаемся к общему списку заказов
         public static event EventHandler<EventAggregator> _closingCorkWithDataOrdersPage; // подписываемся в OrdersViewModel
         public static void ClosingCorkWithDataOrdersPage()
         {
             _closingCorkWithDataOrdersPage?.Invoke(null, new EventAggregator()); // вызываем событие в WorkingWithDataOrdersViewModel
+        }
+
+        #endregion
+
+        // работа над авторизацией
+        #region Authorization
+
+        // успешная авторизация в аккаунт
+        public static event EventHandler<EventAggregator> SuccessfulLogin; // подписываемся в MainWindow
+        public static void SuccessfulLoginAccount() // вызываем в AuthorizationViewModel
+        {
+            SuccessfulLogin?.Invoke(null, new EventAggregator());
+        }
+
+        // выход из аккаунта
+        public static event EventHandler<EventAggregator> ExitFromAccount; // подписываемся в MainWindow
+        public static void ExitPageFromAccount() // вызываем в AuthorizationViewModel
+        {
+            ExitFromAccount?.Invoke(null, new EventAggregator());
         }
 
         #endregion

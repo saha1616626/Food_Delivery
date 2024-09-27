@@ -651,20 +651,33 @@ namespace Food_Delivery.ViewModel.Administrator
                 return _btn_DeleteData ??
                     (_btn_DeleteData = new RelayCommand(async (obj) =>
                     {
-                        // запретить удаление собственного аккаунта !!!!!!!!!!!!!!!!
+                        // проверка на удаление собственного аккаунта
+                        AuthorizationViewModel authorizationViewModel = new AuthorizationViewModel();
+                        int userId = authorizationViewModel.WeGetIdUser();
 
-                        using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+                        if(userId != SelectedAccount.id)
                         {
-                            // ищем нужную категорию для удаления
-                            Model.Account accounts = await foodDeliveryContext.Accounts.FirstOrDefaultAsync(c => c.id == SelectedAccount.id);
-                            if (accounts != null)
+                            using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
                             {
-                                foodDeliveryContext.Accounts.Remove(accounts);
-                                await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных                       
-                                ClosePopupWorkingWithData(); // закрываем Popup
-                                GetListAccounts(); // обновляем список
+                                // ищем нужную категорию для удаления
+                                Model.Account accounts = await foodDeliveryContext.Accounts.FirstOrDefaultAsync(c => c.id == SelectedAccount.id);
+                                if (accounts != null)
+                                {
+                                    foodDeliveryContext.Accounts.Remove(accounts);
+                                    await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных                       
+                                    ClosePopupWorkingWithData(); // закрываем Popup
+                                    GetListAccounts(); // обновляем список
+                                }
                             }
                         }
+                        else
+                        {
+                            ClosePopupWorkingWithData(); // закрываем Popup
+                            // выводим сообщение об ошибке
+                            ErrorInputData = "Нельзя удалить собственный аккаунт!";
+                            BeginFadeAnimation(AnimationErrorInputData); // анимация затухания ошибки
+                        }
+                        
                     }, (obj) => true));
             }
         }
@@ -698,7 +711,8 @@ namespace Food_Delivery.ViewModel.Administrator
 
         // общие свойства страницы
         #region Features
-        public TextBlock AnimationErrorInput { get; set; } //  анимация текста ошибки на странице
+        public TextBlock AnimationErrorInput { get; set; } //  анимация текста ошибки поиска
+        public TextBlock AnimationErrorInputData { get; set; } //  анимация текста ошибки удаления
         public TextBlock AnimationErrorInputPopup { get; set; } //  анимации текста ошибки на Popup
 
         public TextBox AnimationOutName { get; set; } // поле для ввода текста "имя клиента". Вывод подсветки поля
@@ -712,8 +726,8 @@ namespace Food_Delivery.ViewModel.Administrator
         public TextBox AnimationOutEmail { get; set; } // поле для ввода текста "email клиента". Вывод подсветки поля
 
         public TextBox AnimationOutLogin { get; set; } // поле для ввода текста "логин". Вывод подсветки поля
-        public PasswordBox AnimationOutPassword { get; set; } // поле для ввода текста "логин". Вывод подсветки поля
-        public PasswordBox AnimationOutNewPassword { get; set; } // поле для ввода текста "логин". Вывод подсветки поля
+        public PasswordBox AnimationOutPassword { get; set; } // поле для ввода текста "пароль". Вывод подсветки поля
+        public PasswordBox AnimationOutNewPassword { get; set; } // поле для ввода текста "пароль". Вывод подсветки поля
         public ComboBox AnimationRole { get; set; } // поле для выбора роли пользователя. Вывод подсветки поля
 
         public Storyboard FieldIllumination { get; set; } // анимация объектов
@@ -724,7 +738,7 @@ namespace Food_Delivery.ViewModel.Administrator
             TextBox AnimationOutStreet, TextBox AnimationOutHouse, TextBox AnimationOutApartment,
             TextBox AnimationOutNumberPhone, TextBox AnimationOutEmail, ComboBox AnimationRole,
             TextBox AnimationOutLogin, PasswordBox AnimationOutPassword, PasswordBox AnimationOutNewPassword,
-            Storyboard FieldIllumination)
+            Storyboard FieldIllumination, TextBlock AnimationErrorInputData)
         {
             if (AnimationErrorInput != null)
             {
@@ -793,6 +807,10 @@ namespace Food_Delivery.ViewModel.Administrator
             if(FieldIllumination != null)
             {
                 this.FieldIllumination = FieldIllumination;
+            }
+            if (AnimationErrorInputData != null)
+            {
+                this.AnimationErrorInputData = AnimationErrorInputData;
             }
         }
 

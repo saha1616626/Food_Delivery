@@ -15,9 +15,10 @@
         <!--связываем View и ViewModel-->
         <ViewModel:AuthorizationViewModel x:Key="AuthorizationViewModel"/>
 
-        <!--анимация полей ввода данных-->
-        <Storyboard x:Key="Animation">
-            
+        <!--анимация подсветки полей-->
+        <Storyboard x:Key="FieldIllumination">
+            <ColorAnimation Storyboard.TargetProperty="Background.(SolidColorBrush.Color)"
+From="#de6d6d" To="Transparent" Duration="0:0:3" AutoReverse="False"/>
         </Storyboard>
 
     </Page.Resources>
@@ -26,49 +27,71 @@
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0">
 
             <!--заголовок-->
             <TextBlock Text="ВкусноРолл" FontSize="30" Foreground="Black" FontWeight="Bold" 
-                       HorizontalAlignment="Left" Margin="40, 60, 0, 0" VerticalAlignment="Top"/>
+                       HorizontalAlignment="Left" Margin="40, 20, 0, 0" VerticalAlignment="Top"/>
 
             <!--сообщение об ошибке-->
             <TextBlock Text="{Binding AuthorizationError, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                       x:Name="AuthorizationError" HorizontalAlignment="Right" Margin="0, 100, 150, 0" 
-                       FontWeight="DemiBold" FontSize="24"/>
+                       x:Name="AuthorizationError" HorizontalAlignment="Right" Height="100" Margin="0, 70, 150, 0" 
+                       FontWeight="DemiBold" FontSize="18"/>
         </Grid>
 
-        <Grid Grid.Row="1" VerticalAlignment="Top">
+        <Grid Grid.Row="1" VerticalAlignment="Center" Margin="0,70,0,50">
 
             <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
             <!--авторизация или регистрация-->
-            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Button x:Name="btnAuthorization" Content="Авторизация" Background="#F0CF65" 
-                        Margin="5" Padding="5" FontSize="15" FontWeight="ExtraBlack"/>
-                <Button x:Name="btnRegistration" Content="Регистрация" Background="#F0CF65" 
-                        Margin="5" Padding="5" FontSize="15" FontWeight="ExtraBlack"/>
-            </StackPanel>
+            <Grid Grid.Row="0" VerticalAlignment="Center" Width="300"
+                        HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-            <!--пароль и логин-->
+                <Button Grid.Column="0" HorizontalAlignment="Left" x:Name="btnAuthorization" Content="Авторизация" Background="Gray" 
+                        FontSize="15" FontWeight="ExtraBlack" BorderBrush="Black" Width="140" Command="{Binding Btn_Authorization}"/>
+                <Button Grid.Column="1" HorizontalAlignment="Right" x:Name="btnRegistration" Content="Регистрация" Background="Gray" Command="{Binding Btn_Registration}"
+                        Margin="0,0,0,0" FontSize="15" FontWeight="ExtraBlack" BorderBrush="Black" Width="140"/>
+            </Grid>
+
             <StackPanel Grid.Row="1" Orientation="Vertical">
-                <TextBox Height="50" VerticalAlignment="Center" MaxLength="100" TextWrapping="Wrap" 
-                         Width="300" Margin="0,20,0,0" materialDesign:HintAssist.Hint="Логин"/>
+                <!--пароль и логин-->
+                <TextBox Height="50" Margin="0,30,0,0" x:Name="NameLogin"
+                 VerticalAlignment="Center" HorizontalAlignment="Center"
+                 IsEnabled="{Binding IsUserLogin, Converter={StaticResource InvertBooleanConverter}}"
+                 Text="{Binding OutNameLogin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                 materialDesign:TextFieldAssist.HasClearButton="True"
+                 Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                 materialDesign:HintAssist.Hint="Логин"
+                 materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                 MaxLength="100" TextWrapping="Wrap" Width="300"/>
 
-                <PasswordBox Height="50" VerticalAlignment="Center" MaxLength="100" 
-                         Width="300" Margin="0,20,0,0" materialDesign:HintAssist.Hint="Пароль"/>
+                <PasswordBox Height="50" Margin="0,10,0,-10" x:Name="NamePassword"
+                 VerticalAlignment="Center" HorizontalAlignment="Center"  
+                 materialDesign:TextFieldAssist.HasClearButton="True"
+                 Style="{StaticResource MaterialDesignOutlinedRevealPasswordBox}" 
+                 materialDesign:HintAssist.Hint="Пароль" 
+                 materialDesign:TextFieldAssist.CharacterCounterVisibility="Hidden"
+                 MaxLength="100" Width="300"/>
             </StackPanel>
 
             <!--кнопки-->
-            <Button Grid.Row="2" Content="вход" Height="50" Margin="0,20,0,0" Width="300"
-                    Command="{Binding Entrance}"/>
+            <Button Grid.Row="2" Content="Вход" Margin="450,30,450,0" Width="300"
+                    Command="{Binding Entrance}" Background="#FF587FAC" BorderBrush="Black" Height="32" VerticalAlignment="Top"/>
+
+            <Button Grid.Row="3" Content="Гостевой вход" Margin="0,10,0,0" Width="300"
+        Command="{Binding EntranceGuest}" Background="#FF587FAC" BorderBrush="Black"/>
 
         </Grid>
 

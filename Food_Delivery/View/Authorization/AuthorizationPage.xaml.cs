@@ -1,4 +1,5 @@
 ﻿using Food_Delivery.ViewModel;
+using Food_Delivery.ViewModel.Administrator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -26,7 +28,10 @@ namespace Food_Delivery.View.Authorization
         {
             InitializeComponent();
             _authorizationViewModel = (AuthorizationViewModel)this.Resources["AuthorizationViewModel"]; // получаем ссылку на экземпляр привязанной модели
+            _authorizationViewModel.InitializeAsync(btnAuthorization, btnRegistration, NameLogin, NamePassword,
+                AuthorizationError, (Storyboard)FindResource("FieldIllumination"));
 
+            _authorizationViewModel.InitialPageSetup(); // подготовка страницы
         }
 
     }

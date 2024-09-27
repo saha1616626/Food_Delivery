@@ -7,6 +7,8 @@
       xmlns:ViewModel="clr-namespace:Food_Delivery.ViewModel.Administrator"
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       mc:Ignorable="d" 
+      PreviewMouseLeftButtonUp="Window_MouseLeftButtonDown"
+      MouseLeftButtonDown="Window_LossOfFocus"
       MinHeight="700" Height="Auto"
       Title="MainMenuPage">
 
@@ -16,7 +18,17 @@
     </Page.Resources>
 
     <Grid x:Name="MainGrid" DataContext="{StaticResource MainMenuViewModel}" >
-        
+
+        <!--стили-->
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="\Dictionary\Table.xaml"/>
+                    <ResourceDictionary Source="\Dictionary\Popup.xaml"/>
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+
         <!--основная разметка-->
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -44,7 +56,28 @@
             <TextBlock Text="ВкусноРолл.Admin" FontSize="24" Foreground="Black"
            VerticalAlignment="Center" FontWeight="ExtraBlack" Grid.Column="1" Margin="10,10,0,10"/>
         </Grid>
-        
+
+        <!--тип аккаунта-->
+        <TextBlock Grid.Column="2" x:Name="Role" Text="{Binding AuthorizedUser, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   FontSize="27" Foreground="Black" FontWeight="Regular" HorizontalAlignment="Right" Margin="0,0,90,0" VerticalAlignment="Center"/>
+
+        <!--выход-->
+        <Grid Grid.Column="2" x:Name="_btnSetting" Visibility="{Binding IsSettingVisible, Mode=TwoWay}" HorizontalAlignment="Right" Margin="0,5,30,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="45"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="45"/>
+            </Grid.RowDefinitions>
+
+            <materialDesign:PackIcon Grid.Column="0" Grid.Row="0" Kind="ExitToApp" Width="45" Height="45"/>
+
+            <Button Grid.Column="0" Grid.Row="0" Height="45" Width="45" Style="{StaticResource MaterialDesignRaisedSecondaryLightButton}"  Background="Transparent" 
+                    BorderBrush="Transparent" Command="{Binding Btn_LogOutOfYourAccount}"/>
+
+        </Grid>
+
         <!--роль пользователя-->
         <Grid Grid.Row="0" Grid.Column="3" MouseLeftButtonDown="Window_MouseLeftButtonDown">
             <!--название роли-->
@@ -53,6 +86,65 @@
         </Grid>
 
         <Frame x:Name="mainAdminMenu" Grid.Row="1" Grid.ColumnSpan="3" NavigationUIVisibility="Hidden"/>
+
+        <!--Popup выход из аккаунта-->
+
+        <!--фон для Popup-->
+        <Border Grid.ColumnSpan="8" Grid.RowSpan="8" x:Name="DarkBackground" 
+  Visibility="{Binding DarkBackground, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+  Background="#80000000" Panel.ZIndex="0" 
+  Margin="-500,0,-500,-500"/>
+
+        <!-- размещение Popup относительно данного grid-->
+        <Grid x:Name="positionPopup" Grid.RowSpan="8" Grid.ColumnSpan="8" 
+HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <Popup x:Name="DeleteDataPopup" PlacementTarget="{Binding ElementName=positionPopup}" 
+            IsOpen="{Binding StartPoupOfOutAccount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            Placement="Center" Grid.ColumnSpan="4" Grid.RowSpan="4" HorizontalOffset="0" 
+            VerticalOffset="-40" StaysOpen="False" Closed="MyPopup_Closed" 
+            AllowsTransparency="False" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Grid Background="Gray">
+                <!--фон-->
+                <Border Background="AliceBlue" Style="{StaticResource OutlineOfPopup}" >
+                    <Grid Width="400" Height="250">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
+                                <TextBlock Text="Вы действительно хотите выйти из аккаунта?" FontSize="20" FontWeight="DemiBold" 
+                                        HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" Height="110" Margin="20,130,20,0"/>
+                            </StackPanel>
+
+                            <Grid Grid.Row="1" Grid.Column="0" Margin="0,0,0,25" VerticalAlignment="Bottom">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Button Grid.Row="0" Grid.Column="0" Content="Отмена" Width="150" 
+                                     Height="35" Background="Gray" BorderBrush="Black" Command="{Binding ClosePopup}"/>
+                                <Button Grid.Row="0" Grid.Column="1" Content="Выход" Width="150" 
+                                     Height="35" Background="Gray" BorderBrush="Black" Margin="0,0,0,0" Command="{Binding Btn_LogOutYourAccount}"/>
+
+                            </Grid>
+
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Popup>
 
     </Grid>
 </Page>
