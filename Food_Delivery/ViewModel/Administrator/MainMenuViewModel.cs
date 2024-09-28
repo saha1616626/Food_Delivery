@@ -104,8 +104,8 @@ namespace Food_Delivery.ViewModel.Administrator
         {
             // получаем id авторизованного пользователя
             AuthorizationViewModel authorizationViewModel = new AuthorizationViewModel();
-            int userId = authorizationViewModel.WeGetIdUser();
-            string role = authorizationViewModel.WeGetRoleUser();
+            int userId = await authorizationViewModel.WeGetIdUser();
+            string role = await authorizationViewModel.WeGetRoleUser();
 
             if (userId != 0 && userId != null)
             {

@@ -156,7 +156,7 @@ namespace Food_Delivery.ViewModel.Administrator
         {
             // получаем роль
             AuthorizationViewModel authorizationViewModel = new AuthorizationViewModel();
-            string role = authorizationViewModel.WeGetRoleUser();
+            string role = await authorizationViewModel.WeGetRoleUser();
             if (role == "Администратор")
             {
                 // отображаем пункт меню с пользователями

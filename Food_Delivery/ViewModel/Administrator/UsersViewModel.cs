@@ -653,7 +653,7 @@ namespace Food_Delivery.ViewModel.Administrator
                     {
                         // проверка на удаление собственного аккаунта
                         AuthorizationViewModel authorizationViewModel = new AuthorizationViewModel();
-                        int userId = authorizationViewModel.WeGetIdUser();
+                        int userId = await authorizationViewModel.WeGetIdUser();
 
                         if(userId != SelectedAccount.id)
                         {

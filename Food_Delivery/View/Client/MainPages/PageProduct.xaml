@@ -1,0 +1,204 @@
+﻿<Page x:Class="Food_Delivery.View.Client.MainPages.PageProduct"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Food_Delivery.View.Client.MainPages"
+      mc:Ignorable="d"
+      xmlns:ViewModel="clr-namespace:Food_Delivery.ViewModel.Client"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      PreviewMouseLeftButtonUp="Window_MouseLeftButtonDown"
+      MouseLeftButtonDown="Window_LossOfFocus"
+      MinHeight="700" Height="Auto"
+      Title="PageProduct">
+
+    <Page.Resources>
+        <ViewModel:ProductViewModel x:Key="ProductViewModel"/>
+
+        <!--анимация подсветки полей-->
+        <Storyboard x:Key="FieldIllumination">
+            <ColorAnimation Storyboard.TargetProperty="Background.(SolidColorBrush.Color)"
+        From="#de6d6d" To="Transparent" Duration="0:0:3" AutoReverse="False"/>
+        </Storyboard>
+    </Page.Resources>
+
+    <Grid Background="AliceBlue" DataContext="{StaticResource ProductViewModel}">
+
+        <!--стили-->
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="\Dictionary\Table.xaml"/>
+                    <ResourceDictionary Source="\Dictionary\Popup.xaml"/>
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+
+        <Grid Background="AliceBlue" >
+            <ScrollViewer >
+                <!--триггер на смещение товаров при открытие корзины-->
+                <!--<ScrollViewer.Style>
+                    <Style TargetType="ScrollViewer">
+                        <Setter Property="Margin" Value="30, 0, 0, 0"/>
+                        <Setter Property="VerticalScrollBarVisibility" Value="Hidden"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding LaunchingShoppingCart, Source={StaticResource PageMainProductViewModel}}" Value="true">
+                                <Setter Property="Margin" Value="0, 0, 425, 0"/>
+                                <Setter Property="VerticalScrollBarVisibility" Value="Hidden"/>
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ScrollViewer.Style>-->
+
+                <ItemsControl ItemsSource="{Binding ListProductView}" Margin="0,0,0,195" HorizontalAlignment="Left"
+                              VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="Gray" BorderThickness="0" Margin="0,30,0,0" HorizontalAlignment="Left">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Заголовок категории -->
+                                    <TextBlock Text="{Binding name}" FontWeight="Bold" FontSize="25" Margin="30,10,0,0"/>
+
+                                    <!-- Товары для данной категории -->
+                                    <ItemsControl Grid.Row="1" ItemsSource="{Binding Disheses}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left"/>
+                                                <!--Товары располагаются с лева на право-->
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+
+                                        <ItemsControl.ItemTemplate>
+                                            <!--шаблон карточки товара-->
+
+                                            <DataTemplate>
+
+                                                <Border BorderBrush="Gray" BorderThickness="1" Margin="10" Padding="10" CornerRadius="10" MinHeight="200"  Width="250"  MaxHeight="500">
+
+                                                    <Grid>
+
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="200"/>
+                                                            <!-- Автоматический размер для названия товара -->
+                                                            <RowDefinition MinHeight="20"/>
+                                                            <!-- Автоматический размер для фото товара -->
+                                                            <RowDefinition MaxHeight="80"/>
+                                                            <!-- Автоматический размер для цены -->
+                                                            <RowDefinition MaxHeight="50"/>
+                                                            <!-- Автоматический размер для описания -->
+                                                            <RowDefinition MaxHeight="50"/>
+                                                            <!-- Автоматический размер для кнопок -->
+                                                        </Grid.RowDefinitions>
+
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <!-- Автоматический размер для картинки -->
+                                                            <ColumnDefinition Width="*"/>
+                                                            <!-- Заполнение остатка ширины колонки для остальных элементов -->
+                                                        </Grid.ColumnDefinitions>
+
+                                                        <TextBlock Text="{Binding name}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" FontWeight="ExtraBold" TextWrapping="Wrap" FontSize="20"/>
+
+                                                        <!--при нажатии на фото открывается страница с товаром-->
+                                                        <Image Source="{Binding image}" Grid.Row="0" Grid.ColumnSpan="2" Margin="0,10,0,0" Stretch="Uniform" HorizontalAlignment="Center">
+                                                            
+                                                        </Image>
+
+                                                        <TextBlock Text="{Binding description}" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0, 5, 0, 0" Foreground="Gray" FontStyle="Italic" TextWrapping="Wrap" FontWeight="DemiBold"/>
+
+                                                        <Grid Grid.Row="4" Grid.Column="1"  HorizontalAlignment="Stretch"  Margin="0,10,0,0">
+                                                            <Grid.Style>
+                                                                <Style TargetType="Grid">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsAddedToCart}" Value="true">
+                                                                            <Setter Property="Visibility" Value="Hidden"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Grid.Style>
+
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="40*"/>
+                                                                <ColumnDefinition Width="60*"/>
+                                                            </Grid.ColumnDefinitions>
+
+
+                                                            <Grid Grid.Column="1" HorizontalAlignment="Right">
+                                                                <Button Content="Добавить" MinWidth="130" Click="AddToCartButton" Margin="0, 0, 2, 0"/>
+                                                            </Grid>
+
+                                                            <Grid Grid.Column="0" HorizontalAlignment="Left">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <TextBlock Text="{Binding price}" Margin="0, 4, 0, 0" FontWeight="Bold" FontSize="18"/>
+                                                                    <TextBlock Text=" ₽" HorizontalAlignment="Center" Margin="0, 4, 0, 0" FontWeight="Bold" FontSize="18"/>
+                                                                </StackPanel>
+                                                            </Grid>
+
+                                                        </Grid>
+
+                                                        <!--кол-во товара в корзине-->
+                                                        <Grid x:Name="ButtonsNumberOfCart" Grid.Row="4" Grid.Column="1" Margin="0,10,0,0" >
+                                                            <Grid.Style>
+                                                                <Style TargetType="Grid">
+                                                                    <Setter Property="Visibility" Value="Hidden"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsAddedToCart}" Value="true">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Grid.Style>
+
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="40*"/>
+                                                                <ColumnDefinition Width="60*"/>
+                                                            </Grid.ColumnDefinitions>
+
+                                                            <Grid Grid.Column="1">
+
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="50*"/>
+                                                                    <ColumnDefinition Width="20*"/>
+                                                                    <ColumnDefinition Width="50*"/>
+                                                                </Grid.ColumnDefinitions>
+
+                                                                <Button x:Name="DeleteCart" Grid.Column="0" Content="-" Margin="0, 0, 0, 0" Width="40" Click="DeleteItemsToCartButton" HorizontalAlignment="Center"/>
+                                                                <TextBox x:Name="ViewCartNumber" Grid.Column="1" Text="{Binding numberIitemsCart}" Margin="0, 0, 0, 0" IsReadOnly="True" HorizontalAlignment="Center"/>
+                                                                <Button x:Name="AddCart" Grid.Column="2" Content="+" Margin="0, 0, 0, 0" Width="40"  Click="AddToCartButton" HorizontalAlignment="Center"/>
+
+                                                            </Grid>
+
+                                                            <Grid Grid.Column="0" HorizontalAlignment="Left">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <TextBlock Text="{Binding price}" Margin="0, 4, 0, 0" FontWeight="Bold" FontSize="18"/>
+                                                                    <TextBlock Text=" ₽" HorizontalAlignment="Center" Margin="0, 4, 0, 0" FontWeight="Bold" FontSize="18"/>
+                                                                </StackPanel>
+                                                            </Grid>
+
+                                                        </Grid>
+
+                                                    </Grid>
+
+                                                </Border>
+
+                                            </DataTemplate>
+
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+
+    </Grid>
+</Page>

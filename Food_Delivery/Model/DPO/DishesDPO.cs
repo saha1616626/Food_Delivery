@@ -93,18 +93,38 @@ namespace Food_Delivery.Model.DPO
             set { _price = value; OnPropertyChanged(nameof(price)); }
         }
 
-        private BitmapImage _image {  get; set; }
+        private BitmapImage _image { get; set; }
         public BitmapImage image
         {
             get { return _image; }
             set { _image = value; OnPropertyChanged(nameof(image)); }
         }
 
-        private bool _stopList {  get; set; }
+        private bool _stopList { get; set; }
         public bool stopList
         {
             get { return _stopList; }
             set { _stopList = value; OnPropertyChanged(nameof(stopList)); }
+        }
+
+        // свойство отображения кнопок + и - на товаре
+        private bool _isAddedToCart { get; set; }
+        public bool IsAddedToCart
+        {
+            get { return _isAddedToCart; }
+            set { _isAddedToCart = value; OnPropertyChanged(nameof(IsAddedToCart)); }
+        }
+
+        // кол-во товара в корзине
+        private int _numberIitemsCart;
+        public int numberIitemsCart
+        {
+            get { return _numberIitemsCart; }
+            set
+            {
+                _numberIitemsCart = value;
+                OnPropertyChanged(nameof(numberIitemsCart));
+            }
         }
 
         // получаем блюда из Dishes с заменой id
@@ -114,12 +134,12 @@ namespace Food_Delivery.Model.DPO
 
             dishesDPO.id = dishes.id;
 
-            if(dishes.name != null)
+            if (dishes.name != null)
             {
                 dishesDPO.name = dishes.name;
             }
 
-            if(dishes.description != null)
+            if (dishes.description != null)
             {
                 dishesDPO.description = dishes.description;
             }
@@ -130,43 +150,43 @@ namespace Food_Delivery.Model.DPO
                 List<Category> categories = await foodDeliveryContext.Categories.ToListAsync();
                 // ищем категорию присущую данному блюду
                 Category category = categories.FirstOrDefault(c => c.id == dishes.categoryId);
-                if(category != null)
+                if (category != null)
                 {
                     dishesDPO.categoryName = category.name;
-                } 
+                }
             }
 
-            if(dishes.calories != null)
+            if (dishes.calories != null)
             {
                 dishesDPO.calories = dishes.calories;
             }
 
-            if(dishes.squirrels != null)
+            if (dishes.squirrels != null)
             {
                 dishesDPO.squirrels = dishes.squirrels;
             }
 
-            if(dishes.fats != null)
+            if (dishes.fats != null)
             {
                 dishesDPO.fats = dishes.fats;
             }
 
-            if(dishes.carbohydrates != null)
+            if (dishes.carbohydrates != null)
             {
                 dishesDPO.carbohydrates = dishes.carbohydrates;
             }
 
-            if(dishes.weight != null)
+            if (dishes.weight != null)
             {
                 dishesDPO.weight = dishes.weight;
             }
 
-            if(dishes.quantity != null)
+            if (dishes.quantity != null)
             {
                 dishesDPO.quantity = dishes.quantity;
             }
 
-            if(dishes.price != null)
+            if (dishes.price != null)
             {
                 dishesDPO.price = dishes.price;
             }
@@ -182,7 +202,7 @@ namespace Food_Delivery.Model.DPO
                 dishesDPO.image = bitmap;
             }
 
-            if(dishes.stopList != null)
+            if (dishes.stopList != null)
             {
                 dishesDPO.stopList = dishes.stopList;
             }

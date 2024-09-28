@@ -334,7 +334,7 @@ namespace Food_Delivery.ViewModel
         }
 
         // получаем Id пользователя, который авторизован
-        public int WeGetIdUser()
+        public async Task<int> WeGetIdUser()
         {
             int userId;
 
@@ -356,7 +356,7 @@ namespace Food_Delivery.ViewModel
         }
 
         // получаем Role пользователя, который авторизован
-        public string WeGetRoleUser()
+        public async Task<string> WeGetRoleUser()
         {
             string role = null;
 

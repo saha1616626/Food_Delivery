@@ -3,6 +3,7 @@ using Food_Delivery.Helper;
 using Food_Delivery.Model;
 using Food_Delivery.View.Administrator.Menu;
 using Food_Delivery.View.Authorization;
+using Food_Delivery.View.Client.MainPages;
 using Food_Delivery.ViewModel;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -34,6 +35,7 @@ namespace Food_Delivery
         AuthorizationViewModel authorizationViewModel { get; set; }
         AuthorizationPage authorizationPage { get; set; }
         MainMenuPage mainMenuPage { get; set; }
+        MainMenuServicePage mainMenuServicePage { get; set; }
 
         public MainWindow()
         {
@@ -60,6 +62,7 @@ namespace Food_Delivery
             // очистка памяти
             ClearMemoryAfterFrame(mainMenuPage);
             ClearMemoryAfterFrame(authorizationPage);
+            ClearMemoryAfterFrame(mainMenuServicePage);
 
             // проверка, если пользователь не вошел в аккаунт, то мы
             // его направляем на страницу авторизации
@@ -67,7 +70,7 @@ namespace Food_Delivery
             if (authorizationViewModel.IsCheckAccountUser())
             {
                 // пользователь авторизовался, проверяем роль и входим на нужную страницу
-                string role = authorizationViewModel.WeGetRoleUser();
+                string role = await authorizationViewModel.WeGetRoleUser();
                 if (role != null)
                 {
                     if (role == "Администратор" || role == "Менеджер")
@@ -82,14 +85,17 @@ namespace Food_Delivery
                         });
 
                     }
-                    else if (role == "Пользователь")
+                    else if (role == "Гость" || role == "Пользователь") // авторизация как гостя
                     {
-
+                        await Task.Run(async () =>
+                        {
+                            await Task.Delay(1000); // Ждем завершения загрузки
+                            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                mainFrame.Navigate(mainMenuServicePage = new MainMenuServicePage());
+                            });
+                        });
                     }
-                }
-                else // авторизация как гостя
-                {
-
                 }
             }
             else
@@ -112,6 +118,7 @@ namespace Food_Delivery
             // очистка памяти
             ClearMemoryAfterFrame(mainMenuPage);
             ClearMemoryAfterFrame(authorizationPage);
+            ClearMemoryAfterFrame(mainMenuServicePage);
 
             // проверка, если пользователь не вошел в аккаунт, то мы
             // его направляем на страницу авторизации
@@ -119,7 +126,7 @@ namespace Food_Delivery
             if (authorizationViewModel.IsCheckAccountUser())
             {
                 // пользователь авторизовался, проверяем роль и входим на нужную страницу
-                string role = authorizationViewModel.WeGetRoleUser();
+                string role = await authorizationViewModel.WeGetRoleUser();
                 if (role != null)
                 {
                     if (role == "Администратор" || role == "Менеджер")
@@ -134,14 +141,17 @@ namespace Food_Delivery
                         });
 
                     }
-                    else if (role == "Пользователь")
+                    else if (role == "Гость" || role == "Пользователь") // авторизация как гостя
                     {
-
+                        await Task.Run(async () =>
+                        {
+                            await Task.Delay(1000); // Ждем завершения загрузки
+                            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                mainFrame.Navigate(mainMenuServicePage = new MainMenuServicePage());
+                            });
+                        });
                     }
-                }
-                else // авторизация как гостя
-                {
-
                 }
             }
             else
@@ -164,6 +174,7 @@ namespace Food_Delivery
             // очистка памяти
             ClearMemoryAfterFrame(mainMenuPage);
             ClearMemoryAfterFrame(authorizationPage);
+            ClearMemoryAfterFrame(mainMenuServicePage);
 
             // Запускаем старницу авторизации
             authorizationPage = new AuthorizationPage();

@@ -32,7 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ViewModel\Client\" />
+    <Folder Include="View\Client\UserAccount\" />
   </ItemGroup>
 
 </Project>

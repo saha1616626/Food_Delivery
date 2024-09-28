@@ -1,6 +1,4 @@
 ﻿using Food_Delivery.Helper;
-using Food_Delivery.View.Administrator.MenuSectionPages;
-using Food_Delivery.ViewModel.Administrator;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -18,21 +16,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Food_Delivery.View.Administrator.Menu
+namespace Food_Delivery.View.Client.MainPages
 {
     /// <summary>
-    /// Interaction logic for MainMenuPage.xaml
+    /// Interaction logic for MainMenuServicePage.xaml
     /// </summary>
-    public partial class MainMenuPage : Page
+    public partial class MainMenuServicePage : Page
     {
-        private readonly MainMenuViewModel _mainMenuViewModel; // объект класса
-        public MainMenuPage()
+        public MainMenuServicePage()
         {
             InitializeComponent();
-
-            _mainMenuViewModel = (MainMenuViewModel)this.Resources["MainMenuViewModel"];
-            // ассинхронно передаём фрейм в MainMenuViewModel
-            _mainMenuViewModel.InitializeAsync(mainAdminMenu);
         }
 
         #region Popup
@@ -40,7 +33,7 @@ namespace Food_Delivery.View.Administrator.Menu
         // скрыть фон при скрытие popup
         private void MyPopup_Closed(object sender, EventArgs e)
         {
-            DarkBackground.Visibility = Visibility.Collapsed;
+            //DarkBackground.Visibility = Visibility.Collapsed;
         }
 
         // после того, как Popup был закрыт, мы оповещаем систему, что не надо запускать Popup после потери фокуса на приложении
@@ -62,6 +55,5 @@ namespace Food_Delivery.View.Administrator.Menu
         {
             WorkingWithData.ExitHamburgerMenu();
         }
-
     }
 }
