@@ -1,4 +1,6 @@
 ﻿using Food_Delivery.Helper;
+using Food_Delivery.ViewModel.Administrator;
+using Food_Delivery.ViewModel.Client;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -23,9 +25,12 @@ namespace Food_Delivery.View.Client.MainPages
     /// </summary>
     public partial class MainMenuServicePage : Page
     {
+        private readonly MainMenuServiceViewModel _mainMenuServiceViewModel; // объект класса
         public MainMenuServicePage()
         {
             InitializeComponent();
+
+            _mainMenuServiceViewModel = (MainMenuServiceViewModel)this.Resources["MainMenuServiceViewModel"];
         }
 
         #region Popup
@@ -50,10 +55,19 @@ namespace Food_Delivery.View.Client.MainPages
 
         #endregion
 
-        // закрываем "гамбургер" меню, если открыто, при нажатии на окно, но не на меню
+        // закрываем корзину, если открыто, при нажатии на окно, но не на меню
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            WorkingWithData.ExitHamburgerMenu();
+            // если корзина была открыта, то мы ее скрываем вместе с фоном и обновляем список
+            if (_mainMenuServiceViewModel.IsBackgroundDisplay)
+            {
+                WorkingWithData.ExitShoppingCart(); // закрываем корзину
+                DarkBackground.Visibility = Visibility.Hidden;
+                _mainMenuServiceViewModel.IsBackgroundDisplay = false; // скрываем фон
+
+                // обновляем список товаров
+                WorkingWithData.UpdatingListProducts();
+            }
         }
     }
 }

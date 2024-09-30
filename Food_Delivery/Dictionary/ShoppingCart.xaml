@@ -1,0 +1,11 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--стиль для обводки корзины-->
+    <Style x:Key="OutlineOfBasket" TargetType="Border">
+        <Setter Property="Background" Value="WhiteSmoke"/>
+        <Setter Property="Border.BorderBrush" Value="#424138" />
+        <Setter Property="Border.BorderThickness" Value="0.8" />
+    </Style>
+
+</ResourceDictionary>

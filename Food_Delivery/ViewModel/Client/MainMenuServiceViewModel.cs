@@ -1,4 +1,5 @@
-﻿using Food_Delivery.View.Client.MainPages;
+﻿using Food_Delivery.Helper;
+using Food_Delivery.View.Client.MainPages;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,8 +17,13 @@ namespace Food_Delivery.ViewModel.Client
     {
         public MainMenuServiceViewModel()
         {
+            DarkBackground = Visibility.Collapsed; // скрываем фон корзины
+
             // при запуске меню отображаем страницу с товарами
             StartingHomePage();
+
+            // подписываемся на событие - отображаем фон при запуске корзины
+            WorkingWithData._backgroundForShopping += BackgroundForShopping;
         }
 
         // запуск страниц
@@ -34,8 +40,36 @@ namespace Food_Delivery.ViewModel.Client
 
         #endregion
 
+        // работа над корзиной
+        #region shoppingCart
+
+        // отображаем фон при запуске корзины
+        public bool IsBackgroundDisplay = false; // переключение режима работы фона
+        private async void BackgroundForShopping(object sender, EventAggregator e)
+        {
+            IsBackgroundDisplay = !IsBackgroundDisplay;
+
+            DarkBackground = IsBackgroundDisplay ? Visibility.Visible : Visibility.Collapsed;
+
+            // если фон скрыт, то обновляем список товаров
+        }
+
+        #endregion
+
         // основные свойства
         #region Features
+
+        // фон для корзины
+        private Visibility _darkBackground { get; set; }
+        public Visibility DarkBackground
+        {
+            get { return _darkBackground; }
+            set
+            {
+                _darkBackground = value;
+                OnPropertyChanged(nameof(DarkBackground));
+            }
+        }
 
         // Page для запуска страницы
         private Page _frameMainMenu { get; set; }

@@ -1,0 +1,196 @@
+﻿<UserControl x:Class="Food_Delivery.View.Client.MainPages.ShoppingCart"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:ViewModel="clr-namespace:Food_Delivery.ViewModel.Client"
+             mc:Ignorable="d" 
+             d:Height="Auto" Width="Auto">
+
+    <UserControl.Resources>
+        <!--связываем View и ViewModel-->
+        <ViewModel:ShoppingCartViewModel x:Key="ShoppingCartViewModel"/>
+    </UserControl.Resources>
+
+    <Grid DataContext="{StaticResource ShoppingCartViewModel}">
+
+        <!--стили-->
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="\Dictionary\ShoppingCart.xaml"/>
+                    <ResourceDictionary Source="\Dictionary\HamburgerMenu.xaml"/>
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Гамбургер кнопка -->
+        <Button x:Name="HamburgerButton" Grid.Column="0" Background="Transparent" BorderThickness="0" 
+        Command="{Binding ShoppingCartButton}" Visibility="{Binding IsMenuButtonVisibility, Converter={StaticResource BooleanToVisibilityConverter}}" 
+                VerticalAlignment="Top" Margin="10,9,20,10" Style="{StaticResource CustomButtonStyle}">
+            <materialDesign:PackIcon Kind="Cart" Height="44" Width="44"/>
+        </Button>
+
+        <!-- Основное содержимое -->
+        <Grid x:Name="SideMenu" Grid.Column="1" Background="Wheat" Margin="0,0,0,0"  
+      Width="{Binding SideMenuWidth}" 
+      Visibility="{Binding IsSideMenuVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+            <!-- Элементы бокового меню -->
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Margin="0,0,0,0">
+
+                <!--список товаров корзины-->
+                <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Center">
+                    <ItemsControl ItemsSource="{Binding ListCompositionCart}">
+                        <!--привязка списка корзины-->
+
+                        <!--расположение элементов списка-->
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Vertical" HorizontalAlignment="Left"/>
+                                <!--товары добавляются вертикально в центр-->
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <!--шаблон элементов-->
+                            <DataTemplate>
+                                <!--шаблон данных (внешний вид списка)-->
+                                <Border BorderBrush="Gray" BorderThickness="1" Margin="10" Padding="10" CornerRadius="10" Height="140" Width="380">
+
+                                    <!--граница перед элементами-->
+
+                                    <!--разметка элементов списка-->
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="24*"/>
+                                            <ColumnDefinition Width="50*"/>
+                                            <ColumnDefinition Width="10*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="30*"/>
+                                            <RowDefinition Height="40*"/>
+                                            <RowDefinition Height="20*"/>
+                                        </Grid.RowDefinitions>
+
+                                        <Grid Grid.Column="2" Grid.Row="0" Grid.RowSpan="1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <Button Grid.Column="2" Margin="16, 0, 0, 0" x:Name="deleteItemShoppingCart" Visibility="Visible" Panel.ZIndex="1" Width="25" Height="25"
+                                                IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                                                Style="{StaticResource MaterialDesignFloatingActionSecondaryButton}"
+                                                ToolTip="MaterialDesignFloatingActionSecondaryButton" Background="Gray" 
+                                                HorizontalAlignment="Right" VerticalAlignment="Top">
+                                                    <materialDesign:PackIcon Kind="WindowClose" Grid.Column="0" Width="15" Height="15" />
+                                                </Button>
+                                            </Grid>
+                                        </Grid>
+
+                                        <!--изображение-->
+                                        <Image Source="{Binding dishes.image}" Width="75" Height="75" Margin="0, 0, 3, 0" Grid.RowSpan="2" Grid.Column="0" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <!--название-->
+                                        <TextBlock Text="{Binding dishes.name}" Grid.Row="0" Grid.Column="1" FontWeight="ExtraBold" TextWrapping="Wrap" FontSize="20" Margin="10, 0, 0, 0" HorizontalAlignment="Left"/>
+                                        <!--описание-->
+                                        <TextBlock Text="{Binding dishes.description}" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="10, 0, 0, 0" Foreground="Gray" FontStyle="Italic" TextWrapping="Wrap" FontWeight="DemiBold"/>
+
+                                        <!--цена-->
+                                        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="10, 0, 0, 0">
+                                            <!--<Button Content="Добавить" MinWidth="130" Click="AddToCartButton_Click" Margin="0, 0, 30, 0" Visibility="Visible"/>-->
+                                            <TextBlock Text="{Binding dishes.price}" Margin="0, 0, 0,0" FontWeight="Bold" FontSize="18"/>
+                                            <TextBlock Text=" ₽" Margin="0, 0, 0,0" FontWeight="Bold" FontSize="18"/>
+                                        </StackPanel>
+
+                                        <!--кол-во в корзине-->
+                                        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0">
+                                            <Button Margin="0, 0, 0, 0" x:Name="DeleteItems" Visibility="Visible" Panel.ZIndex="1" Width="25" Height="25"
+IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+Style="{StaticResource MaterialDesignFloatingActionSecondaryButton}"
+ToolTip="MaterialDesignFloatingActionSecondaryButton" Background="Gray"
+HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <materialDesign:PackIcon Kind="MinusCircleOutline" Grid.Column="0" Width="15" Height="15" />
+                                            </Button>
+
+                                            <!--Кол-во в корзине-->
+                                            <TextBlock Text="{Binding quantity}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0, 0, -49, 0" Foreground="Gray" FontStyle="Italic" FontWeight="DemiBold" FontSize="16" Height="Auto"/>
+
+
+                                            <Button Margin="50, 0, 0, 0" x:Name="AddItems" Visibility="Visible" Panel.ZIndex="1" Width="25" Height="25"
+IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+Style="{StaticResource MaterialDesignFloatingActionSecondaryButton}"
+ToolTip="MaterialDesignFloatingActionSecondaryButton" Background="Gray" 
+HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <materialDesign:PackIcon Kind="PlusCircleOutline" Grid.Column="0" Width="15" Height="15" />
+                                            </Button>
+                                        </StackPanel>
+
+
+
+                                    </Grid>
+
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+            </Grid>
+
+            <TextBlock Grid.Column="0" Grid.Row="0" Text="Корзина" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="26" FontWeight="Bold" Margin="0,8,0,0"/>
+
+            <!--кнопка закрытия гамбургер меню-->
+            <Button Grid.Column="0" Grid.Row="0" Height="50" Margin="0,5,0,-5" Background="Transparent" BorderThickness="0" 
+                VerticalAlignment="Top" HorizontalAlignment="Left" Command="{Binding CloseShoppingCartButton}">
+                <materialDesign:PackIcon Kind="HamburgerClose" Foreground="Black" Width="44" Height="44" Panel.ZIndex="1"/>
+            </Button>
+
+            <!--итог корзины-->
+            <Border Style="{StaticResource OutlineOfBasket}" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Width="400" Height="65" VerticalAlignment="Bottom" Margin="0,0,0,0">
+                <Grid>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50*" />
+                        <ColumnDefinition Width="50*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!--сумма заказа-->
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal" >
+                        <TextBlock Grid.Column="0" Text="   Итого:  " VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" FontSize="18"/>
+                        <TextBlock Grid.Column="0" Text="{Binding FinalPrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" FontSize="18"/>
+                        <TextBlock Grid.Column="0" Text=" ₽" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" FontSize="18"/>
+                    </StackPanel>
+
+                    <Button Grid.Column="1" Margin="0, 0, 0, 0" x:Name="PlaceAnOrder" Visibility="Visible" Width="150" Height="35"
+Content="Оформить заказ" Background="#a724d6" IsEnabled="{Binding IsEnableButtonCostPrice}"
+HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                </Grid>
+            </Border>
+
+        </Grid>
+
+        
+    </Grid>
+</UserControl>

@@ -10,6 +10,7 @@ namespace Food_Delivery.Helper
     // обработка событий программы
     public class WorkingWithData
     {
+        // гамбургер меню администратора
         #region hamburgerMenuAdmin
 
         // закрываем гамбургер меню
@@ -21,6 +22,7 @@ namespace Food_Delivery.Helper
 
         #endregion
 
+        // меню администратора 
         #region mainMenuAdmin
 
         // переход на страницу "категориии"
@@ -120,6 +122,32 @@ namespace Food_Delivery.Helper
         public static void ExitPageFromAccount() // вызываем в AuthorizationViewModel
         {
             ExitFromAccount?.Invoke(null, new EventAggregator());
+        }
+
+        #endregion
+
+        // работа над корзиной и товарами
+        #region ShoppinCartAndProductPage
+
+        // обновляем список товаров
+        public static event EventHandler<EventAggregator> _updatingListProducts; // подписываемся в ProductViewModel
+        public static void UpdatingListProducts() // вызываем событие в MainMenuServicePage
+        {
+            _updatingListProducts?.Invoke(null, new EventAggregator()); 
+        }
+
+        // отображаем фон при запуске корзины
+        public static event EventHandler<EventAggregator> _backgroundForShopping; // подписываемся в MainMenuServiceViewModel
+        public static void BackgroundForShopping()
+        {
+            _backgroundForShopping?.Invoke(null, new EventAggregator()); // вызываем событие в ShoppingCartViewModel
+        }
+
+        // закрываем корзину
+        public static event EventHandler<EventAggregator> _exitShoppingCart; // подписываемся в MainMenuServicePage
+        public static void ExitShoppingCart() // вызываем событие в ShoppingCartViewModel
+        {
+            _exitShoppingCart?.Invoke(null, new EventAggregator());
         }
 
         #endregion

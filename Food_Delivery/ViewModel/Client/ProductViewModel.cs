@@ -1,4 +1,5 @@
 ﻿using Food_Delivery.Data;
+using Food_Delivery.Helper;
 using Food_Delivery.Model;
 using Food_Delivery.Model.DPO;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Food_Delivery.ViewModel.Client
 {
@@ -22,10 +25,19 @@ namespace Food_Delivery.ViewModel.Client
         public ProductViewModel()
         {
             GetListProduct(); // отображаем список товаров
+
+            // подписываемся на событие - обновляем список товаров
+            WorkingWithData._updatingListProducts += UpdatingListProducts;
         }
 
         // отображение списка товаров
         #region DisplayingListProducts
+
+        // обновляем список товаров после скрытия корзины
+        private async void UpdatingListProducts(object sender, EventAggregator e)
+        {
+            GetListProduct();
+        }
 
         // коллекция отображения списка товаров
         private ObservableCollection<ProductViewDPO> _listProductView { get; set; } = new ObservableCollection<ProductViewDPO>();
