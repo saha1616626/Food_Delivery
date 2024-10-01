@@ -83,7 +83,7 @@
 
         <!--авторизация-->
         <Grid Grid.Row="0" Grid.Column="2" x:Name="loginButton">
-            <Button x:Name="login"
+            <Button x:Name="login" Command="{Binding Btn_Authorization}"
 Width="150" Foreground="Black" BorderThickness="0"
 FontSize="15" FontWeight="ExtraBlack" HorizontalAlignment="Center"
 Content="Авторизация" Background="#00000000"
@@ -139,8 +139,13 @@ ToolTip="MaterialDesignOutlinedButton" />
 
         </Grid>
 
+        <!--страница с товарами-->
         <Frame Grid.Row="1" Content="{Binding FrameMainMenu, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
        NavigationUIVisibility="Hidden" Grid.ColumnSpan="5"/>
         
+        <!--личный кабинет и оформление заказа-->
+        <Frame Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="6" Content="{Binding FramePlaceOrder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+NavigationUIVisibility="Hidden" Panel.ZIndex="1"/>
+
     </Grid>
 </Page>

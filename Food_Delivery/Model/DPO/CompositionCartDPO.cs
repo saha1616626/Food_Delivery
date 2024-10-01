@@ -59,13 +59,13 @@ namespace Food_Delivery.Model.DPO
             
             compositionCartDPO.id = compositionCart.id;
             compositionCartDPO.shoppingCartId = compositionCart.shoppingCartId;
+            compositionCartDPO.dishesId = compositionCart.dishesId;
 
             // получаем блюдо данного товара в корзине
             using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
             {
-                List<Dishes> disheses = await foodDeliveryContext.Dishes.ToListAsync();
                 // ищем нужное блюдо
-                Dishes dishes = disheses.FirstOrDefault(d => d.id == compositionCart.dishesId);
+                Dishes dishes = await foodDeliveryContext.Dishes.FirstOrDefaultAsync(d => d.id == compositionCart.dishesId);
                 if(dishes != null)
                 {
                     compositionCartDPO.dishes = dishes;

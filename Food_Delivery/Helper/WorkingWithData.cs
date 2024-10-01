@@ -150,6 +150,27 @@ namespace Food_Delivery.Helper
             _exitShoppingCart?.Invoke(null, new EventAggregator());
         }
 
+        // открываем корзину
+        public static event EventHandler<EventAggregator> _openShoppingCart; // подписываемся в MainMenuServicePage
+        public static void OpenShoppingCart() // вызываем событие в ShoppingCartViewModel
+        {
+            _openShoppingCart?.Invoke(null, new EventAggregator());
+        }
+
+        // переход на страницу оформления заказа
+        public static event EventHandler<EventAggregator> _launchPageMakingOrder; // подписываемся в MainMenuServicePage
+        public static void LaunchPageMakingOrder() // вызываем событие в ShoppingCartViewModel
+        {
+            _launchPageMakingOrder?.Invoke(null, new EventAggregator());
+        }
+
+        // закрываем странцу оформления заказа
+        public static event EventHandler<EventAggregator> _closingCheckoutPage; // подписываемся в MainMenuServicePage
+        public static void ClosingCheckoutPage() // вызываем событие в ShoppingCartViewModel
+        {
+            _closingCheckoutPage?.Invoke(null, new EventAggregator());
+        }
+
         #endregion
     }
 }

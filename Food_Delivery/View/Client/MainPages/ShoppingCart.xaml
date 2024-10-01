@@ -103,7 +103,7 @@
                                                 IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
                                                 Style="{StaticResource MaterialDesignFloatingActionSecondaryButton}"
                                                 ToolTip="MaterialDesignFloatingActionSecondaryButton" Background="Gray" 
-                                                HorizontalAlignment="Right" VerticalAlignment="Top">
+                                                HorizontalAlignment="Right" VerticalAlignment="Top" Click="DeleteItemShoppingCartButton">
                                                     <materialDesign:PackIcon Kind="WindowClose" Grid.Column="0" Width="15" Height="15" />
                                                 </Button>
                                             </Grid>
@@ -118,7 +118,6 @@
 
                                         <!--цена-->
                                         <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="10, 0, 0, 0">
-                                            <!--<Button Content="Добавить" MinWidth="130" Click="AddToCartButton_Click" Margin="0, 0, 30, 0" Visibility="Visible"/>-->
                                             <TextBlock Text="{Binding dishes.price}" Margin="0, 0, 0,0" FontWeight="Bold" FontSize="18"/>
                                             <TextBlock Text=" ₽" Margin="0, 0, 0,0" FontWeight="Bold" FontSize="18"/>
                                         </StackPanel>
@@ -129,7 +128,7 @@
 IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
 Style="{StaticResource MaterialDesignFloatingActionSecondaryButton}"
 ToolTip="MaterialDesignFloatingActionSecondaryButton" Background="Gray"
-HorizontalAlignment="Center" VerticalAlignment="Center">
+HorizontalAlignment="Center" VerticalAlignment="Center" Click="RemoveItemShoppingCartButton">
                                                 <materialDesign:PackIcon Kind="MinusCircleOutline" Grid.Column="0" Width="15" Height="15" />
                                             </Button>
 
@@ -141,7 +140,7 @@ HorizontalAlignment="Center" VerticalAlignment="Center">
 IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
 Style="{StaticResource MaterialDesignFloatingActionSecondaryButton}"
 ToolTip="MaterialDesignFloatingActionSecondaryButton" Background="Gray" 
-HorizontalAlignment="Center" VerticalAlignment="Center">
+HorizontalAlignment="Center" VerticalAlignment="Center" Click="AddItemShoppingCartButton">
                                                 <materialDesign:PackIcon Kind="PlusCircleOutline" Grid.Column="0" Width="15" Height="15" />
                                             </Button>
                                         </StackPanel>
@@ -184,7 +183,7 @@ HorizontalAlignment="Center" VerticalAlignment="Center">
 
                     <Button Grid.Column="1" Margin="0, 0, 0, 0" x:Name="PlaceAnOrder" Visibility="Visible" Width="150" Height="35"
 Content="Оформить заказ" Background="#a724d6" IsEnabled="{Binding IsEnableButtonCostPrice}"
-HorizontalAlignment="Center" VerticalAlignment="Center"/>
+HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding PlaceOrderBytton}"/>
 
                 </Grid>
             </Border>

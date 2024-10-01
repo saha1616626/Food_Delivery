@@ -36,20 +36,6 @@
 
         <Grid Background="AliceBlue" >
             <ScrollViewer >
-                <!--триггер на смещение товаров при открытие корзины-->
-                <!--<ScrollViewer.Style>
-                    <Style TargetType="ScrollViewer">
-                        <Setter Property="Margin" Value="30, 0, 0, 0"/>
-                        <Setter Property="VerticalScrollBarVisibility" Value="Hidden"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding LaunchingShoppingCart, Source={StaticResource PageMainProductViewModel}}" Value="true">
-                                <Setter Property="Margin" Value="0, 0, 425, 0"/>
-                                <Setter Property="VerticalScrollBarVisibility" Value="Hidden"/>
-                                <Setter Property="HorizontalAlignment" Value="Center"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ScrollViewer.Style>-->
 
                 <ItemsControl ItemsSource="{Binding ListProductView}" Margin="0,0,0,195" HorizontalAlignment="Left"
                               VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">

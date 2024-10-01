@@ -1,0 +1,569 @@
+﻿<Page x:Class="Food_Delivery.View.Client.MainPages.PlaceOrderPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Food_Delivery.View.Client.MainPages"
+      mc:Ignorable="d" 
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      xmlns:ViewModel="clr-namespace:Food_Delivery.ViewModel.Client"
+      MinHeight="700" Height="Auto"
+      Title="PlaceOrderPage">
+
+    <Page.Resources>
+        <!--связываем View и ViewModel-->
+        <ViewModel:PlaceOrderViewModel x:Key="PlaceOrderViewModel"/>
+
+        <!--анимация подсветки полей-->
+        <Storyboard x:Key="FieldIllumination">
+            <ColorAnimation Storyboard.TargetProperty="Background.(SolidColorBrush.Color)"
+            From="#de6d6d" To="Transparent" Duration="0:0:3" AutoReverse="False"/>
+        </Storyboard>
+    </Page.Resources>
+
+    <Grid DataContext="{StaticResource PlaceOrderViewModel}">
+
+        <ScrollViewer  HorizontalAlignment="Stretch" Margin="0, 0, 0, 0" VerticalScrollBarVisibility="Visible">
+            <Grid Background="AliceBlue">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="10*" />
+                    <RowDefinition Height="70*" />
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!--кнопка возврата из фрейма-->
+                <Grid  Grid.Row="0" Grid.Column="0" Visibility="Visible" x:Name="closeFrame">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Верхняя часть экрана -->
+                    <Grid HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0" Margin="0, 20, 0, 0">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Вернуться" Margin="50, 15, 0, 0" Padding="-20, -3, 0, 0" Width="120" Command="{Binding Btn_ClosePageMakingOrder}"/>
+                            <materialDesign:PackIcon Kind="Home" Margin="-30, 21, 0, 0" Width="20" Height="20"/>
+                        </StackPanel>
+                    </Grid>
+
+                </Grid>
+
+                <!--заголовок-->
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Оформление заказа" FontSize="40" FontWeight="Bold" Margin="0, 20, 0, 0"/>
+
+                <!--основная часть страницы-->
+                <Border Grid.Row="1" Grid.ColumnSpan="2"  HorizontalAlignment="Center" Margin="0, 30, 0, 120"  Background="#e0e0e0" BorderBrush="Black" BorderThickness="1" CornerRadius="10">
+                    <Grid>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" HorizontalAlignment="Left" Text="Список товаров" Margin="30, 20, 20, 0" FontSize="30" FontWeight="Bold"/>
+
+                        <!--список товаров-->
+                        <Border Grid.Row="1" Width="900" Margin="20, 20, 20, 0" Padding="0, 0, 0, 0" BorderBrush="Black" BorderThickness="2" CornerRadius="10">
+                            <Grid>
+
+                                <!--сами товары-->
+                                <Grid MinHeight="100" MaxHeight="400">
+
+                                    <!--список товаров корзины-->
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                        <ItemsControl ItemsSource="{Binding ListCompositionCart}" >
+                                            <!--привязка списка корзины-->
+
+                                            <!--расположение элементов списка-->
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel Orientation="Vertical" HorizontalAlignment="Left"/>
+                                                    <!--товары добавляются вертикально в центр-->
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+
+                                            <ItemsControl.ItemTemplate>
+                                                <!--шаблон элементов-->
+                                                <DataTemplate>
+                                                    <!--шаблон данных (внешний вид списка)-->
+                                                    <Border BorderBrush="Gray" BorderThickness="1" Margin="20,10,10,10" Padding="10" CornerRadius="10" Height="140" Width="828" HorizontalAlignment="Center" Background="#f5ebb8">
+                                                        <!--граница перед элементами-->
+
+                                                        <!--разметка элементов списка-->
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="15*"/>
+                                                                <ColumnDefinition Width="50*"/>
+                                                                <ColumnDefinition Width="2*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition Height="30*"/>
+                                                                <RowDefinition Height="40*"/>
+                                                                <RowDefinition Height="20*"/>
+                                                            </Grid.RowDefinitions>
+
+                                                            <!--изображение-->
+                                                            <Image Source="{Binding dishes.image}" Width="75" Height="75" Margin="0, 0, 3, 0" Grid.RowSpan="2" Grid.Column="0" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            <!--название-->
+                                                            <TextBlock Text="{Binding dishes.name}" Grid.Row="0" Grid.Column="1" FontWeight="ExtraBold" TextWrapping="Wrap" FontSize="20" Margin="10, 0, 0, 0" HorizontalAlignment="Left"/>
+                                                            <!--описание-->
+                                                            <TextBlock Text="{Binding dishes.description}" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="10, 0, 0, 0" Foreground="Gray" FontStyle="Italic" TextWrapping="Wrap" FontWeight="DemiBold"/>
+
+                                                            <!--цена-->
+                                                            <Grid Grid.Row="2" Grid.Column="1" Margin="10, 0, 0, 0">
+
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="50*"/>
+                                                                    <ColumnDefinition Width="50*"/>
+                                                                </Grid.ColumnDefinitions>
+
+                                                                <Grid Grid.Column="0" HorizontalAlignment="Left">
+                                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0, 0, 0, 0">
+                                                                        <TextBlock Text="{Binding dishes.price}" Margin="0, 0, 0,0" FontWeight="Bold" FontSize="18"/>
+                                                                        <TextBlock Text=" ₽" Margin="0, 0, 0,0" FontWeight="Bold" FontSize="18"/>
+                                                                    </StackPanel>
+                                                                </Grid>
+
+                                                                <Grid Grid.Column="1" HorizontalAlignment="Right" Margin="0, 0, 0, 0">
+                                                                    <!--Кол-во в корзине-->
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <TextBlock Text="Количество: " Margin="0, 0, 0, 0" VerticalAlignment="Center"  Foreground="Gray" FontStyle="Italic" FontWeight="DemiBold" FontSize="16"/>
+                                                                        <TextBlock Text="{Binding quantity}" Margin="0, 0, 0, 0" VerticalAlignment="Center"  Foreground="Gray" FontStyle="Italic" FontWeight="DemiBold" FontSize="16"/>
+                                                                    </StackPanel>
+                                                                </Grid>
+
+                                                            </Grid>
+
+
+
+                                                        </Grid>
+
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+
+                                </Grid>
+
+                            </Grid>
+                        </Border>
+
+                        <!--данные при оформлении-->
+                        <Grid Grid.Row="2" Margin="0, 30, 0, 0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0">
+                                <!--персональные данные клиента-->
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="50"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Text="Контактная информация получателя" Margin="30, 0, -200, 0" FontSize="30" FontWeight="Bold"/>
+
+                                <Grid Grid.Row="1" Margin="30, 0, 0, 0">
+                                    <!--имя-->
+                                    <StackPanel>
+                                        <CheckBox x:Name="MaterialDesignFilledTextBoxTextCountComboBox" Content="" IsChecked="True" Visibility="Hidden"/>
+                                        <TextBox
+                                    VerticalAlignment="Top" x:Name="ClientName"
+                                    Text="{Binding OutClientName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    materialDesign:HintAssist.Hint="Имя"
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    MaxLength="50"
+                                    Style="{StaticResource MaterialDesignFilledTextBox}"
+                                    TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid Grid.Row="1" Grid.Column="1" Margin="60, 15, 0, 0">
+                                    <Button Content="Автозаполнение" Command="{Binding AutofillAdsress}"/>
+                                </Grid>
+
+                                <Grid Grid.Row="2" Margin="30, 10, 0, 0">
+                                    <!--фамилия-->
+                                    <StackPanel>
+                                        <CheckBox x:Name="MaterialDesignFilledTextBoxTextCountComboBox1" Content="" IsChecked="True" Visibility="Hidden"/>
+                                        <TextBox
+                                    VerticalAlignment="Top" x:Name="ClientSurname"
+                                    Text="{Binding OutClientSurname, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                    materialDesign:HintAssist.Hint="Фамилия"
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    MaxLength="100"
+                                    Style="{StaticResource MaterialDesignFilledTextBox}"
+                                    TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid Grid.Row="3" Margin="30, 10, 0, 0">
+                                    <!--отчество-->
+                                    <StackPanel>
+                                        <CheckBox x:Name="MaterialDesignFilledTextBoxTextCountComboBox2" Content="" IsChecked="True" Visibility="Hidden"/>
+                                        <TextBox
+                                    VerticalAlignment="Top" x:Name="ClientPatronymic"
+                                    Text="{Binding OutClientPatronymic, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                    materialDesign:HintAssist.Hint="Отчество"
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    MaxLength="50"
+                                    Style="{StaticResource MaterialDesignFilledTextBox}"
+                                    TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid Grid.Row="4" Margin="30, 10, 0, 0">
+                                    <!--номер телефона-->
+                                    <StackPanel>
+                                        <CheckBox x:Name="MaterialDesignFilledTextBoxTextCountComboBox3" Content="" IsChecked="True" Visibility="Hidden"/>
+                                        <TextBox
+                                    VerticalAlignment="Top" x:Name="ClientNumberPhone"
+                                    Text="{Binding OutClientNumberPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                    materialDesign:HintAssist.Hint="Номер телефона"
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    MaxLength="11"
+                                    Style="{StaticResource MaterialDesignFilledTextBox}"
+                                    TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid Grid.Row="5" Margin="30, 10, 0, 0">
+                                    <!--электронная почта-->
+                                    <StackPanel>
+                                        <CheckBox x:Name="MaterialDesignFilledTextBoxTextCountComboBox4" Content="" IsChecked="True" Visibility="Hidden"/>
+                                        <TextBox
+                                    VerticalAlignment="Top" x:Name="ClientEmail"
+                                    Text="{Binding OutClientEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                    materialDesign:HintAssist.Hint="Email (Необязательно)"
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    MaxLength="150"
+                                    Style="{StaticResource MaterialDesignFilledTextBox}"
+                                    TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Grid>
+
+                            </Grid>
+
+                            <Grid Grid.Row="1" Margin="0, 30, 0, 0">
+                                <!--адрес-->
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="50"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Text="Адрес доставки" Margin="30, 0, 115, 0" FontSize="30" FontWeight="Bold"/>
+
+                                <Grid Grid.Row="1" Margin="30, 0, 0, 0">
+                                    <!--город-->
+                                    <StackPanel>
+                                        <CheckBox x:Name="MaterialDesignFilledTextBoxTextCountComboBox5" Content="" IsChecked="True" Visibility="Hidden"/>
+                                        <TextBox
+                                    VerticalAlignment="Top" x:Name="ClientCity"
+                                    Text="{Binding OutClientCity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    materialDesign:HintAssist.Hint="Город"
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    MaxLength="50"
+                                    Style="{StaticResource MaterialDesignFilledTextBox}"
+                                    TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid Grid.Row="2" Margin="30, 10, 0, 0">
+                                    <!--улица-->
+                                    <StackPanel>
+                                        <CheckBox x:Name="MaterialDesignFilledTextBoxTextCountComboBox6" Content="" IsChecked="True" Visibility="Hidden"/>
+                                        <TextBox
+                                    VerticalAlignment="Top" x:Name="ClientStreet"
+                                    Text="{Binding OutClientStreet, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                    materialDesign:HintAssist.Hint="Улица"
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    MaxLength="50"
+                                    Style="{StaticResource MaterialDesignFilledTextBox}"
+                                    TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid Grid.Row="3" Margin="30, 10, 0, 0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <!--дом-->
+                                        <StackPanel Margin="0, 0, 0, 0" Width="165">
+                                            <CheckBox x:Name="MaterialDesignFilledTextBoxTextCountComboBox7" Content="" IsChecked="True" Visibility="Hidden"/>
+                                            <TextBox
+                                        VerticalAlignment="Top" x:Name="ClientHouse"
+                                        Text="{Binding OutClientHouse, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                        materialDesign:HintAssist.Hint="Дом"
+                                        materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
+                                        materialDesign:TextFieldAssist.HasClearButton="True"
+                                        MaxLength="5"
+                                                Style="{StaticResource MaterialDesignFilledTextBox}"
+                                        TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                        <!--квартира-->
+                                        <StackPanel Orientation="Vertical">
+                                            <StackPanel Margin="17, 0, 0, 0" Width="165">
+                                                <CheckBox x:Name="MaterialDesignFilledTextBoxTextCountComboBox8" Content="" IsChecked="True" Visibility="Hidden"/>
+                                                <TextBox
+                                            VerticalAlignment="Top" x:Name="ClientApartment"
+                                            Text="{Binding OutClientApartment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                                            materialDesign:HintAssist.Hint="Квартира"
+                                            materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
+                                            materialDesign:TextFieldAssist.HasClearButton="True"
+                                            MaxLength="5"
+                                                    Style="{StaticResource MaterialDesignFilledTextBox}"
+                                            TextWrapping="Wrap">
+                                                </TextBox>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                    </StackPanel>
+                                </Grid>
+
+                                <!--желаемое время доставки-->
+                                <Grid Grid.Row="4" Margin="30,0, 0, 0">
+
+                                </Grid>
+
+                                <Grid Grid.Row="5" Margin="30, 0, 0, 0">
+
+                                </Grid>
+
+                            </Grid>
+
+                            <Grid Grid.Row="2" Margin="0, 30, 0, 0">
+
+                                <!--детали заказа-->
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="50"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Text="Детали заказа" Margin="30, 0, 115, 0" FontSize="30" FontWeight="Bold"/>
+
+                                <Grid Grid.Row="1" Grid.Column="0" Margin="30, 10, 0, 0" HorizontalAlignment="Stretch">
+
+                                    <TextBlock  HorizontalAlignment="Center" Text="Желаемая дата и время доставки" Margin="0, 0, 0, 0" FontSize="16" FontWeight="Bold"/>
+
+                                </Grid>
+
+                                <Grid Grid.Row="2" Margin="30, 10, 0, 0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Orientation="Vertical">
+
+                                            <StackPanel >
+                                                <!--дата-->
+                                                <DatePicker
+                                  Width="320" 
+                                  x:Name="DeliveryDate" Language="Rus" SelectedDateFormat="Short"                  
+                                  materialDesign:DatePickerAssist.OutlinedBorderActiveThickness="3"
+                                  materialDesign:DatePickerAssist.OutlinedBorderInactiveThickness="1"
+                                  materialDesign:HintAssist.FloatingOffset="0,-23"
+                                  materialDesign:HintAssist.Hint="Дата"
+                                  SelectedDate="{Binding SelectedDate, Mode=TwoWay}" PreviewTextInput="DeliveryDateAndTime"
+                                  Style="{StaticResource MaterialDesignOutlinedDatePicker}"/>
+                                            </StackPanel>
+
+                                            <!--начало времени доставки-->
+                                            <materialDesign:TimePicker
+                                                    Grid.Row="1" Grid.Column="1" Margin="0,10,0,0"
+                                                    Width="320" x:Name="StartDesiredDeliveryTime"
+                                                    materialDesign:HintAssist.FloatingOffset="0,-23"
+                                                    materialDesign:HintAssist.Hint="Время доставки от" 
+                                                    SelectedTimeFormat="Short" PreviewTextInput="DeliveryDateAndTime"
+                                                    materialDesign:TimePickerAssist.OutlinedBorderActiveThickness="3"
+                                                    materialDesign:TimePickerAssist.OutlinedBorderInactiveThickness="1"
+                                                    SelectedTime="{Binding SelectedStartTimeDelivery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    Style="{StaticResource MaterialDesignOutlinedTimePicker}"
+                                                    Is24Hours="True"/>
+
+                                            <!--конец времени доставки-->
+                                            <materialDesign:TimePicker 
+                                                    Grid.Row="2" Grid.Column="1" Margin="0,10,0,0"
+                                                    Width="320" x:Name="EndDesiredDeliveryTime"
+                                                    materialDesign:HintAssist.FloatingOffset="0,-23"
+                                                    materialDesign:HintAssist.Hint="Время доставки до" IsEnabled="False"
+                                                    SelectedTimeFormat="Short" PreviewTextInput="DeliveryDateAndTime"
+                                                    materialDesign:TimePickerAssist.OutlinedBorderActiveThickness="3"
+                                                    materialDesign:TimePickerAssist.OutlinedBorderInactiveThickness="1"
+                                                    SelectedTime="{Binding SelectedEndTimeDelivery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    Style="{StaticResource MaterialDesignOutlinedTimePicker}"
+                                                    Is24Hours="True"/>
+
+                                        </StackPanel>
+
+                                    </Grid>
+
+                                </Grid>
+
+                                <Grid Grid.Row="3" Margin="30, 20, 0, 0">
+
+                                    <TextBlock  HorizontalAlignment="Center" Text="Способ оплаты" Margin="0, 0, 0, 0" FontSize="17" FontWeight="Bold"/>
+
+                                </Grid>
+
+                                <!--тип оплаты-->
+                                <Grid Grid.Row="4" Margin="0, 15, 0, 0" HorizontalAlignment="Center">
+
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 0, 0, 0">
+                                        <RadioButton Margin="0, 0, 10, 0" FontSize="16" Padding="5, 0, 0, 2" FontWeight="DemiBold"
+       Content="Наличные" GroupName="pay" IsChecked="{Binding IsOptionCashSelected}"
+       Style="{StaticResource MaterialDesignRadioButton}"
+       Tag="True">
+                                        </RadioButton>
+
+                                        <RadioButton Margin="10, 0, 0, 0" FontSize="16" Padding="5, 0, 0, 2" FontWeight="DemiBold"
+       Content="Карта" GroupName="pay" IsChecked="{Binding IsOptionCardSelected}"
+       Style="{StaticResource MaterialDesignRadioButton}"
+       Tag="True">
+                                        </RadioButton>
+                                    </StackPanel>
+
+                                </Grid>
+
+
+                                <Grid Grid.Row="5" Margin="30, 0, 0, 0">
+                                    <!--сдача от суммы-->
+                                    <StackPanel>
+                                        <CheckBox x:Name="MaterialDesignFilledTextBoxTextCountComboBox9" Content="" IsChecked="False" Visibility="Hidden"/>
+                                        <TextBox x:Name="AmountChange"
+                                    VerticalAlignment="Top"
+                                    IsEnabled="{Binding IsFieldVisibilityTypePayment, Converter={StaticResource InvertBooleanConverter}}"
+                        Text="{Binding OutAmountChange, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    materialDesign:HintAssist.Hint="Подготовть сдачу с суммы"
+                                    materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
+                                    materialDesign:TextFieldAssist.HasClearButton="True"
+                                    MaxLength="4"
+                                    Style="{StaticResource MaterialDesignFilledTextBox}"
+                                    TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Grid>
+
+                            </Grid>
+
+                            <!--итог-->
+                            <Grid Grid.Row="3" Margin="0, 0, 0, 0">
+                                <Grid.Resources>
+                                    <!--<local1:ShoppingCartViewModel x:Key="CartViewModel"/>
+                                    <local1:OrderViewModel x:Key="OrderViewModel"/>-->
+                                </Grid.Resources>
+                                <!--детали заказа-->
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="50"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Grid Grid.Row="1" Margin="30, 10, 0, 0">
+
+
+                                </Grid>
+
+                                <Grid Grid.Row="0" Margin="30, 0, 0, 0">
+
+                                </Grid>
+
+                            </Grid>
+
+                        </Grid>
+
+                        <!--поле для вывода ошибок-->
+                        <TextBlock Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                Text="{Binding ErrorInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Margin="400,-500,0,0" x:Name="ErrorInput" FontWeight="DemiBold" FontSize="20"/>
+
+                        <Grid Grid.Row="3" Grid.Column="2"  Margin="30, 0, 100, 30" HorizontalAlignment="Right">
+                            <StackPanel Orientation="Vertical" Margin="0">
+
+
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                    <TextBlock Text="Сумма заказа:  " FontSize="30" FontWeight="Bold"/>
+
+                                    <TextBox x:Name="FinalPrice"  Text="{Binding FinalPrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  FontSize="30" FontWeight="Bold" Padding="0, 0, 0, 0"  IsHitTestVisible="False" />
+
+                                    <TextBlock Text="₽" FontSize="30" FontWeight="Bold"/>
+                                </StackPanel>
+
+                                <!--проверка-->
+                                <StackPanel Orientation="Horizontal"  Margin="0, 20, 0, 15">
+                                    <TextBlock  HorizontalAlignment="Center" Text="Подтвердите оформление заказ" Margin="0, 0, 0, 0" FontSize="17" Foreground="#707070" FontWeight="Bold"/>
+
+                                    <CheckBox x:Name="myCheckBox" Margin="10, 5, 0, 0"/>
+                                </StackPanel>
+
+                                <Button x:Name="submitButton" Content="Оформить заказ" Width="290" Height="50" IsEnabled="{Binding IsChecked, ElementName=myCheckBox, Mode=TwoWay}" Command="{Binding Btn_MakingOrders}"/>
+
+                            </StackPanel>
+
+                        </Grid>
+
+                    </Grid>
+                </Border>
+
+
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</Page>

@@ -133,7 +133,7 @@ namespace Food_Delivery
                     {
                         await Task.Run(async () =>
                         {
-                            await Task.Delay(1000); // Ждем завершения загрузки
+                            await Task.Delay(10); // Ждем завершения загрузки
                             System.Windows.Application.Current.Dispatcher.Invoke(() =>
                             {
                                 mainFrame.Navigate(mainMenuPage = new MainMenuPage());
@@ -145,7 +145,7 @@ namespace Food_Delivery
                     {
                         await Task.Run(async () =>
                         {
-                            await Task.Delay(1000); // Ждем завершения загрузки
+                            await Task.Delay(10); // Ждем завершения загрузки
                             System.Windows.Application.Current.Dispatcher.Invoke(() =>
                             {
                                 mainFrame.Navigate(mainMenuServicePage = new MainMenuServicePage());
@@ -159,7 +159,7 @@ namespace Food_Delivery
                 // запус страницы авторизации
                 await Task.Run(async () =>
                 {
-                    await Task.Delay(1000); // Ждем завершения загрузки
+                    await Task.Delay(10); // Ждем завершения загрузки
                     System.Windows.Application.Current.Dispatcher.Invoke(() =>
                     {
                         mainFrame.Navigate(authorizationPage = new AuthorizationPage());
