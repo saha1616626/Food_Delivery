@@ -22,6 +22,256 @@
     </Page.Resources>
 
     <Grid DataContext="{StaticResource CustomerOrdersViewModel}">
-        <TextBlock Text="fds" FontSize="100" Margin="100"/>
+
+        <ScrollViewer Margin="0, 100, 0, 0" HorizontalAlignment="Stretch">
+            <!--прокрутка страницы-->
+            <Grid Background="Transparent">
+                <!--содержимое страницы-->
+                <!--стили-->
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!--Заголовок-->
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="СПИСОК ЗАКАЗОВ" FontSize="30" FontWeight="Bold" Margin="0, 20, 0, 0" HorizontalAlignment="Center"/>
+
+                <!--заголовок таблицы-->
+                <Grid Grid.Row="1" Grid.Column="0" Background="#FFF1F1F1" Margin="0, 30, 16.8, 0" Width="750" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Дата" Grid.Column="0" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0, 0, 0, 0" FontWeight="Bold"/>
+                    <TextBlock Text="Сумма" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0, 0, 0, 0" FontSize="18" FontWeight="Bold"/>
+                    <TextBlock Text="Статус" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0, 0, 0, 0" FontSize="18" FontWeight="Bold"/>
+                </Grid>
+
+                <!--список заказов-->
+                <ItemsControl ItemsSource="{Binding ListOrders}" Grid.Row="2" Grid.Column="0" Margin="0, 0, 17, 200">
+                    <!--привязка заказа-->
+
+                    <!--расположение элементов списка-->
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Vertical" HorizontalAlignment="Center"/>
+                            <!--товары добавляются вертикально в центр-->
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Expander Width="750" Margin="0, 2, 0, 0" BorderBrush="Black" BorderThickness="0.5">
+                                <Expander.Header>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0" Text="{Binding dateTime, StringFormat='dd-MM-yyyy HH:mm'}" HorizontalAlignment="Center" Margin="0, 0, 25, 0" FontSize="16" FontWeight="DemiBold"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding costPrice}" HorizontalAlignment="Center" Margin="20, 0, 0, 0" FontSize="16" FontWeight="DemiBold"/>
+                                        <TextBlock Grid.Column="1" Text="₽" HorizontalAlignment="Center" Margin="67, 0, 0, 0" FontSize="16" FontWeight="DemiBold"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding statusName}" HorizontalAlignment="Center" Margin="30, 0, 0, 0" FontSize="16" FontWeight="DemiBold"/>
+                                    </Grid>
+                                </Expander.Header>
+                                <Border>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="50*"/>
+                                            <ColumnDefinition Width="50*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!--информация о заказчике-->
+
+                                        <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" Margin="0, 0, 0, 0">
+
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="375"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <TextBlock Grid.Row="0" Text="Информация о заказчике" FontWeight="Bold" FontSize="16" Margin="0, 15, 0, 10" HorizontalAlignment="Center"/>
+
+                                            <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Left" Margin="20, 0, 0, 0">
+
+                                                <StackPanel Orientation="Horizontal" Margin="0, 5, 0, 5">
+                                                    <TextBlock Text="Имя: " FontSize="14" FontWeight="DemiBold"/>
+                                                    <TextBlock Text="{Binding name}" FontSize="14" TextWrapping="Wrap"/>
+                                                </StackPanel>
+
+                                                <StackPanel Orientation="Horizontal" Margin="0, 5, 0, 5">
+                                                    <TextBlock Text="Фамилия: " FontSize="14" FontWeight="DemiBold"/>
+                                                    <TextBlock Text="{Binding surname}" FontSize="14" TextWrapping="Wrap"/>
+                                                </StackPanel>
+
+                                                <StackPanel Orientation="Horizontal" Margin="0, 5, 0, 5">
+                                                    <TextBlock Text="Отчество: " FontSize="14" FontWeight="DemiBold"/>
+                                                    <TextBlock Text="{Binding patronymic}" FontSize="14" TextWrapping="Wrap"/>
+                                                </StackPanel>
+
+                                                <StackPanel Orientation="Horizontal" Margin="0, 5, 0, 5">
+                                                    <TextBlock Text="Номер телефона: " FontSize="14" FontWeight="DemiBold"/>
+                                                    <TextBlock Text="{Binding numberPhone}" FontSize="14" TextWrapping="Wrap"/>
+                                                </StackPanel>
+
+                                            </StackPanel>
+
+                                        </Grid>
+
+                                        <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Margin="0, 0, 0, 0">
+
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="375"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <TextBlock Grid.Row="0" Text="Адрес заказчика" FontWeight="Bold" FontSize="16" Margin="0, 15, 0, 10" HorizontalAlignment="Center"/>
+
+                                            <StackPanel Grid.Row="1" Orientation="Vertical"  HorizontalAlignment="Left" Margin="20, 0, 0, 0">
+
+                                                <StackPanel Orientation="Horizontal" Margin="0, 5, 0, 5">
+                                                    <TextBlock Text="Город: " FontSize="14" FontWeight="DemiBold"/>
+                                                    <TextBlock Text="{Binding city}" FontSize="14" TextWrapping="Wrap"/>
+                                                </StackPanel>
+
+                                                <StackPanel Orientation="Horizontal" Margin="0, 5, 0, 5">
+                                                    <TextBlock Text="Улица: " FontSize="14" FontWeight="DemiBold"/>
+                                                    <TextBlock Text="{Binding street}" FontSize="14" TextWrapping="Wrap"/>
+                                                </StackPanel>
+
+                                                <StackPanel Orientation="Horizontal" Margin="0, 5, 0, 5">
+                                                    <TextBlock Text="Дом: " FontSize="14" FontWeight="DemiBold"/>
+                                                    <TextBlock Text="{Binding house}" FontSize="14" TextWrapping="Wrap"/>
+                                                </StackPanel>
+
+                                                <StackPanel Orientation="Horizontal" Margin="0, 5, 0, 5">
+                                                    <TextBlock Text="Квартира: " FontSize="14" FontWeight="DemiBold"/>
+                                                    <TextBlock Text="{Binding apartment}" FontSize="14" TextWrapping="Wrap"/>
+                                                </StackPanel>
+
+                                            </StackPanel>
+
+                                        </Grid>
+
+                                        <!--закзанные товары-->
+                                        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" Margin="0, 10, 0, 30">
+                                            <Expander Header="Список товаров" FontWeight="Bold" Width="750">
+                                                <Grid>
+                                                    <!--список заказанных товаров-->
+                                                    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                                                        <ItemsControl ItemsSource="{Binding compositionOrder}">
+                                                            <!--расположение элементов списка-->
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate>
+                                                                    <WrapPanel Orientation="Vertical" HorizontalAlignment="Center"/>
+                                                                    <!--товары добавляются вертикально в центр-->
+                                                                </ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+
+                                                            <ItemsControl.ItemTemplate>
+                                                                <!--шаблон элементов-->
+                                                                <DataTemplate>
+                                                                    <!--шаблон данных (внешний вид списка)-->
+                                                                    <Border BorderBrush="Gray" BorderThickness="1" Margin="10, 10, 10, 0" Padding="10" CornerRadius="10" Height="100" Width="600" Background="#f5ebb8">
+                                                                        <!--граница перед элементами-->
+
+                                                                        <!--разметка элементов списка-->
+                                                                        <Grid>
+                                                                            <Grid.ColumnDefinitions>
+                                                                                <ColumnDefinition Width="15*"/>
+                                                                                <ColumnDefinition Width="50*"/>
+                                                                                <ColumnDefinition Width="2*"/>
+                                                                            </Grid.ColumnDefinitions>
+                                                                            <Grid.RowDefinitions>
+                                                                                <RowDefinition Height="30*"/>
+                                                                                <RowDefinition Height="40*"/>
+                                                                                <RowDefinition Height="20*"/>
+                                                                            </Grid.RowDefinitions>
+
+                                                                            <!--изображение-->
+                                                                            <Image Source="{Binding image}" Width="65" Height="65" Margin="0, 0, 3, 0" Grid.RowSpan="3" Grid.Column="0" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                            <!--название-->
+                                                                            <TextBlock Text="{Binding nameDishes}" Grid.Row="0" Grid.Column="1" FontWeight="ExtraBold" TextWrapping="Wrap" FontSize="16" Margin="10, 0, 0, 0" HorizontalAlignment="Left"/>
+                                                                            <!--описание-->
+                                                                            <TextBlock Text="{Binding descriptionDishes}" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="10, 0, 0, 0" Foreground="Gray" FontStyle="Italic" TextWrapping="Wrap" FontWeight="DemiBold"/>
+
+                                                                            <!--цена-->
+                                                                            <Grid Grid.Row="2" Grid.Column="1" Margin="10, 0, 0, 0">
+
+                                                                                <Grid.ColumnDefinitions>
+                                                                                    <ColumnDefinition Width="50*"/>
+                                                                                    <ColumnDefinition Width="50*"/>
+                                                                                </Grid.ColumnDefinitions>
+
+                                                                                <Grid Grid.Column="0" HorizontalAlignment="Left">
+                                                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0, 0, 0, 0">
+                                                                                        <TextBlock Text="{Binding price}" Margin="0, 0, 0,0" FontWeight="Bold" FontSize="16"/>
+                                                                                        <TextBlock Text=" ₽" Margin="0, 0, 0,0" FontWeight="Bold" FontSize="16"/>
+                                                                                    </StackPanel>
+                                                                                </Grid>
+
+                                                                                <Grid Grid.Column="1" HorizontalAlignment="Right" Margin="0, 0, 0, 0">
+                                                                                    <!--Кол-во в заказе-->
+                                                                                    <StackPanel Orientation="Horizontal">
+                                                                                        <TextBlock Text="Количество: " Margin="0, 0, 0, 0" VerticalAlignment="Center"  Foreground="Gray" FontStyle="Italic" FontWeight="DemiBold" FontSize="14"/>
+                                                                                        <TextBlock Text="{Binding quantity}" Margin="0, 0, 0, 0" VerticalAlignment="Center"  Foreground="Gray" FontStyle="Italic" FontWeight="DemiBold" FontSize="14"/>
+                                                                                    </StackPanel>
+                                                                                </Grid>
+
+                                                                            </Grid>
+
+                                                                        </Grid>
+
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+
+                                                        </ItemsControl>
+                                                    </ScrollViewer>
+                                                </Grid>
+                                            </Expander>
+                                        </Grid>
+
+                                    </Grid>
+                                </Border>
+                            </Expander>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+
+                </ItemsControl>
+
+
+            </Grid>
+        </ScrollViewer>
+
     </Grid>
 </Page>

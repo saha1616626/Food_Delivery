@@ -37,7 +37,7 @@
         <Grid Background="AliceBlue" >
             <ScrollViewer >
 
-                <ItemsControl ItemsSource="{Binding ListProductView}" Margin="0,0,0,195" HorizontalAlignment="Left"
+                <ItemsControl ItemsSource="{Binding ListProductView}" Margin="0,0,0,195" HorizontalAlignment="Center"
                               VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -49,7 +49,7 @@
                                     </Grid.RowDefinitions>
 
                                     <!-- Заголовок категории -->
-                                    <TextBlock Text="{Binding name}" FontWeight="Bold" FontSize="25" Margin="30,10,0,0"/>
+                                    <TextBlock Text="{Binding name}" FontWeight="Bold" FontSize="25" Margin="30,10,0,5"/>
 
                                     <!-- Товары для данной категории -->
                                     <ItemsControl Grid.Row="1" ItemsSource="{Binding Disheses}">

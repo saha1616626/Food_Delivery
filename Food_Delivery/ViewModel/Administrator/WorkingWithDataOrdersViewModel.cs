@@ -410,7 +410,7 @@ namespace Food_Delivery.ViewModel.Administrator
                                                     compositionOrder.dishesId = item.dishesId;
                                                 }
                                                 compositionOrder.nameDishes = item.nameDishes;
-                                                if (string.IsNullOrWhiteSpace(item.descriptionDishes))
+                                                if (item.descriptionDishes != null)
                                                 {
                                                     compositionOrder.descriptionDishes = item.descriptionDishes;
                                                 }
@@ -528,7 +528,7 @@ namespace Food_Delivery.ViewModel.Administrator
                                                     compositionOrder.dishesId = item.dishesId;
                                                 }
                                                 compositionOrder.nameDishes = item.nameDishes;
-                                                if (string.IsNullOrWhiteSpace(item.descriptionDishes))
+                                                if (item.descriptionDishes != null)
                                                 {
                                                     compositionOrder.descriptionDishes = item.descriptionDishes;
                                                 }

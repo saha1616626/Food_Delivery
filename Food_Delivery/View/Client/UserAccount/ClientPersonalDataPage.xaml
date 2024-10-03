@@ -22,6 +22,6 @@
     </Page.Resources>
 
     <Grid DataContext="{StaticResource ClientPersonalDataViewModel}">
-        <TextBlock Text="12121212121212121" FontSize="100" Margin="100"/>
+        
     </Grid>
 </Page>

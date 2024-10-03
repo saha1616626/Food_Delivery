@@ -69,24 +69,29 @@ namespace Food_Delivery.ViewModel.Client
                         // добавляем найденные товары в данную группу
                         foreach (var itemDishes in dishes)
                         {
-                            DishesDPO dishesDPO = new DishesDPO();
-                            dishesDPO = await dishesDPO.CopyFromDishes(itemDishes);
-
-                            // если товар есть у пользователя в корзине, то мы отображаем кнопки изменения кол-во в корзине
-                            if (await CheckingProductShoppingCart(dishesDPO))
+                            // проверка на стоп лист
+                            if (!itemDishes.stopList)
                             {
-                                // если есть товар
-                                dishesDPO.IsAddedToCart = true;
-                            }
-                            else
-                            {
-                                dishesDPO.IsAddedToCart = false;
-                            }
 
-                            // изменяем кол-во товара в корзине
-                            dishesDPO.numberIitemsCart = await WeGetQuantityProductBasket(dishesDPO);
+                                DishesDPO dishesDPO = new DishesDPO();
+                                dishesDPO = await dishesDPO.CopyFromDishes(itemDishes);
 
-                            productViewDPO.Disheses.Add(dishesDPO);
+                                // если товар есть у пользователя в корзине, то мы отображаем кнопки изменения кол-во в корзине
+                                if (await CheckingProductShoppingCart(dishesDPO))
+                                {
+                                    // если есть товар
+                                    dishesDPO.IsAddedToCart = true;
+                                }
+                                else
+                                {
+                                    dishesDPO.IsAddedToCart = false;
+                                }
+
+                                // изменяем кол-во товара в корзине
+                                dishesDPO.numberIitemsCart = await WeGetQuantityProductBasket(dishesDPO);
+
+                                productViewDPO.Disheses.Add(dishesDPO);
+                            }
                         }
 
                         // добавляем товар в список

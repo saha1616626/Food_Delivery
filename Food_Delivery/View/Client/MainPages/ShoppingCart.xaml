@@ -56,7 +56,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Grid Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Margin="0,0,0,0">
+            <Grid Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Margin="0,0,0,70">
 
                 <!--список товаров корзины-->
                 <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Center">

@@ -231,7 +231,7 @@ namespace Food_Delivery.Model.DPO
             using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
             {
                 List<OrderStatus> orderStatuses = await foodDeliveryContext.OrderStatus.ToListAsync(); // получаем список статусов заказов
-                List<CompositionOrder> compositionOrders = await foodDeliveryContext.CompositionOrders.ToListAsync(); // получаем список блюд
+                List<CompositionOrder> compositionOrders = await foodDeliveryContext.CompositionOrders.Where(c => c.orderId == order.id).ToListAsync(); // получаем список блюд
                 List<CompositionOrder> dishesOrder = await Task.Run(() => compositionOrders.FindAll(d => d.orderId == order.id));
                 if(dishesOrder.Count > 0)
                 {
@@ -247,6 +247,15 @@ namespace Food_Delivery.Model.DPO
                     if(status != null)
                     {
                         orderDPO.statusName = status.name;
+                    }
+                }
+
+                if(compositionOrders != null)
+                {
+                    // получаем список товаров в заказе
+                    foreach (CompositionOrder item in compositionOrders)
+                    {
+                        orderDPO.compositionOrder.Add(item);
                     }
                 }
             }

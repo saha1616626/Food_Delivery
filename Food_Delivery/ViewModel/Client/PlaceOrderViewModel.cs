@@ -421,7 +421,7 @@ namespace Food_Delivery.ViewModel.Client
                                                             compositionOrder.dishesId = item.dishesId;
                                                         }
                                                         compositionOrder.nameDishes = dishes.name;
-                                                        if (string.IsNullOrWhiteSpace(dishes.description))
+                                                        if (dishes.description != null)
                                                         {
                                                             compositionOrder.descriptionDishes = dishes.description;
                                                         }
@@ -475,62 +475,63 @@ namespace Food_Delivery.ViewModel.Client
                                             List<Order> orders = await foodDeliveryContext.Orders.ToListAsync();
                                             List<CompositionCart> carts = await foodDeliveryContext.CompositionCarts.ToListAsync();
 
-                                            // сначала добавляем данные о заказе
-                                            Order order = new Order();
-                                            order.dateTime = DateTime.Now;
-
-                                            // получаем id пользователя, если заказ оформлял определенный клиент
-
-                                            order.startDesiredDeliveryTime = new DateTime(SelectedDate.Year, SelectedDate.Month,
-                                                SelectedDate.Day, SelectedStartTimeDelivery.Hour, SelectedStartTimeDelivery.Minute,
-                                                SelectedStartTimeDelivery.Second);
-                                            order.endDesiredDeliveryTime = new DateTime(SelectedDate.Year, SelectedDate.Month,
-                                                SelectedDate.Day, SelectedEndTimeDelivery.Hour, SelectedEndTimeDelivery.Minute,
-                                                SelectedEndTimeDelivery.Second);
-                                            order.orderStatusId = 1;
-                                            order.name = OutClientName.Trim();
-                                            order.surname = OutClientSurname.Trim();
-                                            if (!string.IsNullOrWhiteSpace(OutClientPatronymic))
-                                            {
-                                                order.patronymic = OutClientPatronymic.Trim();
-                                            }
-                                            order.city = OutClientCity.Trim();
-                                            order.street = OutClientStreet.Trim();
-                                            order.house = OutClientHouse.Trim();
-                                            if (!string.IsNullOrWhiteSpace(OutClientApartment))
-                                            {
-                                                order.apartment = OutClientApartment.Trim();
-                                            }
-                                            order.numberPhone = OutClientNumberPhone.Trim();
-                                            if (!string.IsNullOrWhiteSpace(OutClientEmail))
-                                            {
-                                                order.email = OutClientEmail.Trim();
-                                            }
-                                            order.costPrice = CostPrice;
-
-                                            // проверка статуса оплаты
-                                            if (IsOptionCardSelected) // если выбрана карта
-                                            {
-                                                order.typePayment = "Карта";
-                                            }
-                                            else // если выбраны наличные
-                                            {
-                                                // получаем сумму сдачи
-                                                order.typePayment = "Наличные";
-                                            }
-
-                                            if (!string.IsNullOrWhiteSpace(OutAmountChange))
-                                            {
-                                                order.prepareChangeMoney = int.Parse((string)OutAmountChange.Trim());
-                                            }
-
-                                            await foodDeliveryContext.Orders.AddAsync(order); // добавляем данные в список БД
-                                            await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных
-
                                             // получаем id пользователя
                                             int userId = await authorizationViewModel.WeGetIdUser();
                                             if (userId != 0)
                                             {
+                                                // сначала добавляем данные о заказе
+                                                Order order = new Order();
+                                                order.dateTime = DateTime.Now;
+
+                                                // получаем id пользователя, если заказ оформлял определенный клиент
+
+                                                order.startDesiredDeliveryTime = new DateTime(SelectedDate.Year, SelectedDate.Month,
+                                                    SelectedDate.Day, SelectedStartTimeDelivery.Hour, SelectedStartTimeDelivery.Minute,
+                                                    SelectedStartTimeDelivery.Second);
+                                                order.endDesiredDeliveryTime = new DateTime(SelectedDate.Year, SelectedDate.Month,
+                                                    SelectedDate.Day, SelectedEndTimeDelivery.Hour, SelectedEndTimeDelivery.Minute,
+                                                    SelectedEndTimeDelivery.Second);
+                                                order.accountId = userId;
+                                                order.orderStatusId = 1;
+                                                order.name = OutClientName.Trim();
+                                                order.surname = OutClientSurname.Trim();
+                                                if (!string.IsNullOrWhiteSpace(OutClientPatronymic))
+                                                {
+                                                    order.patronymic = OutClientPatronymic.Trim();
+                                                }
+                                                order.city = OutClientCity.Trim();
+                                                order.street = OutClientStreet.Trim();
+                                                order.house = OutClientHouse.Trim();
+                                                if (!string.IsNullOrWhiteSpace(OutClientApartment))
+                                                {
+                                                    order.apartment = OutClientApartment.Trim();
+                                                }
+                                                order.numberPhone = OutClientNumberPhone.Trim();
+                                                if (!string.IsNullOrWhiteSpace(OutClientEmail))
+                                                {
+                                                    order.email = OutClientEmail.Trim();
+                                                }
+                                                order.costPrice = CostPrice;
+
+                                                // проверка статуса оплаты
+                                                if (IsOptionCardSelected) // если выбрана карта
+                                                {
+                                                    order.typePayment = "Карта";
+                                                }
+                                                else // если выбраны наличные
+                                                {
+                                                    // получаем сумму сдачи
+                                                    order.typePayment = "Наличные";
+                                                }
+
+                                                if (!string.IsNullOrWhiteSpace(OutAmountChange))
+                                                {
+                                                    order.prepareChangeMoney = int.Parse((string)OutAmountChange.Trim());
+                                                }
+
+                                                await foodDeliveryContext.Orders.AddAsync(order); // добавляем данные в список БД
+                                                await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных
+
                                                 // получаем корзину пользователя
                                                 ShoppingCart cart = await foodDeliveryContext.ShoppingCarts.FirstOrDefaultAsync(s => s.accountId == userId);
                                                 if (cart != null)
@@ -554,7 +555,7 @@ namespace Food_Delivery.ViewModel.Client
                                                                     compositionOrder.dishesId = cartItem.dishesId;
                                                                 }
                                                                 compositionOrder.nameDishes = dishes.name;
-                                                                if (string.IsNullOrWhiteSpace(dishes.description))
+                                                                if (dishes.description != null)
                                                                 {
                                                                     compositionOrder.descriptionDishes = dishes.description;
                                                                 }
