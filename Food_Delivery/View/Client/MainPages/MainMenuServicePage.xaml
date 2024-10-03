@@ -14,6 +14,12 @@
     <Page.Resources>
         <!--связываем View и ViewModel-->
         <ViewModel:MainMenuServiceViewModel x:Key="MainMenuServiceViewModel"/>
+
+        <!--анимация подсветки полей-->
+        <Storyboard x:Key="FieldIllumination">
+            <ColorAnimation Storyboard.TargetProperty="Background.(SolidColorBrush.Color)"
+    From="#de6d6d" To="Transparent" Duration="0:0:3" AutoReverse="False"/>
+        </Storyboard>
     </Page.Resources>
 
     <Grid DataContext="{StaticResource MainMenuServiceViewModel}">
@@ -62,10 +68,10 @@
         </Grid>
 
         <!--адрес-->
-        <Grid Grid.Row="0" Grid.Column="1" x:Name="map" DataContext="{StaticResource MainMenuServiceViewModel}">
-            <Button x:Name="btnAddres" Style="{DynamicResource BtnNotBackground}" Height="40" Width="240" Padding="0, 0, 0, 0">
+        <Grid Grid.Row="0" Grid.Column="1" x:Name="map">
+            <Button Command="{Binding Btn_AdressUser}" Style="{DynamicResource BtnNotBackground}" Height="40" Width="240" Padding="0, 0, 0, 0">
                 <StackPanel Orientation="Horizontal">
-                    <TextBox TextWrapping="WrapWithOverflow" x:Name="inputAdress" Text="{Binding Path=SelectedAdress, UpdateSourceTrigger=PropertyChanged}" 
+                    <TextBox TextWrapping="WrapWithOverflow" Text="{Binding SelectedAdress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                      FontWeight="Bold" Height="40" Width="240" IsEnabled="False">
                         <TextBox.Style>
                             <Style TargetType="TextBox" BasedOn="{StaticResource TextBoxStyle}">
@@ -146,6 +152,129 @@ ToolTip="MaterialDesignOutlinedButton" />
         <!--личный кабинет и оформление заказа-->
         <Frame Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="6" Content="{Binding FramePlaceOrder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
 NavigationUIVisibility="Hidden" Panel.ZIndex="1"/>
+
+        <!--Popup адреса доставки-->
+        
+        <!--Popup выхода из аккаунта-->
+        <!-- размещение Popup относительно данного grid-->
+        <Grid x:Name="positionPopup" Grid.RowSpan="8" Grid.ColumnSpan="8" 
+HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <Popup x:Name="UserAdress" PlacementTarget="{Binding ElementName=positionPopup}" 
+    IsOpen="{Binding StartPoupUserAdress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+    Placement="Center" Grid.ColumnSpan="4" Grid.RowSpan="4" HorizontalOffset="0" 
+    VerticalOffset="-40" StaysOpen="False" Closed="MyPopup_Closed" 
+    AllowsTransparency="False" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Grid Background="Gray">
+                <!--фон-->
+                <Border Background="AliceBlue" Style="{StaticResource OutlineOfPopup}" >
+                    <Grid Width="400" Height="380">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="50"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="50*"/>
+                            <ColumnDefinition Width="50*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"  HorizontalAlignment="Center" Text="Адрес доставки" Margin="0, 10, 0, 0" FontSize="30" FontWeight="Bold"/>
+
+                        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"  HorizontalAlignment="Center" Margin="0, 5, 0, 0">
+                            <!--город-->
+                            <StackPanel>
+                                <CheckBox x:Name="MaterialDesignFilledTextBoxTextCountComboBox5" Content="" IsChecked="True" Visibility="Hidden"/>
+                                <TextBox Width="350"
+             VerticalAlignment="Top" x:Name="ClientCity"
+             Text="{Binding OutClientCity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+             materialDesign:HintAssist.Hint="Город"
+             materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
+             materialDesign:TextFieldAssist.HasClearButton="True"
+             MaxLength="50"
+             FontSize="16"
+             Style="{StaticResource MaterialDesignFilledTextBox}"
+             TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"  HorizontalAlignment="Center" Margin="0, 5, 0, 0">
+                            <!--улица-->
+                            <StackPanel>
+                                <CheckBox x:Name="MaterialDesignFilledTextBoxTextCountComboBox6" Content="" IsChecked="True" Visibility="Hidden"/>
+                                <TextBox Width="350"
+             VerticalAlignment="Top" x:Name="ClientStreet"
+             Text="{Binding OutClientStreet, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+             materialDesign:HintAssist.Hint="Улица"
+             materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
+             materialDesign:TextFieldAssist.HasClearButton="True"
+             MaxLength="50"
+             FontSize="16"
+             Style="{StaticResource MaterialDesignFilledTextBox}"
+             TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"  HorizontalAlignment="Center" Margin="0, 5, 0, 0">
+                            <StackPanel Orientation="Horizontal">
+                                <!--дом-->
+                                <StackPanel Margin="0, 0, 0, 0" Width="165">
+                                    <CheckBox x:Name="MaterialDesignFilledTextBoxTextCountComboBox7" Content="" IsChecked="True" Visibility="Hidden"/>
+                                    <TextBox
+                VerticalAlignment="Top" x:Name="ClientHouse"
+                Text="{Binding OutClientHouse, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                materialDesign:HintAssist.Hint="Дом"
+                materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
+                materialDesign:TextFieldAssist.HasClearButton="True"
+                MaxLength="5"
+                FontSize="16"
+                Style="{StaticResource MaterialDesignFilledTextBox}"
+                TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <!--квартира-->
+                                <StackPanel Orientation="Vertical" Margin="17, 0, 0, 0" Width="165">
+                                    <CheckBox x:Name="MaterialDesignFilledTextBoxTextCountComboBox8" Content="" IsChecked="True" Visibility="Hidden"/>
+                                    <TextBox
+                VerticalAlignment="Top" x:Name="ClientApartment"
+                Text="{Binding OutClientApartment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
+                materialDesign:HintAssist.Hint="Квартира"
+                materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
+                materialDesign:TextFieldAssist.HasClearButton="True"
+                MaxLength="5"
+                FontSize="16"
+                Style="{StaticResource MaterialDesignFilledTextBox}"
+                TextWrapping="Wrap">
+                                    </TextBox>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+
+                        <!--сообщение об ошибке-->
+                        <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" 
+           Text="{Binding ErrorInputPopup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Center"
+           Height="60" Width="380" TextWrapping="Wrap" Margin="0,0,0,0" x:Name="ErrorInputPopup" 
+           FontWeight="DemiBold" FontSize="18" />
+
+                        <Grid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"  HorizontalAlignment="Center" Margin="0, 65, 0, 0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <Button Grid.Row="0" Grid.Column="0" Content="Отмена" Width="150" 
+ Height="35" BorderBrush="Black" Background="Gray" Command="{Binding ClosePopup}" Margin="0,0,10,0"/>
+                            <Button x:Name="submitButton" Grid.Column="1" Content="Сохранить адрес" Width="150" Height="35" 
+                                   Margin="10,0,0,0" BorderBrush="Black" Background="Gray" Command="{Binding Btn_AddAdress}"/>
+                        </Grid>
+
+                    </Grid>
+                </Border>
+            </Grid>
+        </Popup>
 
     </Grid>
 </Page>

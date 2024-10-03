@@ -14,6 +14,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -31,6 +32,8 @@ namespace Food_Delivery.View.Client.MainPages
             InitializeComponent();
 
             _mainMenuServiceViewModel = (MainMenuServiceViewModel)this.Resources["MainMenuServiceViewModel"];
+            _mainMenuServiceViewModel.InitializeAsync((Storyboard)FindResource("FieldIllumination"), 
+            ClientCity, ClientStreet, ClientHouse, ClientApartment, ErrorInputPopup);
         }
 
         #region Popup
@@ -38,7 +41,7 @@ namespace Food_Delivery.View.Client.MainPages
         // скрыть фон при скрытие popup
         private void MyPopup_Closed(object sender, EventArgs e)
         {
-            //DarkBackground.Visibility = Visibility.Collapsed;
+            DarkBackground.Visibility = Visibility.Collapsed;
         }
 
         // после того, как Popup был закрыт, мы оповещаем систему, что не надо запускать Popup после потери фокуса на приложении

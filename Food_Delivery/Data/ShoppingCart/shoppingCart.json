@@ -3,23 +3,7 @@
     "id": 1,
     "shoppingCartId": 0,
     "dishesId": 12,
-    "quantity": 7,
-    "ShoppingCart": null,
-    "Dishes": null
-  },
-  {
-    "id": 2,
-    "shoppingCartId": 0,
-    "dishesId": 11,
-    "quantity": 2,
-    "ShoppingCart": null,
-    "Dishes": null
-  },
-  {
-    "id": 3,
-    "shoppingCartId": 0,
-    "dishesId": 13,
-    "quantity": 1,
+    "quantity": 11,
     "ShoppingCart": null,
     "Dishes": null
   }

@@ -93,6 +93,13 @@ namespace Food_Delivery.Helper
             _launchPopupAfterReceivingFocusMainMenu?.Invoke(null, new EventAggregator()); // вызываем событие в MainWindow
         }
 
+        // запускаем Popup адреса клиента или выход из учетной записи
+        public static event EventHandler<EventAggregator> _launchPopupAfterReceivingFocusMainMenuService; // подписываемся в MainMenuViewModel
+        public static void LaunchPopupAfterReceivingFocusMainMenuService()
+        {
+            _launchPopupAfterReceivingFocusMainMenuService?.Invoke(null, new EventAggregator()); // вызываем событие в MainWindow
+        }
+
         #endregion
 
         // работа над заказами

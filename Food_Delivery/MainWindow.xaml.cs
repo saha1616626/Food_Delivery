@@ -243,6 +243,12 @@ namespace Food_Delivery
                 {
                     WorkingWithData.LaunchPopupAfterReceivingFocusMainMenu(); // событие запуска Popup
                 }
+
+                // меню пользователя
+                if (data.popup == "MainMenuService")
+                {
+                    WorkingWithData.LaunchPopupAfterReceivingFocusMainMenuService(); // событие запуска Popup
+                }
             }
         }
 

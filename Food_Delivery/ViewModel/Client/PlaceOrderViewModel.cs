@@ -16,6 +16,10 @@ using MaterialDesignThemes.Wpf;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
 using System.Windows;
+using Microsoft.EntityFrameworkCore;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+using System.Net;
 
 namespace Food_Delivery.ViewModel.Client
 {
@@ -23,6 +27,7 @@ namespace Food_Delivery.ViewModel.Client
     {
         AuthorizationViewModel authorizationViewModel = new AuthorizationViewModel();
         private readonly string pathShoppingCart = @"E:\3comm\Documents\Предметы\Курс 3.2\Курсовая\Приложение\Программа\Food_Delivery\Food_Delivery\Data\ShoppingCart\shoppingCart.json";
+        private readonly string pathAddressClient = @"E:\3comm\Documents\Предметы\Курс 3.2\Курсовая\Приложение\Программа\Food_Delivery\Food_Delivery\Data\Address\AddressUnauthorizedUser.json";
 
         public PlaceOrderViewModel()
         {
@@ -116,6 +121,42 @@ namespace Food_Delivery.ViewModel.Client
             }
         }
 
+        // автозаполнение данных
+        private RelayCommand _autofillAdsress { get; set; }
+        public RelayCommand AutofillAdsress
+        {
+            get
+            {
+                return _autofillAdsress ??
+                    (_autofillAdsress = new RelayCommand(async (obj) =>
+                    {
+                        // проверяем, гость или авторизованный пользователь. 
+                        string role = await authorizationViewModel.WeGetRoleUser();
+                        if (role != null)
+                        {
+                            // получение адреса клиента
+                            string jsonAdress = File.ReadAllText(pathAddressClient);
+                            AddressUnauthorizedUser? addressUnauthorizedUser = JsonConvert.DeserializeObject<AddressUnauthorizedUser>(jsonAdress);
+                            if (addressUnauthorizedUser != null)
+                            {
+                                OutClientCity = addressUnauthorizedUser.city;
+                                OutClientStreet = addressUnauthorizedUser.street;
+                                OutClientHouse = addressUnauthorizedUser.house;
+                                if (addressUnauthorizedUser.apartment != null)
+                                {
+                                    OutClientApartment = addressUnauthorizedUser.apartment;
+                                }
+
+                            }
+                        }
+                        else if (role == "Пользователь")
+                        {
+
+                        }
+                    }, (obj) => true));
+            }
+        }
+
         // создание заказа
         private RelayCommand _btn_MakingOrders { get; set; }
         public RelayCommand Btn_MakingOrders
@@ -125,7 +166,287 @@ namespace Food_Delivery.ViewModel.Client
                 return _btn_MakingOrders ??
                     (_btn_MakingOrders = new RelayCommand(async (obj) =>
                     {
-                        // событие закрытия страницы
+                        // проверка наличия обязательных данных
+                        if (!string.IsNullOrWhiteSpace(OutClientName) && !string.IsNullOrWhiteSpace(OutClientSurname) &&
+!string.IsNullOrWhiteSpace(OutClientCity) && !string.IsNullOrWhiteSpace(OutClientStreet) &&
+!string.IsNullOrWhiteSpace(OutClientHouse) && !string.IsNullOrWhiteSpace(OutClientNumberPhone))
+                        {
+                            // проверяем корректность введенных данных
+                            bool isCheckingNumbers = false; // переменная корректности введённого номера телефона
+                            bool isCheckingHouse = false; // переменная корректности введённого дома
+                            bool isCheckingApartment = false; // переменная корректности введённой квартиры
+                            bool isCheckingEmail = false; // переменная корректности введённого Email
+                            bool isAmountChange = false; // переменная коррекности введённой суммы сдачи
+
+                            ErrorInput = ""; // очищаем поле ошибки
+
+                            // проверяем целое число в поле "Дом"
+                            isCheckingHouse = int.TryParse(OutClientHouse.Trim(), out int house);
+                            if (!isCheckingHouse) // число не получено
+                            {
+                                StartFieldIllumination(AnimationOutHouse); // подсветка поля
+                                ErrorInput = "Введите целое число!"; // сообщение с обибкой
+                            }
+
+                            // проверяем цело число в поле "Квартира"
+                            if (OutClientApartment != null && OutClientApartment.Trim() != "")
+                            {
+                                isCheckingApartment = int.TryParse(OutClientApartment.Trim(), out int apartament);
+                                if (!isCheckingApartment) // число не получено
+                                {
+                                    StartFieldIllumination(AnimationOutApartment); // подсветка поля
+                                    ErrorInput = "Введите целое число!"; // сообщение с обибкой
+                                }
+                            }
+                            else
+                            {
+                                isCheckingApartment = true; // если квартира не выбрана, то проверка пройдена, так как атрибут не обязатльный
+                            }
+
+                            // проверяем цело число в поле "Номер телефона"
+                            isCheckingNumbers = (double.TryParse(OutClientNumberPhone.Trim(), out double number));
+                            if (!isCheckingNumbers) // если все числа корректны
+                            {
+                                StartFieldIllumination(AnimationOutNumberPhone); // подсветка поля
+                                ErrorInput += "\nФормат номера телефона нарушен! Только цифры!"; // сообщение с ошибкой
+                            }
+                            else
+                            {
+                                if (OutClientNumberPhone.Trim().Length == 11) // проверяем на кол-во цифр в номере телефона
+                                {
+                                    if (OutClientNumberPhone.Trim().StartsWith("7")) // проверка на 7 в начале
+                                    {
+
+                                    }
+                                    else
+                                    {
+                                        isCheckingNumbers = false;
+                                        StartFieldIllumination(AnimationOutNumberPhone); // подсветка поля
+                                        ErrorInput += "\nНомер телефона должен начинаться с \"7\"!"; // сообщение с ошибкой
+                                    }
+                                }
+                                else
+                                {
+                                    isCheckingNumbers = false;
+                                    StartFieldIllumination(AnimationOutNumberPhone); // подсветка поля
+                                    ErrorInput += "\nФормат номера телефона нарушен! 11 цифр!"; // сообщение с ошибкой
+                                }
+                            }
+
+                            // проверяем Email, если введен
+                            if (OutClientEmail != null && OutClientEmail.Trim() != "")
+                            {
+                                if (!OutClientEmail.Contains("@"))
+                                {
+                                    StartFieldIllumination(AnimationOutEmail); // подсветка поля
+                                    ErrorInput += "\nФормат Email нарушен! Нет знака \"@\"!"; // сообщение с ошибкой
+                                }
+                            }
+                            else
+                            {
+                                isCheckingEmail = true;
+                            }
+
+
+                            // проверяем сумму сдачи, если выбраны наличные
+                            if (!string.IsNullOrWhiteSpace(OutAmountChange))
+                            {
+                                isAmountChange = int.TryParse(OutAmountChange.Trim(), out int amount);
+                                if (!isAmountChange)
+                                {
+                                    StartFieldIllumination(AnimationAmountChange); // подсветка поля
+                                    ErrorInput += "\nВведите целое число!"; // сообщение с ошибкой
+                                }
+                            }
+                            else
+                            {
+                                isAmountChange = true; //если поле не заполнено, то условие успешно,
+                                                       //так как данные не обязательны для заполнения
+                            }
+
+                            BeginFadeAnimation(AnimationErrorInput); // затухание сообщения об ошибке
+
+                            // проверка формата данных
+                            if (isCheckingNumbers && isCheckingApartment && isCheckingHouse && isCheckingEmail && isAmountChange)
+                            {
+                                // все данные введены корректно
+                                // создаём заказ
+                                // проверяем, гость или авторизованный пользователь. Если гость, то добавляем данные в JSON, инчае в БД
+                                string role = await authorizationViewModel.WeGetRoleUser();
+
+                                if (role != null) 
+                                {
+                                    // чтение файла корзины
+                                    string jsonDataCart = File.ReadAllText(pathShoppingCart);
+                                    // получение товаров
+                                    List<CompositionCart>? cart = JsonConvert.DeserializeObject<List<CompositionCart>>(jsonDataCart);
+                                    if (cart.Any())
+                                    {
+                                        // корзина не пуста
+                                        using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+                                        {
+                                            List<Order> orders = await foodDeliveryContext.Orders.ToListAsync();
+
+                                            // сначала добавляем данные о заказе
+                                            Order order = new Order();
+                                            order.dateTime = DateTime.Now;
+
+                                            order.startDesiredDeliveryTime = new DateTime(SelectedDate.Year, SelectedDate.Month,
+                                                SelectedDate.Day, SelectedStartTimeDelivery.Hour, SelectedStartTimeDelivery.Minute,
+                                                SelectedStartTimeDelivery.Second);
+                                            order.endDesiredDeliveryTime = new DateTime(SelectedDate.Year, SelectedDate.Month,
+                                                SelectedDate.Day, SelectedEndTimeDelivery.Hour, SelectedEndTimeDelivery.Minute,
+                                                SelectedEndTimeDelivery.Second);
+
+                                            order.orderStatusId = 1; // статус заказа новый
+                                            order.name = OutClientName.Trim();
+                                            order.surname = OutClientSurname.Trim();
+                                            if (!string.IsNullOrWhiteSpace(OutClientPatronymic))
+                                            {
+                                                order.patronymic = OutClientPatronymic.Trim();
+                                            }
+                                            order.city = OutClientCity.Trim();
+                                            order.street = OutClientStreet.Trim();
+                                            order.house = OutClientHouse.Trim();
+                                            if (!string.IsNullOrWhiteSpace(OutClientApartment))
+                                            {
+                                                order.apartment = OutClientApartment.Trim();
+                                            }
+                                            order.numberPhone = OutClientNumberPhone.Trim();
+                                            if (!string.IsNullOrWhiteSpace(OutClientEmail))
+                                            {
+                                                order.email = OutClientEmail.Trim();
+                                            }
+                                            order.costPrice = CostPrice;
+
+                                            // проверка статуса оплаты
+                                            if (IsOptionCardSelected) // если выбрана карта
+                                            {
+                                                order.typePayment = "Карта";
+                                            }
+                                            else // если выбраны наличные
+                                            {
+                                                // получаем сумму сдачи
+                                                order.typePayment = "Наличные";
+                                            }
+
+                                            if (!string.IsNullOrWhiteSpace(OutAmountChange))
+                                            {
+                                                order.prepareChangeMoney = int.Parse((string)OutAmountChange.Trim());
+                                            }
+
+                                            await foodDeliveryContext.Orders.AddAsync(order); // добавляем данные в список БД
+                                            await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных
+
+                                            // теперь добавляем даннные заказа (список блюд)
+                                            foreach (CompositionCart item in cart)
+                                            {
+                                                Dishes dishes = await foodDeliveryContext.Dishes.FirstOrDefaultAsync(d => d.id == item.dishesId);
+                                                if (dishes != null)
+                                                {
+                                                    CompositionOrder compositionOrder = new CompositionOrder();
+                                                    compositionOrder.orderId = (int)order.id; // берём id из созданного заказа
+                                                    if (item.dishesId != null)
+                                                    {
+                                                        compositionOrder.dishesId = item.dishesId;
+                                                    }
+                                                    compositionOrder.nameDishes = dishes.name;
+                                                    if (string.IsNullOrWhiteSpace(dishes.description))
+                                                    {
+                                                        compositionOrder.descriptionDishes = dishes.description;
+                                                    }
+                                                    if (dishes.calories != null)
+                                                    {
+                                                        compositionOrder.calories = dishes.calories;
+                                                    }
+                                                    if (dishes.squirrels != null)
+                                                    {
+                                                        compositionOrder.squirrels = dishes.squirrels;
+                                                    }
+                                                    if (dishes.fats != null)
+                                                    {
+                                                        compositionOrder.fats = dishes.fats;
+                                                    }
+                                                    if (dishes.carbohydrates != null)
+                                                    {
+                                                        compositionOrder.carbohydrates = dishes.carbohydrates;
+                                                    }
+                                                    if (dishes.weight != null)
+                                                    {
+                                                        compositionOrder.weight = dishes.weight;
+                                                    }
+                                                    compositionOrder.quantity = item.quantity;
+                                                    compositionOrder.price = dishes.price;
+
+                                                    compositionOrder.image = dishes.image;
+
+                                                    await foodDeliveryContext.CompositionOrders.AddAsync(compositionOrder); // добавляем данные в список БД
+                                                }
+                                            }
+
+                                            string updatedJsonData = ""; // обновленный JSON
+                                                                         // Сериализация объектов обновленной коллекции в JSON
+                                            cart = new List<CompositionCart>();
+                                            updatedJsonData = JsonConvert.SerializeObject(cart, Formatting.Indented);
+
+                                            File.WriteAllText(pathShoppingCart, updatedJsonData);
+
+                                            await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных
+                                        }
+                                    }
+                                }
+                                else if (role == "Пользователь")
+                                {
+
+                                }
+                            }
+                        }
+                        else
+                        {
+                            ErrorInput = "Заполните обязательные поля:"; // очищаем сообщение об ошибке
+
+                            if (string.IsNullOrWhiteSpace(OutClientName))
+                            {
+                                StartFieldIllumination(AnimationOutName); // подсветка поля
+                                ErrorInput += "\n- Имя"; // сообщение с ошибкой
+                            }
+
+                            if (string.IsNullOrWhiteSpace(OutClientSurname))
+                            {
+                                StartFieldIllumination(AnimationOutSurname); // подсветка поля
+                                ErrorInput += "\n- Фамилия"; // сообщение с ошибкой
+                            }
+
+                            if (string.IsNullOrWhiteSpace(OutClientCity))
+                            {
+                                StartFieldIllumination(AnimationOutCity); // подсветка поля
+                                ErrorInput += "\n- Город"; // сообщение с ошибкой
+                            }
+
+                            if (string.IsNullOrWhiteSpace(OutClientStreet))
+                            {
+                                StartFieldIllumination(AnimationOutStreet); // подсветка поля
+                                ErrorInput += "\n- Улица"; // сообщение с ошибкой
+                            }
+
+                            if (string.IsNullOrWhiteSpace(OutClientHouse))
+                            {
+                                StartFieldIllumination(AnimationOutHouse); // подсветка поля
+                                ErrorInput += "\n- Дом"; // сообщение с ошибкой
+                            }
+
+                            if (string.IsNullOrWhiteSpace(OutClientNumberPhone))
+                            {
+                                StartFieldIllumination(AnimationOutNumberPhone); // подсветка поля
+                                ErrorInput += "\n- Номер телефона"; // сообщение с ошибкой
+                            }
+
+                            BeginFadeAnimation(AnimationErrorInput); // затухание сообщения об ошибке
+                        }
+
+
+
+                        // закрываем страницу оформления заказа
                         WorkingWithData.ClosingCheckoutPage();
                     }, (obj) => true));
             }
@@ -153,7 +474,7 @@ namespace Food_Delivery.ViewModel.Client
         public Storyboard FieldIllumination { get; set; } // анимация объектов
 
         // ассинхронно получаем информацию из PageWorkingWithDataOrders 
-        public async Task InitializeAsync( Storyboard FieldIllumination, TextBox AnimationOutName,
+        public async Task InitializeAsync(Storyboard FieldIllumination, TextBox AnimationOutName,
             TextBox AnimationOutSurname, TextBox AnimationOutPatronymic, TextBox AnimationOutCity, TextBox AnimationOutStreet,
             TextBox AnimationOuttHouse, TextBox AnimationOutApartment, TextBox AnimationOutNumberPhone, TextBox AnimationOutEmail,
             DatePicker AnimationDeliveryDate, TimePicker AnimationStartDesiredDeliveryTime, TimePicker AnimationEndDesiredDeliveryTime,
@@ -219,6 +540,14 @@ namespace Food_Delivery.ViewModel.Client
             {
                 this.AnimationErrorInput = AnimationErrorInput;
             }
+        }
+
+        // свойство для вывода текстовой ошибки при добавлении или редактировании данных
+        private string _errorInput { get; set; }
+        public string ErrorInput
+        {
+            get { return _errorInput; }
+            set { _errorInput = value; OnPropertyChanged(nameof(ErrorInput)); }
         }
 
         // финальная цена

@@ -196,7 +196,7 @@
                                         <TextBox
                                     VerticalAlignment="Top" x:Name="ClientName"
                                     Text="{Binding OutClientName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    materialDesign:HintAssist.Hint="Имя"
+                                    materialDesign:HintAssist.Hint="Имя*"
                                     materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
                                     materialDesign:TextFieldAssist.HasClearButton="True"
                                     MaxLength="50"
@@ -216,7 +216,7 @@
                                         <TextBox
                                     VerticalAlignment="Top" x:Name="ClientSurname"
                                     Text="{Binding OutClientSurname, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
-                                    materialDesign:HintAssist.Hint="Фамилия"
+                                    materialDesign:HintAssist.Hint="Фамилия*"
                                     materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
                                     materialDesign:TextFieldAssist.HasClearButton="True"
                                     MaxLength="100"
@@ -248,7 +248,7 @@
                                         <TextBox
                                     VerticalAlignment="Top" x:Name="ClientNumberPhone"
                                     Text="{Binding OutClientNumberPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
-                                    materialDesign:HintAssist.Hint="Номер телефона"
+                                    materialDesign:HintAssist.Hint="Номер телефона*"
                                     materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
                                     materialDesign:TextFieldAssist.HasClearButton="True"
                                     MaxLength="11"
@@ -300,7 +300,7 @@
                                         <TextBox
                                     VerticalAlignment="Top" x:Name="ClientCity"
                                     Text="{Binding OutClientCity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    materialDesign:HintAssist.Hint="Город"
+                                    materialDesign:HintAssist.Hint="Город*"
                                     materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
                                     materialDesign:TextFieldAssist.HasClearButton="True"
                                     MaxLength="50"
@@ -316,7 +316,7 @@
                                         <TextBox
                                     VerticalAlignment="Top" x:Name="ClientStreet"
                                     Text="{Binding OutClientStreet, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
-                                    materialDesign:HintAssist.Hint="Улица"
+                                    materialDesign:HintAssist.Hint="Улица*"
                                     materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
                                     materialDesign:TextFieldAssist.HasClearButton="True"
                                     MaxLength="50"
@@ -333,7 +333,7 @@
                                             <TextBox
                                         VerticalAlignment="Top" x:Name="ClientHouse"
                                         Text="{Binding OutClientHouse, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"   
-                                        materialDesign:HintAssist.Hint="Дом"
+                                        materialDesign:HintAssist.Hint="Дом*"
                                         materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
                                         materialDesign:TextFieldAssist.HasClearButton="True"
                                         MaxLength="5"
