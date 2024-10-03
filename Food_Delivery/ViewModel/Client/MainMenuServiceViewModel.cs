@@ -455,6 +455,10 @@ namespace Food_Delivery.ViewModel.Client
                                                     {
                                                         account.apartment = OutClientApartment.Trim();
                                                     }
+                                                    else
+                                                    {
+                                                        account.apartment = "";
+                                                    }
 
                                                     // обновляем данные в БД
                                                     await foodDeliveryContext.SaveChangesAsync();

@@ -475,13 +475,25 @@ namespace Food_Delivery.ViewModel.Administrator
                                         {
                                             selectesAccount.name = AnimationOutName.Text.Trim();
                                         }
+                                        else
+                                        {
+                                            selectesAccount.name = "";
+                                        }
                                         if (!string.IsNullOrWhiteSpace(AnimationOutSurname.Text))
                                         {
                                             selectesAccount.surname = AnimationOutSurname.Text.Trim();
                                         }
+                                        else
+                                        {
+                                            selectesAccount.surname = "";
+                                        }
                                         if (!string.IsNullOrWhiteSpace(AnimationOutPatronymic.Text))
                                         {
                                             selectesAccount.patronymic = AnimationOutPatronymic.Text.Trim();
+                                        }
+                                        else
+                                        {
+                                            selectesAccount.patronymic = "";
                                         }
                                         if (!string.IsNullOrWhiteSpace(AnimationOutNumberPhone.Text))
                                         {
@@ -491,21 +503,41 @@ namespace Food_Delivery.ViewModel.Administrator
                                         {
                                             selectesAccount.email = AnimationOutEmail.Text.Trim();
                                         }
+                                        else
+                                        {
+                                            selectesAccount.email = "";
+                                        }
                                         if (!string.IsNullOrWhiteSpace(AnimationOutCity.Text))
                                         {
                                             selectesAccount.city = AnimationOutCity.Text.Trim();
+                                        }
+                                        else
+                                        {
+                                            selectesAccount.city = "";
                                         }
                                         if (!string.IsNullOrWhiteSpace(AnimationOutStreet.Text))
                                         {
                                             selectesAccount.street = AnimationOutStreet.Text.Trim();
                                         }
+                                        else
+                                        {
+                                            selectesAccount.street = "";
+                                        }
                                         if (!string.IsNullOrWhiteSpace(AnimationOutHouse.Text))
                                         {
                                             selectesAccount.house = AnimationOutHouse.Text.Trim();
                                         }
+                                        else
+                                        {
+                                            selectesAccount.house = "";
+                                        }
                                         if (!string.IsNullOrWhiteSpace(AnimationOutApartment.Text))
                                         {
                                             selectesAccount.apartment = AnimationOutApartment.Text.Trim();
+                                        }
+                                        else
+                                        {
+                                            selectesAccount.apartment = "";
                                         }
                                         if (SelectedRole != null)
                                         {

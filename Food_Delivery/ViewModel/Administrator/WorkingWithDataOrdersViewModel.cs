@@ -481,6 +481,10 @@ namespace Food_Delivery.ViewModel.Administrator
                                                 {
                                                     order.patronymic = OutClientPatronymic.Trim();
                                                 }
+                                                else
+                                                {
+                                                    order.patronymic = "";
+                                                }
                                                 order.city = OutClientCity.Trim();
                                                 order.street = OutClientStreet.Trim();
                                                 order.house = OutClientHouse.Trim();
@@ -488,10 +492,18 @@ namespace Food_Delivery.ViewModel.Administrator
                                                 {
                                                     order.apartment = OutClientApartment.Trim();
                                                 }
+                                                else
+                                                {
+                                                    order.apartment = null;
+                                                }
                                                 order.numberPhone = OutClientNumberPhone.Trim();
                                                 if (!string.IsNullOrWhiteSpace(OutClientEmail))
                                                 {
                                                     order.email = OutClientEmail.Trim();
+                                                }
+                                                else
+                                                {
+                                                    order.email = "";
                                                 }
                                                 order.costPrice = int.Parse(OutCostPrice.Trim());
 
@@ -509,6 +521,10 @@ namespace Food_Delivery.ViewModel.Administrator
                                                 if (!string.IsNullOrWhiteSpace(OutAmountChange))
                                                 {
                                                     order.prepareChangeMoney = int.Parse((string)OutAmountChange.Trim());
+                                                }
+                                                else
+                                                {
+                                                    order.prepareChangeMoney = null;
                                                 }
 
                                                 await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных

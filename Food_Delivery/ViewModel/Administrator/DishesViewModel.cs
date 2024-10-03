@@ -614,6 +614,10 @@ namespace Food_Delivery.ViewModel.Administrator
                                                 {
                                                     dishesToChange.description = OutNameDescription.Trim();
                                                 }
+                                                else
+                                                {
+                                                    dishesToChange.description = "";
+                                                }
                                                 dishesToChange.categoryId = SelectedCategory.id;
                                                 if (!string.IsNullOrWhiteSpace(OutСaloriesDishes))
                                                 {

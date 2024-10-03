@@ -23,7 +23,7 @@
 
     <Grid DataContext="{StaticResource CustomerOrdersViewModel}">
 
-        <ScrollViewer Margin="0, 100, 0, 0" HorizontalAlignment="Stretch">
+        <ScrollViewer Margin="0, 60, 0, 0" HorizontalAlignment="Stretch">
             <!--прокрутка страницы-->
             <Grid Background="Transparent">
                 <!--содержимое страницы-->

@@ -238,6 +238,10 @@ namespace Food_Delivery.ViewModel.Administrator
                                             {
                                                 categoryToChange.description = OutNameDescription.Trim();
                                             }
+                                            else
+                                            {
+                                                categoryToChange.description = "";
+                                            }
                                             await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных
                                             ClosePopupWorkingWithData(); // закрываем Popup
                                             GetListCategory(); // обновляем список
