@@ -2,6 +2,7 @@
 using Food_Delivery.Helper;
 using Food_Delivery.Model;
 using Food_Delivery.View.Client.MainPages;
+using Food_Delivery.View.Client.UserAccount;
 using MaterialDesignThemes.Wpf;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -65,6 +66,9 @@ namespace Food_Delivery.ViewModel.Client
             string role = await authorizationViewModel.WeGetRoleUser();
             if(role != null)
             {
+                IsVisibilityPersonalAccountMenu = false; // видимость меню профиля отключена
+                IsVisibilityGoToHomeButton = false; // видимость кнопки возврата на главную из профиля
+
                 if (role == "Гость")
                 {
                     IsVisibilityUserProfileButton = false; // скрываем кнопку профиля
@@ -85,12 +89,13 @@ namespace Food_Delivery.ViewModel.Client
 
         PageProduct pageProduct { get; set; } // страница с товарами
         PlaceOrderPage placeOrderPage { get; set; } // страница с оформлением заказа
+        CustomerOrdersPage customerOrdersPage { get; set; } // страница с заказами клиентов
+        ClientPersonalDataPage clientPersonalDataPage { get; set; } // страница с данными о клиенте
 
         // запускаем страницу со списком товаров
         private async Task StartingHomePage()
         {
-            ClearMemoryAfterFrame(placeOrderPage);
-            ClearMemoryAfterFrame(pageProduct);
+            await GarbageDisposal(); //очистка памяти посел смены страницы
             pageProduct = new PageProduct();
             FrameMainMenu = pageProduct;
         }
@@ -98,24 +103,37 @@ namespace Food_Delivery.ViewModel.Client
         // запускаем страницу оформления заказа
         private async void LaunchPageMakingOrder(object sender, EventAggregator e)
         {
-            ClearMemoryAfterFrame(placeOrderPage);
-            ClearMemoryAfterFrame(pageProduct);
+            await GarbageDisposal(); //очистка памяти посел смены страницы
             placeOrderPage = new PlaceOrderPage();
             FramePlaceOrder = placeOrderPage;
+            DarkBackground = Visibility.Collapsed; // скрывем фон
+            IsBackgroundDisplay = false;
         }
 
-        // закрываем страницу оформления заказа, переходим на страницу с товарами и открываем корзину
+        // закрываем страницу оформления заказа, переходим на страницу с товарами или профиль
         private async void ClosingCheckoutPage(object sender, EventAggregator e)
         {
             ClearMemoryAfterFrame(placeOrderPage);
             ClearMemoryAfterFrame(pageProduct);
-            pageProduct = new PageProduct();
-            FrameMainMenu = pageProduct;
+            ClearMemoryAfterFrame(customerOrdersPage);
+            ClearMemoryAfterFrame(clientPersonalDataPage);
 
+            if (IsVisibilityPersonalAccountMenu == false) // если запущена страница профиля, то возврат идет в личный кабинет, иначе на главное меню 
+            {
+                pageProduct = new PageProduct();
+                FrameMainMenu = pageProduct;
+                DarkBackground = Visibility.Collapsed; // скрывем фон
+                IsBackgroundDisplay = false;
+            }
+            else
+            {
+                customerOrdersPage = new CustomerOrdersPage();
+                FramePlaceOrder = customerOrdersPage;
+                DarkBackground = Visibility.Collapsed; // скрывем фон
+                IsBackgroundDisplay = false;
+            }
             // запускаем корзину
             //WorkingWithData.OpenShoppingCart();
-
-            DarkBackground = Visibility.Collapsed; // скрывем фон
         }
         
         /// <summary>
@@ -132,6 +150,81 @@ namespace Food_Delivery.ViewModel.Client
                         WorkingWithData.ExitPageFromAccount();
                     }, (obj) => true));
             }
+        }
+
+        // запускаем личный профиль (страница с заказами)
+        private RelayCommand _btn_GoToProfile_Orders { get; set; }
+        public RelayCommand Btn_GoToProfile_Orders
+        {
+            get
+            {
+                return _btn_GoToProfile_Orders ??
+                    (_btn_GoToProfile_Orders = new RelayCommand(async (obj) =>
+                    {
+                        IsVisibilityUserProfileButton = false; // скрыть кнопку перейти на профиль
+                        IsVisibilityGoToHomeButton = true; // видимость кнопки возврата на главную
+                        IsVisibilityPersonalAccountMenu = true; // отобразить меню
+
+                        await GarbageDisposal(); //очистка памяти посел смены страницы
+                        customerOrdersPage = new CustomerOrdersPage();
+                        FramePlaceOrder = customerOrdersPage;
+
+                    }, (obj) => true));
+            }
+        }
+
+        // запускаем личный профиль (страница с заказами)
+        private RelayCommand _btn_GoToProfile_PersonalData { get; set; }
+        public RelayCommand Btn_GoToProfile_PersonalData
+        {
+            get
+            {
+                return _btn_GoToProfile_PersonalData ??
+                    (_btn_GoToProfile_PersonalData = new RelayCommand(async (obj) =>
+                    {
+                        IsVisibilityUserProfileButton = false; // скрыть кнопку перейти на профиль
+                        IsVisibilityGoToHomeButton = true; // видимость кнопки возврата на главную
+                        IsVisibilityPersonalAccountMenu = true; // отобразить меню
+
+                        await GarbageDisposal(); //очистка памяти посел смены страницы
+                        clientPersonalDataPage = new ClientPersonalDataPage();
+                        FramePlaceOrder = clientPersonalDataPage;
+
+                    }, (obj) => true));
+            }
+        }
+
+        // выход из личного профиля на главную
+        private RelayCommand _btn_GoToHome { get; set; }
+        public RelayCommand Btn_GoToHome
+        {
+            get
+            {
+                return _btn_GoToHome ??
+                    (_btn_GoToHome = new RelayCommand(async (obj) =>
+                    {
+                        IsVisibilityUserProfileButton = true; // отобразить кнопку перейти на профиль
+                        IsVisibilityGoToHomeButton = false; // видимость кнопки возврата на главную
+                        IsVisibilityPersonalAccountMenu = false; // скрыть меню
+
+                        await GarbageDisposal(); //очистка памяти посел смены страницы
+                        pageProduct = new PageProduct();
+                        FrameMainMenu = pageProduct;
+
+                    }, (obj) => true));
+            }
+        }
+
+        //запускаем страницу личные данные клиента
+
+
+        // очистка памяти посел смены страницы
+        private async Task GarbageDisposal()
+        {
+            ClearMemoryAfterFrame(placeOrderPage);
+            ClearMemoryAfterFrame(pageProduct);
+            ClearMemoryAfterFrame(customerOrdersPage);
+            ClearMemoryAfterFrame(clientPersonalDataPage);
         }
 
         #endregion
@@ -518,6 +611,22 @@ namespace Food_Delivery.ViewModel.Client
             {
                 this.AnimationErrorInputPopup = AnimationErrorInputPopup;
             }
+        }
+
+        // кнопка возврата на главное меню
+        private bool _isVisibilityGoToHomeButton { get; set; }
+        public bool IsVisibilityGoToHomeButton
+        {
+            get { return _isVisibilityGoToHomeButton; }
+            set { _isVisibilityGoToHomeButton = value; OnPropertyChanged(nameof(IsVisibilityGoToHomeButton)); }
+        }
+
+        // меню личного кабинета
+        private bool _isVisibilityPersonalAccountMenu { get; set; }
+        public bool IsVisibilityPersonalAccountMenu
+        {
+            get { return _isVisibilityPersonalAccountMenu; }
+            set { _isVisibilityPersonalAccountMenu = value; OnPropertyChanged(nameof(IsVisibilityPersonalAccountMenu)); }
         }
 
         // кнопка выхода из аккаунта

@@ -31,8 +31,4 @@
     <PackageReference Include="Yandex.Geocoder.v2" Version="1.0.2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="View\Client\UserAccount\" />
-  </ItemGroup>
-
 </Project>

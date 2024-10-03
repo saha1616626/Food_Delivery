@@ -1,0 +1,27 @@
+﻿<Page x:Class="Food_Delivery.View.Client.UserAccount.CustomerOrdersPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Food_Delivery.View.Client.UserAccount"
+      mc:Ignorable="d" 
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      xmlns:ViewModel="clr-namespace:Food_Delivery.ViewModel.Client"
+      MinHeight="700" Height="Auto"
+      Title="CustomerOrdersPage">
+
+    <Page.Resources>
+        <!--связываем View и ViewModel-->
+        <ViewModel:CustomerOrdersViewModel x:Key="CustomerOrdersViewModel"/>
+
+        <!--анимация подсветки полей-->
+        <Storyboard x:Key="FieldIllumination">
+            <ColorAnimation Storyboard.TargetProperty="Background.(SolidColorBrush.Color)"
+            From="#de6d6d" To="Transparent" Duration="0:0:3" AutoReverse="False"/>
+        </Storyboard>
+    </Page.Resources>
+
+    <Grid DataContext="{StaticResource CustomerOrdersViewModel}">
+        <TextBlock Text="fds" FontSize="100" Margin="100"/>
+    </Grid>
+</Page>

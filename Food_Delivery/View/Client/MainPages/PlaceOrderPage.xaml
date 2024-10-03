@@ -23,7 +23,7 @@
 
     <Grid DataContext="{StaticResource PlaceOrderViewModel}">
 
-        <ScrollViewer  HorizontalAlignment="Stretch" Margin="0, 0, 0, 0" VerticalScrollBarVisibility="Visible">
+        <ScrollViewer Background="AliceBlue" HorizontalAlignment="Stretch" Margin="0, 0, 0, 0" VerticalScrollBarVisibility="Visible">
             <Grid Background="AliceBlue">
 
                 <Grid.RowDefinitions>

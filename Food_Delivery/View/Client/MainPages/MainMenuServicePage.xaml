@@ -51,7 +51,7 @@
         <!--фон для корзины-->
         <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" PreviewMouseLeftButtonUp="Window_MouseLeftButtonDown" Grid.RowSpan="2"
   Visibility="{Binding DarkBackground, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-  Background="#98000000" Panel.ZIndex="1" x:Name="DarkBackground"
+  Background="#98000000" Panel.ZIndex="2" x:Name="DarkBackground"
   Margin="0,0,0,0" Padding="0,0,0,0"/>
 
         <!--фон-->
@@ -101,7 +101,7 @@ ToolTip="MaterialDesignOutlinedButton" />
         </Grid>
 
         <!--корзина-->
-        <Grid Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" Grid.RowSpan="2" Panel.ZIndex="1"
+        <Grid Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" Grid.RowSpan="2" Panel.ZIndex="2"
               HorizontalAlignment="Right">
             <local:ShoppingCart x:Name="ShoppingCart"/>
         </Grid>
@@ -114,7 +114,7 @@ ToolTip="MaterialDesignOutlinedButton" />
             </Grid.ColumnDefinitions>
 
             <Button x:Name="AccountButton" Grid.Column="0" Width="55" Height="55"
-           Background="Transparent" BorderBrush="Transparent"
+           Background="Transparent" BorderBrush="Transparent" Command="{Binding Btn_GoToProfile_Orders}"
            HorizontalAlignment="Center" VerticalAlignment="Center" Grid.ZIndex="1"/>
 
             <materialDesign:PackIcon Kind="Account" Grid.Column="0" Height="55" Width="55"
@@ -123,9 +123,24 @@ ToolTip="MaterialDesignOutlinedButton" />
 
         </Grid>
 
+        <!--скрытая кнопка домой-->
+        <Grid Grid.Row="0" Grid.Column="3" Margin="45, 0, 0, 0" Visibility="{Binding IsVisibilityGoToHomeButton, Mode=TwoWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0" Width="55" Height="55"
+           Background="Transparent" BorderBrush="Transparent" Command="{Binding Btn_GoToHome}"
+           HorizontalAlignment="Center" VerticalAlignment="Center" Grid.ZIndex="1"/>
+
+            <materialDesign:PackIcon Kind="HomeAccount" Grid.Column="0" Height="55" Width="55"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Margin="0,0,0,0" />
+
+        </Grid>
 
         <!--скрытая кнопка выхода из аккаунта-->
-        <!--кнопка выхода из аккаунта-->
         <Grid Grid.Row="0" Grid.Column="3" x:Name="shoppingCartIcon" Margin="-25,0,0,0" Visibility="{Binding IsVisibilityOutAccountButton, Mode=TwoWay, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -163,13 +178,42 @@ ToolTip="MaterialDesignOutlinedButton" />
 
         </Grid>
 
+         <!--профиль-->
+        <Grid Grid.Row="1" Grid.RowSpan="3" Grid.ColumnSpan="7" Background="#FFABAAAA" VerticalAlignment="Top" Margin="0,0,0,0" Panel.ZIndex="1" Height="30"
+              Visibility="{Binding IsVisibilityPersonalAccountMenu, Mode=TwoWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+            <!--Шапка с атрибутами меню-->
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="15*"/>
+                <ColumnDefinition Width="15*"/>
+                <ColumnDefinition Width="15*"/>
+                <ColumnDefinition Width="15*"/>
+                <ColumnDefinition Width="15*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Row="0" Grid.Column="1">
+                <Button x:Name="BtnOrders" Content="ЗАКАЗЫ" Background="Transparent" BorderBrush="Transparent"
+                        Command="{Binding Btn_GoToProfile_Orders}"/>
+            </Grid>
+            <Grid Grid.Row="0" Grid.Column="2">
+                <Button x:Name="BtnPersonalData" Content="ЛИЧНЫЕ ДАННЫЕ" Background="Transparent" BorderBrush="Transparent"
+                        Command="{Binding Btn_GoToProfile_PersonalData}"/>
+            </Grid>
+
+        </Grid>
+
         <!--страница с товарами-->
         <Frame Grid.Row="1" Content="{Binding FrameMainMenu, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
        NavigationUIVisibility="Hidden" Grid.ColumnSpan="5"/>
         
         <!--личный кабинет и оформление заказа-->
         <Frame Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="6" Content="{Binding FramePlaceOrder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-NavigationUIVisibility="Hidden" Panel.ZIndex="1"/>
+NavigationUIVisibility="Hidden" Panel.ZIndex="2"/>
 
         <!--Popup адреса доставки-->
         
