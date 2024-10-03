@@ -33,11 +33,8 @@ namespace Food_Delivery.ViewModel.Client
         {
             DarkBackground = Visibility.Collapsed; // скрываем фон корзины
 
-            // при запуске меню отображаем страницу с товарами
-            StartingHomePage();
-
-            // подтягиваем данные адреса клиента, если он имеется
-            DisplayingUserAddress();
+            // начальная настройка страницы
+            InitialPageSetup();
 
             // подписываемся на событие - отображаем фон при запуске корзины
             WorkingWithData._backgroundForShopping += BackgroundForShopping;
@@ -51,6 +48,36 @@ namespace Food_Delivery.ViewModel.Client
 
             // после получения фокуса данного приложения запукаем закрытый Popup
             WorkingWithData._launchPopupAfterReceivingFocusMainMenuService += LaunchPopupAfterReceivingFocusMainMenuService;
+        }
+
+        // начальная настройка страницы
+        private async Task InitialPageSetup()
+        {
+            // при запуске меню отображаем страницу с товарами
+            StartingHomePage();
+
+            // подтягиваем данные адреса клиента, если он имеется
+            DisplayingUserAddress();
+
+            string address = "";
+
+            // проверяем, гость или авторизованный пользователь. 
+            string role = await authorizationViewModel.WeGetRoleUser();
+            if(role != null)
+            {
+                if (role == "Гость")
+                {
+                    IsVisibilityUserProfileButton = false; // скрываем кнопку профиля
+                    IsVisibilityAuthorizationButton = true; // отображаем кнопку авторизации
+                    IsVisibilityOutAccountButton = false; // скрываем кнопку выхода из аккаунта
+                }
+                else if (role == "Пользователь")
+                {
+                    IsVisibilityAuthorizationButton = false; // скрываем кнопку авторизации
+                    IsVisibilityUserProfileButton = true; // отображаем кнопку профиля
+                    IsVisibilityOutAccountButton = true; // отображаем кнопку выхода из аккаунта
+                }
+            }
         }
 
         // запуск страниц
@@ -163,31 +190,59 @@ namespace Food_Delivery.ViewModel.Client
             string role = await authorizationViewModel.WeGetRoleUser();
             if (role != null)
             {
-                // получение адреса клиента
-                string jsonAdress = File.ReadAllText(pathAddressClient);
-                AddressUnauthorizedUser? addressUnauthorizedUser = JsonConvert.DeserializeObject<AddressUnauthorizedUser>(jsonAdress);
-                if (addressUnauthorizedUser != null)
+                if (role == "Гость")
                 {
-                    OutClientCity = addressUnauthorizedUser.city;
-                    OutClientStreet = addressUnauthorizedUser.street;
-                    OutClientHouse = addressUnauthorizedUser.house;
-                    if (addressUnauthorizedUser.apartment != null)
+                    // получение адреса клиента
+                    string jsonAdress = File.ReadAllText(pathAddressClient);
+                    AddressUnauthorizedUser? addressUnauthorizedUser = JsonConvert.DeserializeObject<AddressUnauthorizedUser>(jsonAdress);
+                    if (addressUnauthorizedUser != null)
                     {
-                        OutClientApartment = addressUnauthorizedUser.apartment;
+                        OutClientCity = addressUnauthorizedUser.city;
+                        OutClientStreet = addressUnauthorizedUser.street;
+                        OutClientHouse = addressUnauthorizedUser.house;
+                        if (addressUnauthorizedUser.apartment != null)
+                        {
+                            OutClientApartment = addressUnauthorizedUser.apartment;
+                        }
+
+                        address = $"г.{OutClientCity}, {OutClientStreet}, {OutClientHouse}, {OutClientApartment}";
                     }
-
-                    address = $"г.{OutClientCity}, {OutClientStreet}, {OutClientHouse}, {OutClientApartment}";
                 }
-            }
-            else if (role == "Пользователь")
-            {
+                else if (role == "Пользователь")
+                {
+                    // получаем id пользователя
+                    int userId = await authorizationViewModel.WeGetIdUser();
+                    if (userId != 0)
+                    {
+                        using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+                        {
+                            // сохраняем данные в БД
+                            Account account = await foodDeliveryContext.Accounts.FirstOrDefaultAsync(a => a.id == userId);
+                            if (account != null)
+                            {
+                                OutClientCity = account.city;
+                                OutClientStreet = account.street;
+                                OutClientHouse = account.house;
+                                if (account.apartment != null)
+                                {
+                                    OutClientApartment = account.apartment;
+                                }
 
+                                address = $"г.{OutClientCity}, {OutClientStreet}, {OutClientHouse}, {OutClientApartment}";
+                            }
+                        }
+                    }
+                }
             }
 
             // Выводим адрес в меню
             if (address.Length >= 24) // если больше 24 символов, то обрезаем строчку
             {
                 SelectedAdress = address.Substring(0, 24) + "...";
+            }
+            else if (address.Length <= 23 && address != "")
+            {
+                SelectedAdress = address.Substring(0, address.Length) + "...";
             }
         }
 
@@ -196,6 +251,7 @@ namespace Food_Delivery.ViewModel.Client
         {
             // Закрываем Popup
             StartPoupUserAdress = false;
+            StartPoupOfOutAccount = false;
             DarkBackground = Visibility.Collapsed; // скрываем фон
         }
 
@@ -218,7 +274,7 @@ namespace Food_Delivery.ViewModel.Client
 
         /// <summary>
         /// Сохраняем данные адреса.
-        /// Должны быть заполнены все поля, кроме "кавртира"
+        /// Должны быть заполнены все поля, кроме "квартира"
         /// </summary>
         private RelayCommand _btn_AddAdress { get; set; }
         public RelayCommand Btn_AddAdress
@@ -270,23 +326,50 @@ namespace Food_Delivery.ViewModel.Client
 
                                 if (role != null)
                                 {
-                                    // Сохраняем новые данные в JSON
-                                    AddressUnauthorizedUser addressUnauthorizedUser = new AddressUnauthorizedUser();
-                                    addressUnauthorizedUser.city = OutClientCity.Trim();
-                                    addressUnauthorizedUser.street = OutClientStreet.Trim();
-                                    addressUnauthorizedUser.house = OutClientHouse.Trim();
-                                    if (!string.IsNullOrWhiteSpace(OutClientApartment))
+                                    if (role == "Гость")
                                     {
-                                        addressUnauthorizedUser.apartment = OutClientApartment.Trim();
-                                    }
+                                        // Сохраняем новые данные в JSON
+                                        AddressUnauthorizedUser addressUnauthorizedUser = new AddressUnauthorizedUser();
+                                        addressUnauthorizedUser.city = OutClientCity.Trim();
+                                        addressUnauthorizedUser.street = OutClientStreet.Trim();
+                                        addressUnauthorizedUser.house = OutClientHouse.Trim();
+                                        if (!string.IsNullOrWhiteSpace(OutClientApartment))
+                                        {
+                                            addressUnauthorizedUser.apartment = OutClientApartment.Trim();
+                                        }
 
-                                    // добавляем данные в JSON
-                                    string updatedJsonData = JsonConvert.SerializeObject(addressUnauthorizedUser, Formatting.Indented); // обновленный JSON
-                                    File.WriteAllText(pathAddressClient, updatedJsonData);
-                                    ClosePopupWorkingWithData(); // закрываем Popup
-                                }
-                                else if (role == "Пользователь")
-                                {
+                                        // добавляем данные в JSON
+                                        string updatedJsonData = JsonConvert.SerializeObject(addressUnauthorizedUser, Formatting.Indented); // обновленный JSON
+                                        File.WriteAllText(pathAddressClient, updatedJsonData);
+                                        ClosePopupWorkingWithData(); // закрываем Popup
+                                    }
+                                    else if (role == "Пользователь")
+                                    {
+                                        using(FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+                                        {
+                                            // получаем id пользователя
+                                            int userId = await authorizationViewModel.WeGetIdUser();
+                                            if (userId != 0)
+                                            {
+                                                // сохраняем данные в БД
+                                                Account account = await foodDeliveryContext.Accounts.FirstOrDefaultAsync(a => a.id == userId);
+                                                if (account != null)
+                                                {
+                                                    account.city = OutClientCity.Trim();
+                                                    account.street = OutClientStreet.Trim();
+                                                    account.house = OutClientHouse.Trim();
+                                                    if (!string.IsNullOrWhiteSpace(OutClientApartment))
+                                                    {
+                                                        account.apartment = OutClientApartment.Trim();
+                                                    }
+
+                                                    // обновляем данные в БД
+                                                    await foodDeliveryContext.SaveChangesAsync();
+                                                    ClosePopupWorkingWithData(); // закрываем Popup
+                                                }
+                                            }
+                                        }
+                                    }
 
                                 }
 
@@ -344,8 +427,54 @@ namespace Food_Delivery.ViewModel.Client
             }
             else //  если был запущен popup выхода из аккаунта
             {
-
+                StartPoupOfOutAccount = true; // отображаем Popup
                 DarkBackground = Visibility.Visible; // показать фон
+            }
+        }
+
+        //  отображение Popup для выхода из аккаунта
+        private bool _startPoupOfOutAccount { get; set; }
+        public bool StartPoupOfOutAccount
+        {
+            get { return _startPoupOfOutAccount; }
+            set
+            {
+                _startPoupOfOutAccount = value;
+                OnPropertyChanged(nameof(StartPoupOfOutAccount));
+            }
+        }
+
+        // запускаем Popup для выхода из аккаунта
+        private RelayCommand _btn_LogOutOfYourAccount { get; set; }
+        public RelayCommand Btn_LogOutOfYourAccount
+        {
+            get
+            {
+                return _btn_LogOutOfYourAccount ??
+                    (_btn_LogOutOfYourAccount = new RelayCommand((obj) =>
+                    {
+                        StartPoupOfOutAccount = true; // отображаем Popup
+                        DarkBackground = Visibility.Visible; // показать фон
+                        IsAdressUser = false; // оповещаем систему, что мы выходим из аккаунта
+
+                        NotificationOfThePopupLaunchJson(); // оповещаем JSON, чтомы запустили Popup
+
+                    }, (obj) => true));
+            }
+        }
+
+        // выход из аккаунта
+        private RelayCommand _btn_LogOutYourAccount { get; set; }
+        public RelayCommand Btn_LogOutYourAccount
+        {
+            get
+            {
+                return _btn_LogOutYourAccount ??
+                    (_btn_LogOutYourAccount = new RelayCommand((obj) =>
+                    {
+                        AuthorizationViewModel authorizationViewModel = new AuthorizationViewModel();
+                        authorizationViewModel.LogOutYourAccount();
+                    }, (obj) => true));
             }
         }
 
@@ -389,6 +518,30 @@ namespace Food_Delivery.ViewModel.Client
             {
                 this.AnimationErrorInputPopup = AnimationErrorInputPopup;
             }
+        }
+
+        // кнопка выхода из аккаунта
+        private bool _isVisibilityOutAccountButton { get; set; }
+        public bool IsVisibilityOutAccountButton
+        {
+            get { return _isVisibilityOutAccountButton; }
+            set { _isVisibilityOutAccountButton = value; OnPropertyChanged(nameof(IsVisibilityOutAccountButton)); }
+        }
+
+        // кнопка профиля пользователя
+        private bool _isVisibilityUserProfileButton { get; set; }
+        public bool IsVisibilityUserProfileButton
+        {
+            get { return _isVisibilityUserProfileButton; }
+            set { _isVisibilityUserProfileButton = value; OnPropertyChanged(nameof(IsVisibilityUserProfileButton)); }
+        }
+
+        // кнопка авторизации
+        private bool _isVisibilityAuthorizationButton { get; set; }
+        public bool IsVisibilityAuthorizationButton
+        {
+            get { return _isVisibilityAuthorizationButton; }
+            set { _isVisibilityAuthorizationButton = value; OnPropertyChanged(nameof(IsVisibilityAuthorizationButton)); }
         }
 
         // Адрес клиента

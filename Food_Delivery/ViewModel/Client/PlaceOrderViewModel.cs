@@ -93,7 +93,23 @@ namespace Food_Delivery.ViewModel.Client
                     }
                     else if (role == "Пользователь")
                     {
-
+                        // получаем id пользователя
+                        int userId = await authorizationViewModel.WeGetIdUser();
+                        if (userId != 0)
+                        {
+                            List<CompositionCart> compositionCarts = await foodDeliveryContext.CompositionCarts.ToListAsync();
+                            if (compositionCarts.Any())
+                            {
+                                // корзина не пуста. Заполняем список
+                                foreach (CompositionCart cartItem in compositionCarts)
+                                {
+                                    CompositionCartDPO compositionCartDPO = new CompositionCartDPO();
+                                    compositionCartDPO = await compositionCartDPO.CopyFromCompositionCart(cartItem);
+                                    ListCompositionCart.Add(compositionCartDPO);
+                                    CostPrice += compositionCartDPO.quantity * compositionCartDPO.dishes.price;
+                                }
+                            }
+                        }
                     }
 
                     FinalPrice = CostPrice.ToString();
@@ -134,24 +150,76 @@ namespace Food_Delivery.ViewModel.Client
                         string role = await authorizationViewModel.WeGetRoleUser();
                         if (role != null)
                         {
-                            // получение адреса клиента
-                            string jsonAdress = File.ReadAllText(pathAddressClient);
-                            AddressUnauthorizedUser? addressUnauthorizedUser = JsonConvert.DeserializeObject<AddressUnauthorizedUser>(jsonAdress);
-                            if (addressUnauthorizedUser != null)
+                            if (role == "Гость")
                             {
-                                OutClientCity = addressUnauthorizedUser.city;
-                                OutClientStreet = addressUnauthorizedUser.street;
-                                OutClientHouse = addressUnauthorizedUser.house;
-                                if (addressUnauthorizedUser.apartment != null)
+                                // получение адреса клиента
+                                string jsonAdress = File.ReadAllText(pathAddressClient);
+                                AddressUnauthorizedUser? addressUnauthorizedUser = JsonConvert.DeserializeObject<AddressUnauthorizedUser>(jsonAdress);
+                                if (addressUnauthorizedUser != null)
                                 {
-                                    OutClientApartment = addressUnauthorizedUser.apartment;
+                                    OutClientCity = addressUnauthorizedUser.city;
+                                    OutClientStreet = addressUnauthorizedUser.street;
+                                    OutClientHouse = addressUnauthorizedUser.house;
+                                    if (addressUnauthorizedUser.apartment != null)
+                                    {
+                                        OutClientApartment = addressUnauthorizedUser.apartment;
+                                    }
+
                                 }
-
                             }
-                        }
-                        else if (role == "Пользователь")
-                        {
+                            else if (role == "Пользователь")
+                            {
+                                using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+                                {
+                                    // получаем id пользователя
+                                    int userId = await authorizationViewModel.WeGetIdUser();
+                                    if (userId != 0)
+                                    {
+                                        // сохраняем данные в БД
+                                        Account account = await foodDeliveryContext.Accounts.FirstOrDefaultAsync(a => a.id == userId);
+                                        if (account != null)
+                                        {
+                                            if (!string.IsNullOrWhiteSpace(account.name))
+                                            {
+                                                AnimationOutName.Text = account.name;
+                                            }
+                                            if (!string.IsNullOrWhiteSpace(account.surname))
+                                            {
+                                                AnimationOutSurname.Text = account.surname;
+                                            }
+                                            if (!string.IsNullOrWhiteSpace(account.patronymic))
+                                            {
+                                                AnimationOutPatronymic.Text = account.patronymic;
+                                            }
+                                            if (!string.IsNullOrWhiteSpace(account.numberPhone))
+                                            {
+                                                AnimationOutNumberPhone.Text = account.numberPhone;
+                                            }
+                                            if (!string.IsNullOrWhiteSpace(account.email))
+                                            {
+                                                AnimationOutEmail.Text = account.email;
+                                            }
+                                            if (!string.IsNullOrWhiteSpace(account.city))
+                                            {
+                                                AnimationOutCity.Text = account.city;
+                                            }
+                                            if (!string.IsNullOrWhiteSpace(account.street))
+                                            {
+                                                AnimationOutStreet.Text = account.street;
+                                            }
+                                            if (!string.IsNullOrWhiteSpace(account.house))
+                                            {
+                                                AnimationOutHouse.Text = account.house;
+                                            }
+                                            if (!string.IsNullOrWhiteSpace(account.apartment))
+                                            {
+                                                AnimationOutApartment.Text = account.apartment;
+                                            }
 
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }, (obj) => true));
             }
@@ -274,22 +342,144 @@ namespace Food_Delivery.ViewModel.Client
                                 // проверяем, гость или авторизованный пользователь. Если гость, то добавляем данные в JSON, инчае в БД
                                 string role = await authorizationViewModel.WeGetRoleUser();
 
-                                if (role != null) 
+                                if (role != null)
                                 {
-                                    // чтение файла корзины
-                                    string jsonDataCart = File.ReadAllText(pathShoppingCart);
-                                    // получение товаров
-                                    List<CompositionCart>? cart = JsonConvert.DeserializeObject<List<CompositionCart>>(jsonDataCart);
-                                    if (cart.Any())
+                                    if (role == "Гость")
                                     {
-                                        // корзина не пуста
+                                        // чтение файла корзины
+                                        string jsonDataCart = File.ReadAllText(pathShoppingCart);
+                                        // получение товаров
+                                        List<CompositionCart>? cart = JsonConvert.DeserializeObject<List<CompositionCart>>(jsonDataCart);
+                                        if (cart.Any())
+                                        {
+                                            // корзина не пуста
+                                            using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+                                            {
+                                                List<Order> orders = await foodDeliveryContext.Orders.ToListAsync();
+
+                                                // сначала добавляем данные о заказе
+                                                Order order = new Order();
+                                                order.dateTime = DateTime.Now;
+
+                                                order.startDesiredDeliveryTime = new DateTime(SelectedDate.Year, SelectedDate.Month,
+                                                    SelectedDate.Day, SelectedStartTimeDelivery.Hour, SelectedStartTimeDelivery.Minute,
+                                                    SelectedStartTimeDelivery.Second);
+                                                order.endDesiredDeliveryTime = new DateTime(SelectedDate.Year, SelectedDate.Month,
+                                                    SelectedDate.Day, SelectedEndTimeDelivery.Hour, SelectedEndTimeDelivery.Minute,
+                                                    SelectedEndTimeDelivery.Second);
+
+                                                order.orderStatusId = 1; // статус заказа новый
+                                                order.name = OutClientName.Trim();
+                                                order.surname = OutClientSurname.Trim();
+                                                if (!string.IsNullOrWhiteSpace(OutClientPatronymic))
+                                                {
+                                                    order.patronymic = OutClientPatronymic.Trim();
+                                                }
+                                                order.city = OutClientCity.Trim();
+                                                order.street = OutClientStreet.Trim();
+                                                order.house = OutClientHouse.Trim();
+                                                if (!string.IsNullOrWhiteSpace(OutClientApartment))
+                                                {
+                                                    order.apartment = OutClientApartment.Trim();
+                                                }
+                                                order.numberPhone = OutClientNumberPhone.Trim();
+                                                if (!string.IsNullOrWhiteSpace(OutClientEmail))
+                                                {
+                                                    order.email = OutClientEmail.Trim();
+                                                }
+                                                order.costPrice = CostPrice;
+
+                                                // проверка статуса оплаты
+                                                if (IsOptionCardSelected) // если выбрана карта
+                                                {
+                                                    order.typePayment = "Карта";
+                                                }
+                                                else // если выбраны наличные
+                                                {
+                                                    // получаем сумму сдачи
+                                                    order.typePayment = "Наличные";
+                                                }
+
+                                                if (!string.IsNullOrWhiteSpace(OutAmountChange))
+                                                {
+                                                    order.prepareChangeMoney = int.Parse((string)OutAmountChange.Trim());
+                                                }
+
+                                                await foodDeliveryContext.Orders.AddAsync(order); // добавляем данные в список БД
+                                                await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных
+
+                                                // теперь добавляем даннные заказа (список блюд)
+                                                foreach (CompositionCart item in cart)
+                                                {
+                                                    Dishes dishes = await foodDeliveryContext.Dishes.FirstOrDefaultAsync(d => d.id == item.dishesId);
+                                                    if (dishes != null)
+                                                    {
+                                                        CompositionOrder compositionOrder = new CompositionOrder();
+                                                        compositionOrder.orderId = (int)order.id; // берём id из созданного заказа
+                                                        if (item.dishesId != null)
+                                                        {
+                                                            compositionOrder.dishesId = item.dishesId;
+                                                        }
+                                                        compositionOrder.nameDishes = dishes.name;
+                                                        if (string.IsNullOrWhiteSpace(dishes.description))
+                                                        {
+                                                            compositionOrder.descriptionDishes = dishes.description;
+                                                        }
+                                                        if (dishes.calories != null)
+                                                        {
+                                                            compositionOrder.calories = dishes.calories;
+                                                        }
+                                                        if (dishes.squirrels != null)
+                                                        {
+                                                            compositionOrder.squirrels = dishes.squirrels;
+                                                        }
+                                                        if (dishes.fats != null)
+                                                        {
+                                                            compositionOrder.fats = dishes.fats;
+                                                        }
+                                                        if (dishes.carbohydrates != null)
+                                                        {
+                                                            compositionOrder.carbohydrates = dishes.carbohydrates;
+                                                        }
+                                                        if (dishes.weight != null)
+                                                        {
+                                                            compositionOrder.weight = dishes.weight;
+                                                        }
+                                                        compositionOrder.quantity = item.quantity;
+                                                        compositionOrder.price = dishes.price;
+
+                                                        compositionOrder.image = dishes.image;
+
+                                                        await foodDeliveryContext.CompositionOrders.AddAsync(compositionOrder); // добавляем данные в список БД
+                                                    }
+                                                }
+
+                                                string updatedJsonData = ""; // обновленный JSON
+                                                                             // Сериализация объектов обновленной коллекции в JSON
+                                                cart = new List<CompositionCart>();
+                                                updatedJsonData = JsonConvert.SerializeObject(cart, Formatting.Indented);
+
+                                                File.WriteAllText(pathShoppingCart, updatedJsonData);
+
+                                                await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных
+
+                                                // закрываем страницу оформления заказа
+                                                WorkingWithData.ClosingCheckoutPage();
+                                            }
+                                        }
+                                    }
+                                    else if (role == "Пользователь")
+                                    {
                                         using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
                                         {
                                             List<Order> orders = await foodDeliveryContext.Orders.ToListAsync();
+                                            List<CompositionCart> carts = await foodDeliveryContext.CompositionCarts.ToListAsync();
 
                                             // сначала добавляем данные о заказе
                                             Order order = new Order();
                                             order.dateTime = DateTime.Now;
+
+                                            // получаем id пользователя, если заказ оформлял определенный клиент
 
                                             order.startDesiredDeliveryTime = new DateTime(SelectedDate.Year, SelectedDate.Month,
                                                 SelectedDate.Day, SelectedStartTimeDelivery.Hour, SelectedStartTimeDelivery.Minute,
@@ -297,8 +487,7 @@ namespace Food_Delivery.ViewModel.Client
                                             order.endDesiredDeliveryTime = new DateTime(SelectedDate.Year, SelectedDate.Month,
                                                 SelectedDate.Day, SelectedEndTimeDelivery.Hour, SelectedEndTimeDelivery.Minute,
                                                 SelectedEndTimeDelivery.Second);
-
-                                            order.orderStatusId = 1; // статус заказа новый
+                                            order.orderStatusId = 1;
                                             order.name = OutClientName.Trim();
                                             order.surname = OutClientSurname.Trim();
                                             if (!string.IsNullOrWhiteSpace(OutClientPatronymic))
@@ -338,66 +527,80 @@ namespace Food_Delivery.ViewModel.Client
                                             await foodDeliveryContext.Orders.AddAsync(order); // добавляем данные в список БД
                                             await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных
 
-                                            // теперь добавляем даннные заказа (список блюд)
-                                            foreach (CompositionCart item in cart)
+                                            // получаем id пользователя
+                                            int userId = await authorizationViewModel.WeGetIdUser();
+                                            if (userId != 0)
                                             {
-                                                Dishes dishes = await foodDeliveryContext.Dishes.FirstOrDefaultAsync(d => d.id == item.dishesId);
-                                                if (dishes != null)
+                                                // получаем корзину пользователя
+                                                ShoppingCart cart = await foodDeliveryContext.ShoppingCarts.FirstOrDefaultAsync(s => s.accountId == userId);
+                                                if (cart != null)
                                                 {
-                                                    CompositionOrder compositionOrder = new CompositionOrder();
-                                                    compositionOrder.orderId = (int)order.id; // берём id из созданного заказа
-                                                    if (item.dishesId != null)
+                                                    // получаем товары корзины
+                                                    List<CompositionCart> userItemCart = await Task.Run(() => carts.Where(c => c.shoppingCartId == cart.id).ToList());
+                                                    if (userItemCart != null)
                                                     {
-                                                        compositionOrder.dishesId = item.dishesId;
-                                                    }
-                                                    compositionOrder.nameDishes = dishes.name;
-                                                    if (string.IsNullOrWhiteSpace(dishes.description))
-                                                    {
-                                                        compositionOrder.descriptionDishes = dishes.description;
-                                                    }
-                                                    if (dishes.calories != null)
-                                                    {
-                                                        compositionOrder.calories = dishes.calories;
-                                                    }
-                                                    if (dishes.squirrels != null)
-                                                    {
-                                                        compositionOrder.squirrels = dishes.squirrels;
-                                                    }
-                                                    if (dishes.fats != null)
-                                                    {
-                                                        compositionOrder.fats = dishes.fats;
-                                                    }
-                                                    if (dishes.carbohydrates != null)
-                                                    {
-                                                        compositionOrder.carbohydrates = dishes.carbohydrates;
-                                                    }
-                                                    if (dishes.weight != null)
-                                                    {
-                                                        compositionOrder.weight = dishes.weight;
-                                                    }
-                                                    compositionOrder.quantity = item.quantity;
-                                                    compositionOrder.price = dishes.price;
+                                                        // теперь добавляем даннные заказа (список блюд)
+                                                        foreach (CompositionCart cartItem in userItemCart)
+                                                        {
+                                                            // получаем блюдо
+                                                            Dishes dishes = await foodDeliveryContext.Dishes.FirstOrDefaultAsync(d => d.id == cartItem.dishesId);
+                                                            if (dishes != null)
+                                                            {
+                                                                CompositionOrder compositionOrder = new CompositionOrder();
+                                                                compositionOrder.orderId = (int)order.id; // берём id из созданного заказа
 
-                                                    compositionOrder.image = dishes.image;
+                                                                if (cartItem.dishesId != null)
+                                                                {
+                                                                    compositionOrder.dishesId = cartItem.dishesId;
+                                                                }
+                                                                compositionOrder.nameDishes = dishes.name;
+                                                                if (string.IsNullOrWhiteSpace(dishes.description))
+                                                                {
+                                                                    compositionOrder.descriptionDishes = dishes.description;
+                                                                }
+                                                                if (dishes.calories != null)
+                                                                {
+                                                                    compositionOrder.calories = dishes.calories;
+                                                                }
+                                                                if (dishes.squirrels != null)
+                                                                {
+                                                                    compositionOrder.squirrels = dishes.squirrels;
+                                                                }
+                                                                if (dishes.fats != null)
+                                                                {
+                                                                    compositionOrder.fats = dishes.fats;
+                                                                }
+                                                                if (dishes.carbohydrates != null)
+                                                                {
+                                                                    compositionOrder.carbohydrates = dishes.carbohydrates;
+                                                                }
+                                                                if (dishes.weight != null)
+                                                                {
+                                                                    compositionOrder.weight = dishes.weight;
+                                                                }
+                                                                compositionOrder.quantity = cartItem.quantity;
+                                                                compositionOrder.price = dishes.price;
+                                                                compositionOrder.image = dishes.image;
 
-                                                    await foodDeliveryContext.CompositionOrders.AddAsync(compositionOrder); // добавляем данные в список БД
+                                                                await foodDeliveryContext.CompositionOrders.AddAsync(compositionOrder); // добавляем данные в список БД
+                                                            }
+                                                        }
+
+                                                        // удаляем из корзины БД блюда
+                                                        foreach (CompositionCart cartItem in userItemCart)
+                                                        {
+                                                            foodDeliveryContext.CompositionCarts.Remove(cartItem);
+                                                        }
+
+                                                        await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных
+                                                    }
                                                 }
                                             }
 
-                                            string updatedJsonData = ""; // обновленный JSON
-                                                                         // Сериализация объектов обновленной коллекции в JSON
-                                            cart = new List<CompositionCart>();
-                                            updatedJsonData = JsonConvert.SerializeObject(cart, Formatting.Indented);
-
-                                            File.WriteAllText(pathShoppingCart, updatedJsonData);
-
-                                            await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных
+                                            // закрываем страницу оформления заказа
+                                            WorkingWithData.ClosingCheckoutPage();
                                         }
                                     }
-                                }
-                                else if (role == "Пользователь")
-                                {
-
                                 }
                             }
                         }
@@ -443,11 +646,6 @@ namespace Food_Delivery.ViewModel.Client
 
                             BeginFadeAnimation(AnimationErrorInput); // затухание сообщения об ошибке
                         }
-
-
-
-                        // закрываем страницу оформления заказа
-                        WorkingWithData.ClosingCheckoutPage();
                     }, (obj) => true));
             }
         }

@@ -59,59 +59,91 @@ namespace Food_Delivery.ViewModel.Client
         // удаляем товар из корзины
         public async Task DeleteItemToShoppingCart(CompositionCartDPO compositionCartDPO)
         {
-            // проверяем, гость или авторизованный Если гость, то добавляем данные в JSON, инчае в БД
-            string role = await authorizationViewModel.WeGetRoleUser();
-
-            if (role != null)
+            if(compositionCartDPO != null)
             {
-                if (role == "Гость")
+                // проверяем, гость или авторизованный Если гость, то добавляем данные в JSON, инчае в БД
+                string role = await authorizationViewModel.WeGetRoleUser();
+
+                if (role != null)
                 {
-                    // чтение файла корзины
-                    string jsonDataCart = File.ReadAllText(pathShoppingCart);
-                    // получение товаров
-                    List<CompositionCart>? cart = JsonConvert.DeserializeObject<List<CompositionCart>>(jsonDataCart);
-                    if (cart.Any())
+                    if (role == "Гость")
                     {
-                        // корзина не пуста
-                        //получаем выбранный товар и удаляем его
-                        CompositionCart compositionCart = await Task.Run(() => cart.FirstOrDefault(c => c.dishesId == compositionCartDPO.dishesId));
-                        if (compositionCart != null)
+                        // чтение файла корзины
+                        string jsonDataCart = File.ReadAllText(pathShoppingCart);
+                        // получение товаров
+                        List<CompositionCart>? cart = JsonConvert.DeserializeObject<List<CompositionCart>>(jsonDataCart);
+                        if (cart.Any())
                         {
-                            // удаляем из списка данный элемент
-                            cart.Remove(compositionCart);
-                            // обновляем список отображения товаров корзины
-                            CompositionCartDPO cartDPO = await Task.Run(() => ListCompositionCart.FirstOrDefault(c => c.dishesId == compositionCartDPO.dishesId));
-                            if(cartDPO != null)
+                            // корзина не пуста
+                            //получаем выбранный товар и удаляем его
+                            CompositionCart compositionCart = await Task.Run(() => cart.FirstOrDefault(c => c.dishesId == compositionCartDPO.dishesId));
+                            if (compositionCart != null)
                             {
-                                ListCompositionCart.Remove(cartDPO);
+                                // удаляем из списка данный элемент
+                                cart.Remove(compositionCart);
+                                // обновляем список отображения товаров корзины
+                                CompositionCartDPO cartDPO = await Task.Run(() => ListCompositionCart.FirstOrDefault(c => c.dishesId == compositionCartDPO.dishesId));
+                                if (cartDPO != null)
+                                {
+                                    ListCompositionCart.Remove(cartDPO);
+                                }
+
+                                // изменяем сумму заказа
+                                CostPrice -= compositionCartDPO.dishes.price * compositionCartDPO.quantity; FinalPrice = CostPrice.ToString();
+
+                                string updatedJsonData = ""; // обновленный JSON
+                                                             // Сериализация объектов обновленной коллекции в JSON
+                                updatedJsonData = JsonConvert.SerializeObject(cart, Formatting.Indented);
+                                // запись в JSON файл обновленных данных
+                                File.WriteAllText(pathShoppingCart, updatedJsonData);
                             }
-
-                            // изменяем сумму заказа
-                            CostPrice -= compositionCartDPO.dishes.price * compositionCartDPO.quantity; FinalPrice = CostPrice.ToString();
-
-                            string updatedJsonData = ""; // обновленный JSON
-                                                         // Сериализация объектов обновленной коллекции в JSON
-                            updatedJsonData = JsonConvert.SerializeObject(cart, Formatting.Indented);
-                            // запись в JSON файл обновленных данных
-                            File.WriteAllText(pathShoppingCart, updatedJsonData);
                         }
                     }
-                }
-                else if (role == "Пользователь")
-                {
+                    else if (role == "Пользователь")
+                    {
+                        using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+                        {
+                            List<CompositionCart> carts = await foodDeliveryContext.CompositionCarts.ToListAsync();
+                            if (carts != null)
+                            {
+                                // получаем id пользователя
+                                int userId = await authorizationViewModel.WeGetIdUser();
+                                if (userId != 0)
+                                {
+                                    // ищем нужное блюдо 
+                                    CompositionCart cart = await Task.Run(() => carts.FirstOrDefault(c => c.dishesId == compositionCartDPO.dishesId));
+                                    if (cart != null)
+                                    {
+                                        foodDeliveryContext.CompositionCarts.Remove(cart);
+                                        await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных 
 
-                }
+                                        // обновляем список отображения товаров корзины
+                                        CompositionCartDPO cartDPO = await Task.Run(() => ListCompositionCart.FirstOrDefault(c => c.dishesId == compositionCartDPO.dishesId));
+                                        if (cartDPO != null)
+                                        {
+                                            ListCompositionCart.Remove(cartDPO);
+                                        }
 
-                // изменяем работу кнопки "оформить заказ"
-                if (CostPrice == null || CostPrice == 0)
-                {
-                    IsEnableButtonCostPrice = false;
-                }
-                else
-                {
-                    IsEnableButtonCostPrice = true;
+                                        // изменяем сумму заказа
+                                        CostPrice -= compositionCartDPO.dishes.price * compositionCartDPO.quantity; FinalPrice = CostPrice.ToString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // изменяем работу кнопки "оформить заказ"
+                    if (CostPrice == null || CostPrice == 0)
+                    {
+                        IsEnableButtonCostPrice = false;
+                    }
+                    else
+                    {
+                        IsEnableButtonCostPrice = true;
+                    }
                 }
             }
+            
         }
 
         // изменение товара в корзине в большую сторону
@@ -156,6 +188,37 @@ namespace Food_Delivery.ViewModel.Client
                 }
                 else if (role == "Пользователь")
                 {
+                    using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+                    {
+                        List<CompositionCart> carts = await foodDeliveryContext.CompositionCarts.ToListAsync();
+                        if (carts != null)
+                        {
+                            // получаем id пользователя
+                            int userId = await authorizationViewModel.WeGetIdUser();
+                            if (userId != 0)
+                            {
+                                // ищем нужное блюдо 
+                                CompositionCart cart = await Task.Run(() => carts.FirstOrDefault(c => c.dishesId == compositionCartDPO.dishesId));
+                                if (cart != null)
+                                {
+
+                                    cart.quantity += 1;
+
+                                    await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных 
+
+                                    // обновляем список отображения товаров корзины
+                                    CompositionCartDPO cartDPO = await Task.Run(() => ListCompositionCart.FirstOrDefault(c => c.dishesId == compositionCartDPO.dishesId));
+                                    if (cartDPO != null)
+                                    {
+                                        cartDPO.quantity += 1;
+
+                                        // изменяем сумму заказа
+                                        CostPrice += compositionCartDPO.dishes.price; FinalPrice = CostPrice.ToString();
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                 }
 
@@ -174,76 +237,113 @@ namespace Food_Delivery.ViewModel.Client
         // изменение товара в корзине в меньшую сторону
         public async Task RemoveItemShoppingCart (CompositionCartDPO compositionCartDPO)
         {
-
-            // проверяем, гость или авторизованный Если гость, то добавляем данные в JSON, инчае в БД
-            string role = await authorizationViewModel.WeGetRoleUser();
-
-            if (role != null)
+            if(compositionCartDPO.quantity > 1)
             {
-                if (role == "Гость")
+                // проверяем, гость или авторизованный Если гость, то добавляем данные в JSON, инчае в БД
+                string role = await authorizationViewModel.WeGetRoleUser();
+
+                if (role != null)
                 {
-                    // чтение файла корзины
-                    string jsonDataCart = File.ReadAllText(pathShoppingCart);
-                    // получение товаров
-                    List<CompositionCart>? cart = JsonConvert.DeserializeObject<List<CompositionCart>>(jsonDataCart);
-                    if (cart.Any())
+                    if (role == "Гость")
                     {
-                        // корзина не пуста
-                        //получаем выбранный товар и -1
-                        CompositionCart compositionCart = await Task.Run(() => cart.FirstOrDefault(c => c.dishesId == compositionCartDPO.dishesId));
-                        if (compositionCart != null)
+                        // чтение файла корзины
+                        string jsonDataCart = File.ReadAllText(pathShoppingCart);
+                        // получение товаров
+                        List<CompositionCart>? cart = JsonConvert.DeserializeObject<List<CompositionCart>>(jsonDataCart);
+                        if (cart.Any())
                         {
-                            if(compositionCart.quantity == 1)
+                            // корзина не пуста
+                            //получаем выбранный товар и -1
+                            CompositionCart compositionCart = await Task.Run(() => cart.FirstOrDefault(c => c.dishesId == compositionCartDPO.dishesId));
+                            if (compositionCart != null)
                             {
-                                // удаляем товар из корзины
-                                cart.Remove(compositionCart);
-
-                                CompositionCartDPO cartDPO = await Task.Run(() => ListCompositionCart.FirstOrDefault(c => c.dishesId == compositionCartDPO.dishesId));
-                                if (cartDPO != null)
+                                if (compositionCart.quantity == 1)
                                 {
-                                    ListCompositionCart.Remove(cartDPO);
-                                }
+                                    // удаляем товар из корзины
+                                    cart.Remove(compositionCart);
 
-                                // изменяем сумму заказа
-                                CostPrice -= compositionCartDPO.dishes.price; FinalPrice = CostPrice.ToString();
-                            }
-                            else
-                            {
-                                compositionCart.quantity -= 1;
-                                // обновляем список отображения товаров корзины
-                                CompositionCartDPO cartDPO = await Task.Run(() => ListCompositionCart.FirstOrDefault(c => c.dishesId == compositionCartDPO.dishesId));
-                                if (cartDPO != null)
-                                {
-                                    cartDPO.quantity -= 1;
+                                    CompositionCartDPO cartDPO = await Task.Run(() => ListCompositionCart.FirstOrDefault(c => c.dishesId == compositionCartDPO.dishesId));
+                                    if (cartDPO != null)
+                                    {
+                                        ListCompositionCart.Remove(cartDPO);
+                                    }
 
                                     // изменяем сумму заказа
                                     CostPrice -= compositionCartDPO.dishes.price; FinalPrice = CostPrice.ToString();
                                 }
-                            }
+                                else
+                                {
+                                    compositionCart.quantity -= 1;
+                                    // обновляем список отображения товаров корзины
+                                    CompositionCartDPO cartDPO = await Task.Run(() => ListCompositionCart.FirstOrDefault(c => c.dishesId == compositionCartDPO.dishesId));
+                                    if (cartDPO != null)
+                                    {
+                                        cartDPO.quantity -= 1;
 
-                            string updatedJsonData = ""; // обновленный JSON
-                                                         // Сериализация объектов обновленной коллекции в JSON
-                            updatedJsonData = JsonConvert.SerializeObject(cart, Formatting.Indented);
-                            // запись в JSON файл обновленных данных
-                            File.WriteAllText(pathShoppingCart, updatedJsonData);
+                                        // изменяем сумму заказа
+                                        CostPrice -= compositionCartDPO.dishes.price; FinalPrice = CostPrice.ToString();
+                                    }
+                                }
+
+                                string updatedJsonData = ""; // обновленный JSON
+                                                             // Сериализация объектов обновленной коллекции в JSON
+                                updatedJsonData = JsonConvert.SerializeObject(cart, Formatting.Indented);
+                                // запись в JSON файл обновленных данных
+                                File.WriteAllText(pathShoppingCart, updatedJsonData);
+                            }
                         }
                     }
-                }
-                else if (role == "Пользователь")
-                {
+                    else if (role == "Пользователь")
+                    {
+                        using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
+                        {
+                            List<CompositionCart> carts = await foodDeliveryContext.CompositionCarts.ToListAsync();
+                            if (carts != null)
+                            {
+                                // получаем id пользователя
+                                int userId = await authorizationViewModel.WeGetIdUser();
+                                if (userId != 0)
+                                {
+                                    // ищем нужное блюдо 
+                                    CompositionCart cart = await Task.Run(() => carts.FirstOrDefault(c => c.dishesId == compositionCartDPO.dishesId));
+                                    if (cart != null)
+                                    {
 
-                }
+                                        cart.quantity -= 1;
 
-                // изменяем работу кнопки "оформить заказ"
-                if (CostPrice == null || CostPrice == 0)
-                {
-                    IsEnableButtonCostPrice = false;
-                }
-                else
-                {
-                    IsEnableButtonCostPrice = true;
+                                        await foodDeliveryContext.SaveChangesAsync(); // cохраняем изменения в базе данных 
+
+                                        // обновляем список отображения товаров корзины
+                                        CompositionCartDPO cartDPO = await Task.Run(() => ListCompositionCart.FirstOrDefault(c => c.dishesId == compositionCartDPO.dishesId));
+                                        if (cartDPO != null)
+                                        {
+                                            cartDPO.quantity -= 1;
+
+                                            // изменяем сумму заказа
+                                            CostPrice -= compositionCartDPO.dishes.price; FinalPrice = CostPrice.ToString();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // изменяем работу кнопки "оформить заказ"
+                    if (CostPrice == null || CostPrice == 0)
+                    {
+                        IsEnableButtonCostPrice = false;
+                    }
+                    else
+                    {
+                        IsEnableButtonCostPrice = true;
+                    }
                 }
             }
+            else
+            {
+                await DeleteItemToShoppingCart(compositionCartDPO); // удаляем товар, так как число в корзине не может быть отрицательным
+            }
+           
         }
 
         #endregion
@@ -300,7 +400,23 @@ namespace Food_Delivery.ViewModel.Client
                     }
                     else if (role == "Пользователь")
                     {
-
+                        // получаем id пользователя
+                        int userId = await authorizationViewModel.WeGetIdUser();
+                        if (userId != 0)
+                        {
+                            List<CompositionCart> compositionCarts = await foodDeliveryContext.CompositionCarts.ToListAsync();
+                            if (compositionCarts.Any())
+                            {
+                                // корзина не пуста. Заполняем список
+                                foreach (CompositionCart cartItem in compositionCarts)
+                                {
+                                    CompositionCartDPO compositionCartDPO = new CompositionCartDPO();
+                                    compositionCartDPO = await compositionCartDPO.CopyFromCompositionCart(cartItem);
+                                    ListCompositionCart.Add(compositionCartDPO);
+                                    CostPrice += compositionCartDPO.quantity * compositionCartDPO.dishes.price;
+                                }
+                            }
+                        }
                     }
 
                     // изменяем работу кнопки "оформить заказ"

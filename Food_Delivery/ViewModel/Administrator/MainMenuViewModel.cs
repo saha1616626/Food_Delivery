@@ -165,7 +165,6 @@ namespace Food_Delivery.ViewModel.Administrator
 
         #endregion
 
-
         // свойства 
         #region Features
 
@@ -182,7 +181,7 @@ namespace Food_Delivery.ViewModel.Administrator
         // свойства и методы Popup
         #region FeaturesUsers
 
-        // запускаем Popup для удаления данных
+        // запускаем Popup для выхода из аккаунта
         private RelayCommand _btn_LogOutOfYourAccount { get; set; }
         public RelayCommand Btn_LogOutOfYourAccount
         {

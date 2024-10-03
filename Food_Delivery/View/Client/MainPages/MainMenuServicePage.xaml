@@ -90,6 +90,7 @@
         <!--авторизация-->
         <Grid Grid.Row="0" Grid.Column="2" x:Name="loginButton">
             <Button x:Name="login" Command="{Binding Btn_Authorization}"
+Visibility="{Binding IsVisibilityAuthorizationButton, Mode=TwoWay, Converter={StaticResource BooleanToVisibilityConverter}}"
 Width="150" Foreground="Black" BorderThickness="0"
 FontSize="15" FontWeight="ExtraBlack" HorizontalAlignment="Center"
 Content="Авторизация" Background="#00000000"
@@ -106,14 +107,14 @@ ToolTip="MaterialDesignOutlinedButton" />
         </Grid>
 
         <!--скрытая иконка аккаунта-->
-        <Grid Grid.Row="0" Grid.Column="3" x:Name="personalAccount" Margin="55, 0, 0, 0" Visibility="Hidden">
+        <Grid Grid.Row="0" Grid.Column="3" x:Name="personalAccount" Margin="45, 0, 0, 0" Visibility="{Binding IsVisibilityUserProfileButton, Mode=TwoWay, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <Button x:Name="AccountButton" Grid.Column="0" Width="55" Height="55" Content="{Binding AccountItemCount}"
-           Style="{StaticResource BtnNotBackground}"
+            <Button x:Name="AccountButton" Grid.Column="0" Width="55" Height="55"
+           Background="Transparent" BorderBrush="Transparent"
            HorizontalAlignment="Center" VerticalAlignment="Center" Grid.ZIndex="1"/>
 
             <materialDesign:PackIcon Kind="Account" Grid.Column="0" Height="55" Width="55"
@@ -122,6 +123,23 @@ ToolTip="MaterialDesignOutlinedButton" />
 
         </Grid>
 
+
+        <!--скрытая кнопка выхода из аккаунта-->
+        <!--кнопка выхода из аккаунта-->
+        <Grid Grid.Row="0" Grid.Column="3" x:Name="shoppingCartIcon" Margin="-25,0,0,0" Visibility="{Binding IsVisibilityOutAccountButton, Mode=TwoWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="ExitButton" Grid.Column="0" Width="44" Height="43"
+    Background="Transparent" BorderBrush="Transparent" Command="{Binding Btn_LogOutOfYourAccount}"
+    HorizontalAlignment="Center" VerticalAlignment="Center" Grid.ZIndex="1"/>
+
+            <materialDesign:PackIcon Grid.Column="0" Kind="AccountCard" Height="44" Width="44"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Margin="0,0,0,0"  />
+        </Grid>
 
         <!--меню корзины-->
         <ListBox x:Name="CartMenu" Grid.Row="1"
@@ -276,5 +294,54 @@ HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Grid>
         </Popup>
 
+        
+        <!--Popup выхода из аккаунта-->
+        <Popup x:Name="DeleteDataPopup" PlacementTarget="{Binding ElementName=positionPopup}" 
+    IsOpen="{Binding StartPoupOfOutAccount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+    Placement="Center" Grid.ColumnSpan="4" Grid.RowSpan="4" HorizontalOffset="0" 
+    VerticalOffset="-40" StaysOpen="False" Closed="MyPopup_Closed" 
+    AllowsTransparency="False" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Grid Background="Gray">
+                <!--фон-->
+                <Border Background="AliceBlue" Style="{StaticResource OutlineOfPopup}" >
+                    <Grid Width="400" Height="250">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
+                                <TextBlock Text="Вы действительно хотите выйти из аккаунта?" FontSize="20" FontWeight="DemiBold" 
+                                HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" Height="110" Margin="20,130,20,0"/>
+                            </StackPanel>
+
+                            <Grid Grid.Row="1" Grid.Column="0" Margin="0,0,0,25" VerticalAlignment="Bottom">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Button Grid.Row="0" Grid.Column="0" Content="Отмена" Width="150" 
+                             Height="35" Background="Gray" BorderBrush="Black" Command="{Binding ClosePopup}"/>
+                                <Button Grid.Row="0" Grid.Column="1" Content="Выход" Width="150" 
+                             Height="35" Background="Gray" BorderBrush="Black" Margin="0,0,0,0" Command="{Binding Btn_LogOutYourAccount}"/>
+
+                            </Grid>
+
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Popup>
+        
     </Grid>
 </Page>

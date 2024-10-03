@@ -187,6 +187,7 @@ namespace Food_Delivery.ViewModel
                                             // сохраняем данные в БД и осуществляем авторизацию пользователя
                                             Model.Account account = new Model.Account();
                                             account.registrationDate = DateTime.Now;
+                                            account.roleId = 3;
                                             account.login = login;
                                             account.password = PasswordHasher.HashPassword(password);
                                             await foodDeliveryContext.Accounts.AddAsync(account); // добавляем данные в список БД
