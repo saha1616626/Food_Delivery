@@ -424,6 +424,14 @@ namespace Food_Delivery.ViewModel.Client
                                 {
                                     CompositionCartDPO compositionCartDPO = new CompositionCartDPO();
                                     compositionCartDPO = await compositionCartDPO.CopyFromCompositionCart(cartItem);
+                                    if (compositionCartDPO.dishes.name.Length >= 17)
+                                    {
+                                        compositionCartDPO.dishes.name = compositionCartDPO.dishes.name.Substring(0, 15) + "...";
+                                    }
+                                    if (compositionCartDPO.dishes.description.Length >= 84)
+                                    {
+                                        compositionCartDPO.dishes.description = compositionCartDPO.dishes.description.Substring(0, 80) + "...";
+                                    }
                                     ListCompositionCart.Add(compositionCartDPO);
                                     CostPrice += compositionCartDPO.quantity * compositionCartDPO.dishes.price;
                                 }
