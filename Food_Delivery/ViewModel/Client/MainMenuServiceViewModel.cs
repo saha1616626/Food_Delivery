@@ -5,6 +5,7 @@ using Food_Delivery.View.Client.MainPages;
 using Food_Delivery.View.Client.UserAccount;
 using MaterialDesignThemes.Wpf;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client.NativeInterop;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -310,7 +311,7 @@ namespace Food_Delivery.ViewModel.Client
                         using (FoodDeliveryContext foodDeliveryContext = new FoodDeliveryContext())
                         {
                             // сохраняем данные в БД
-                            Account account = await foodDeliveryContext.Accounts.FirstOrDefaultAsync(a => a.id == userId);
+                            Model.Account account = await foodDeliveryContext.Accounts.FirstOrDefaultAsync(a => a.id == userId);
                             if (account != null)
                             {
                                 OutClientCity = account.city;
@@ -322,21 +323,31 @@ namespace Food_Delivery.ViewModel.Client
                                 }
 
                                 address = $"г.{OutClientCity}, {OutClientStreet}, {OutClientHouse}, {OutClientApartment}";
+
+                                AuthorizedUser = $"{role} \"{account.login}\""; // название роли
                             }
                         }
                     }
                 }
             }
 
-            // Выводим адрес в меню
-            if (address.Length >= 24) // если больше 24 символов, то обрезаем строчку
+            if(String.IsNullOrWhiteSpace(OutClientCity) || String.IsNullOrWhiteSpace(OutClientStreet) || String.IsNullOrWhiteSpace(OutClientHouse))
             {
-                SelectedAdress = address.Substring(0, 24) + "...";
+                SelectedAdress = "Укажите адрес";
             }
-            else if (address.Length <= 23 && address != "")
+            else
             {
-                SelectedAdress = address.Substring(0, address.Length) + "...";
+                // Выводим адрес в меню
+                if (address.Length >= 24) // если больше 24 символов, то обрезаем строчку
+                {
+                    SelectedAdress = address.Substring(0, 24) + "...";
+                }
+                else if (address.Length <= 23 && address != "")
+                {
+                    SelectedAdress = address.Substring(0, address.Length) + "...";
+                }
             }
+        
         }
 
         // закрываем Popup
@@ -445,7 +456,7 @@ namespace Food_Delivery.ViewModel.Client
                                             if (userId != 0)
                                             {
                                                 // сохраняем данные в БД
-                                                Account account = await foodDeliveryContext.Accounts.FirstOrDefaultAsync(a => a.id == userId);
+                                                Model.Account account = await foodDeliveryContext.Accounts.FirstOrDefaultAsync(a => a.id == userId);
                                                 if (account != null)
                                                 {
                                                     account.city = OutClientCity.Trim();
@@ -615,6 +626,14 @@ namespace Food_Delivery.ViewModel.Client
             {
                 this.AnimationErrorInputPopup = AnimationErrorInputPopup;
             }
+        }
+
+        // подпись заголовка профиля
+        private string _authorizedUser { get; set; }
+        public string AuthorizedUser
+        {
+            get { return _authorizedUser; }
+            set { _authorizedUser = value; OnPropertyChanged(nameof(AuthorizedUser)); }
         }
 
         // кнопка возврата на главное меню

@@ -54,6 +54,10 @@
   Background="#98000000" Panel.ZIndex="2" x:Name="DarkBackground"
   Margin="0,0,0,0" Padding="0,0,0,0"/>
 
+        <!--тип аккаунта-->
+        <TextBlock Grid.Row="0" Grid.Column="2" x:Name="Role" Text="{Binding AuthorizedUser, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+           FontSize="24" Foreground="Black" FontWeight="Regular" HorizontalAlignment="Right" Margin="0,0,80,0" VerticalAlignment="Center" Panel.ZIndex="2"/>
+
         <!--фон-->
         <Grid Grid.Column="0" Grid.ColumnSpan="6" Grid.Row="0" Background="#FFC7F6C7"/>
 

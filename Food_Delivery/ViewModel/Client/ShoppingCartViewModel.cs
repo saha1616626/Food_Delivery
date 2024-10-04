@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using System.IO;
 using static System.Net.Mime.MediaTypeNames;
 using System.Windows;
+using System.Net;
 
 namespace Food_Delivery.ViewModel.Client
 {
@@ -59,7 +60,7 @@ namespace Food_Delivery.ViewModel.Client
         // удаляем товар из корзины
         public async Task DeleteItemToShoppingCart(CompositionCartDPO compositionCartDPO)
         {
-            if(compositionCartDPO != null)
+            if (compositionCartDPO != null)
             {
                 // проверяем, гость или авторизованный Если гость, то добавляем данные в JSON, инчае в БД
                 string role = await authorizationViewModel.WeGetRoleUser();
@@ -143,7 +144,7 @@ namespace Food_Delivery.ViewModel.Client
                     }
                 }
             }
-            
+
         }
 
         // изменение товара в корзине в большую сторону
@@ -167,7 +168,7 @@ namespace Food_Delivery.ViewModel.Client
                         CompositionCart compositionCart = await Task.Run(() => cart.FirstOrDefault(c => c.dishesId == compositionCartDPO.dishesId));
                         if (compositionCart != null)
                         {
-                            compositionCart.quantity += 1;  
+                            compositionCart.quantity += 1;
                             // обновляем список отображения товаров корзины
                             CompositionCartDPO cartDPO = await Task.Run(() => ListCompositionCart.FirstOrDefault(c => c.dishesId == compositionCartDPO.dishesId));
                             if (cartDPO != null)
@@ -235,9 +236,9 @@ namespace Food_Delivery.ViewModel.Client
         }
 
         // изменение товара в корзине в меньшую сторону
-        public async Task RemoveItemShoppingCart (CompositionCartDPO compositionCartDPO)
+        public async Task RemoveItemShoppingCart(CompositionCartDPO compositionCartDPO)
         {
-            if(compositionCartDPO.quantity > 1)
+            if (compositionCartDPO.quantity > 1)
             {
                 // проверяем, гость или авторизованный Если гость, то добавляем данные в JSON, инчае в БД
                 string role = await authorizationViewModel.WeGetRoleUser();
@@ -343,7 +344,7 @@ namespace Food_Delivery.ViewModel.Client
             {
                 await DeleteItemToShoppingCart(compositionCartDPO); // удаляем товар, так как число в корзине не может быть отрицательным
             }
-           
+
         }
 
         #endregion
@@ -392,8 +393,19 @@ namespace Food_Delivery.ViewModel.Client
                             {
                                 CompositionCartDPO compositionCartDPO = new CompositionCartDPO();
                                 compositionCartDPO = await compositionCartDPO.CopyFromCompositionCart(cartItem);
+                                if(compositionCartDPO.dishes.name.Length >= 17)
+                                {
+                                    compositionCartDPO.dishes.name = compositionCartDPO.dishes.name.Substring(0, 15) + "...";
+                                }
+                                if (compositionCartDPO.dishes.description.Length >= 84)
+                                {
+                                    compositionCartDPO.dishes.description = compositionCartDPO.dishes.description.Substring(0, 80) + "...";
+                                }
                                 ListCompositionCart.Add(compositionCartDPO);
-                                CostPrice += compositionCartDPO.quantity * compositionCartDPO.dishes.price;
+                                if (compositionCartDPO.dishes != null)
+                                {
+                                    CostPrice += compositionCartDPO.quantity * compositionCartDPO.dishes.price;
+                                }
                             }
 
                         }

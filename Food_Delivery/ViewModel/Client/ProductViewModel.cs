@@ -76,6 +76,15 @@ namespace Food_Delivery.ViewModel.Client
                                 DishesDPO dishesDPO = new DishesDPO();
                                 dishesDPO = await dishesDPO.CopyFromDishes(itemDishes);
 
+                                if (dishesDPO.description.Length >= 80)
+                                {
+                                    dishesDPO.description = dishesDPO.description.Substring(0, 80) + "...";
+                                }
+                                if (dishesDPO.name.Length >= 34)
+                                {
+                                    dishesDPO.name = dishesDPO.name.Substring(0, 34) + "...";
+                                }
+
                                 // если товар есть у пользователя в корзине, то мы отображаем кнопки изменения кол-во в корзине
                                 if (await CheckingProductShoppingCart(dishesDPO))
                                 {
