@@ -194,8 +194,8 @@
                                 TextWrapping="Wrap"/>
                             </StackPanel>
                             <!--квартира-->
-                            <StackPanel Orientation="Vertical">
-                                <StackPanel Margin="8, 0, 0, 0" Width="120">
+                            <StackPanel Orientation="Vertical" >
+                                <StackPanel Margin="60, 0, 0, 0" Width="120">
                                     <CheckBox x:Name="MaterialDesignFilledTextBoxTextCountComboBox8" Content="" IsChecked="True" Visibility="Hidden"/>
                                     <TextBox
                                     VerticalAlignment="Top" x:Name="ClientApartment"
